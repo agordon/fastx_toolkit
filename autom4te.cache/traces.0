@@ -878,7 +878,7 @@ m4trace:configure.ac:34: -1- LF_SET_WARNINGS
 m4trace:configure.ac:34: -1- LF_CHECK_CC_FLAG([$cc_warning_flags])
 m4trace:configure.ac:34: -1- LF_CHECK_CXX_FLAG([$cxx_warning_flags])
 m4trace:configure.ac:35: -1- m4_pattern_allow([^RANLIB$])
-m4trace:configure.ac:54: -1- m4_pattern_allow([^LIB@&t@OBJS$])
-m4trace:configure.ac:54: -1- m4_pattern_allow([^LTLIBOBJS$])
-m4trace:configure.ac:54: -1- _AC_AM_CONFIG_HEADER_HOOK([$ac_file])
-m4trace:configure.ac:54: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS
+m4trace:configure.ac:58: -1- m4_pattern_allow([^LIB@&t@OBJS$])
+m4trace:configure.ac:58: -1- m4_pattern_allow([^LTLIBOBJS$])
+m4trace:configure.ac:58: -1- _AC_AM_CONFIG_HEADER_HOOK([$ac_file])
+m4trace:configure.ac:58: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS

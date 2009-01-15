@@ -5542,7 +5542,7 @@ else
 fi
 
 
-ac_config_files="$ac_config_files Makefile README doc/Makefile m4/Makefile src/Makefile src/libfastx/Makefile src/fastx_clipper/Makefile src/fastq_to_fasta/Makefile src/fastq_quality_stats/Makefile src/fastq_quality_converter/Makefile src/fastx_trimmer/Makefile src/fastq_quality_filter/Makefile src/fastx_artifacts_filter/Makefile src/fastx_reverse_complement/Makefile"
+ac_config_files="$ac_config_files Makefile README doc/Makefile m4/Makefile src/Makefile src/libfastx/Makefile src/fastx_clipper/Makefile src/fastq_to_fasta/Makefile src/fastq_quality_stats/Makefile src/fastq_quality_converter/Makefile src/fastx_trimmer/Makefile src/fastq_quality_filter/Makefile src/fastx_artifacts_filter/Makefile src/fastx_reverse_complement/Makefile galaxy/Makefile galaxy/tools/Makefile galaxy/tools/fastx_toolkit/Makefile galaxy/test-data/Makefile"
 
 
 cat >confcache <<\_ACEOF
@@ -6145,6 +6145,10 @@ do
     "src/fastq_quality_filter/Makefile") CONFIG_FILES="$CONFIG_FILES src/fastq_quality_filter/Makefile" ;;
     "src/fastx_artifacts_filter/Makefile") CONFIG_FILES="$CONFIG_FILES src/fastx_artifacts_filter/Makefile" ;;
     "src/fastx_reverse_complement/Makefile") CONFIG_FILES="$CONFIG_FILES src/fastx_reverse_complement/Makefile" ;;
+    "galaxy/Makefile") CONFIG_FILES="$CONFIG_FILES galaxy/Makefile" ;;
+    "galaxy/tools/Makefile") CONFIG_FILES="$CONFIG_FILES galaxy/tools/Makefile" ;;
+    "galaxy/tools/fastx_toolkit/Makefile") CONFIG_FILES="$CONFIG_FILES galaxy/tools/fastx_toolkit/Makefile" ;;
+    "galaxy/test-data/Makefile") CONFIG_FILES="$CONFIG_FILES galaxy/test-data/Makefile" ;;
 
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5
 echo "$as_me: error: invalid argument: $ac_config_target" >&2;}

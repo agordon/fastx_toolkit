@@ -8,9 +8,11 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-EXTRA_DIST = reconf configure
-
-SUBDIRS = m4 src doc galaxy
-
-AUTOMAKE_OPTIONS = dist-bzip2 no-dist-gzip
-
+EXTRA_DIST = fastq_qual_conv.xml \
+	fastq_quality_filter.xml \
+	fastq_qual_stat.xml \
+	fastq_to_fasta.xml \
+	fastx_artifacts_filter.xml \
+	fastx_clipper.xml \
+	fastx_reverse_complement.xml \
+	fastx_trimmer.xml

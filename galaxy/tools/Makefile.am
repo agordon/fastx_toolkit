@@ -8,9 +8,4 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-EXTRA_DIST = reconf configure
-
-SUBDIRS = m4 src doc galaxy
-
-AUTOMAKE_OPTIONS = dist-bzip2 no-dist-gzip
-
+SUBDIRS = fastx_toolkit
