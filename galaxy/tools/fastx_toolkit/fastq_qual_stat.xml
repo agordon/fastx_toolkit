@@ -1,13 +1,23 @@
 <tool id="cshl_fastq_qual_stat" name="Quality Statistics">
-  <description></description>
-  <command>zcat -f $input | fastq_quality_stats -o $output</command>
-  <inputs>
-    <param format="fastqsolexa" name="input" type="data" label="Library to analyse" />
-  </inputs>
-  <outputs>
-    <data format="txt" name="output" metadata_source="input" label="$input.tag quality statistics" />
-  </outputs>
-  <help>
+	<description></description>
+	<command>zcat -f $input | fastq_quality_stats -o $output</command>
+
+	<inputs>
+		<param format="fastqsolexa" name="input" type="data" label="Library to analyse" />
+	</inputs>
+
+	<tests>
+		<test>
+			<param name="input" value="fastq_stats1.fastq" />
+			<output name="output" file="fastq_stats1.out" />
+		</test>
+	</tests>
+
+	<outputs>
+		<data format="txt" name="output" metadata_source="input" label="$input.tag quality statistics" />
+	</outputs>
+
+<help>
 
 **What it does**
 

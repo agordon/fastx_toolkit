@@ -14,13 +14,30 @@
 			<label>Percent of bases in sequence that must have quality equal to / higher than cut-off value</label>
 		</param>
 
-	   <param name="GZIPOUT" type="select" label="Compress output file (using GZIP) ">
-	      <option value="-z">yes</option>
-	      <option value="">no</option>
-	   </param>
-
-
+		<param name="GZIPOUT" type="select" label="Compress output file (using GZIP) ">
+			<option value="-z">yes</option>
+			<option value="">no</option>
+		</param>
 	</inputs>
+
+	<tests>
+		<test>
+			<!-- Test1:  100% of bases with quality 33 or higher (pretty steep requirement...) -->
+			<param name="input" value="fastq_qual_filter1.fastq" />
+			<param name="quality" value="33"/>
+			<param name="percent" value="100"/>
+			<param name="GZIPOUT" value=""/>
+			<output name="output" file="fastq_qual_filter1a.out" />
+		</test>
+		<test>
+			<!-- Test2:  80% of bases with quality 20 or higher -->
+			<param name="input" value="fastq_qual_filter1.fastq" />
+			<param name="quality" value="20"/>
+			<param name="percent" value="80"/>
+			<param name="GZIPOUT" value=""/>
+			<output name="output" file="fastq_qual_filter1b.out" />
+		</test>
+	</tests>
 
 	<outputs>
 		<data format="input" name="output" label="$input.tag quality-filtered" metadata_source="input" />
@@ -46,9 +63,9 @@ Quality score distribution (of all cycles) is calculated for each read. If it is
 
 **Example**::
 
-    @BRITNEYSPEARS_1_FC307DMAAXX:1:2:214:584
+    @CSHL_4_FC042AGOOII:1:2:214:584
     GACAATAAAC
-    +BRITNEYSPEARS_1_FC307DMAAXX:1:2:214:584
+    +CSHL_4_FC042AGOOII:1:2:214:584
     30 30 30 30 30 30 30 30 20 10
 
 Using **percent = 50** and **cut-off = 30** - This read will not be discarded (the median quality is higher than 30).
