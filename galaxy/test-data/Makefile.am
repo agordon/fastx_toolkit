@@ -35,6 +35,8 @@ EXTRA_DIST = fastq_qual_conv1a.out \
 	fastx_trimmer1.fasta \
 	fastx_trimmer1.out \
 	fastx_trimmer2.fastq \
-	fastx_trimmer2.out
+	fastx_trimmer2.out \
+	fasta_collapser1.fasta \
+	fasta_collapser1.out
 
 
