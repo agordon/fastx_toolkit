@@ -1,0 +1,24 @@
+<html><body><table border=1>
+<tr><td>
+Barcode</td><td>Count</td><td>Location
+</td></tr>
+<tr><td>
+BC1</td><td>11</td><td><a href="http://tango.cshl.edu/barcode_splits/2009-01-19_1719__fastx_barcode_splitter1_fastq__BC1.txt">http://tango.cshl.edu/barcode_splits/2009-01-19_1719__fastx_barcode_splitter1_fastq__BC1.txt</a>
+</td></tr>
+<tr><td>
+BC2</td><td>12</td><td><a href="http://tango.cshl.edu/barcode_splits/2009-01-19_1719__fastx_barcode_splitter1_fastq__BC2.txt">http://tango.cshl.edu/barcode_splits/2009-01-19_1719__fastx_barcode_splitter1_fastq__BC2.txt</a>
+</td></tr>
+<tr><td>
+BC3</td><td>9</td><td><a href="http://tango.cshl.edu/barcode_splits/2009-01-19_1719__fastx_barcode_splitter1_fastq__BC3.txt">http://tango.cshl.edu/barcode_splits/2009-01-19_1719__fastx_barcode_splitter1_fastq__BC3.txt</a>
+</td></tr>
+<tr><td>
+BC4</td><td>1</td><td><a href="http://tango.cshl.edu/barcode_splits/2009-01-19_1719__fastx_barcode_splitter1_fastq__BC4.txt">http://tango.cshl.edu/barcode_splits/2009-01-19_1719__fastx_barcode_splitter1_fastq__BC4.txt</a>
+</td></tr>
+<tr><td>
+unmatched</td><td>9</td><td><a href="http://tango.cshl.edu/barcode_splits/2009-01-19_1719__fastx_barcode_splitter1_fastq__unmatched.txt">http://tango.cshl.edu/barcode_splits/2009-01-19_1719__fastx_barcode_splitter1_fastq__unmatched.txt</a>
+</td></tr>
+<tr><td>
+total</td><td>42
+</td></tr>
+<p><b>Copy these files to your local computer, as they will be soon deleted.</b>
+</table></body></html>

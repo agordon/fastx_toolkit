@@ -53,6 +53,7 @@ AC_CONFIG_FILES([
    galaxy/tools/Makefile
    galaxy/tools/fastx_toolkit/Makefile
    galaxy/test-data/Makefile
+   scripts/Makefile
 ])
 
 AC_OUTPUT

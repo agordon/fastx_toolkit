@@ -8,6 +8,5 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-EXTRA_DIST = fastx_clipper_example.png \
-	     fastx_clipper_illustration.png \
-	     barcode_splitter_output_example.png
+bin_SCRIPTS = fastx_barcode_splitter.pl \
+	      fastx_barcode_splitter_galaxy_wrapper.sh
