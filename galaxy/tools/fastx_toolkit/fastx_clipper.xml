@@ -82,11 +82,35 @@
 <help>
 **What it does**
 
-This tool clips adapters from sequences in a FASTA/FASTQ file.
+This tool clips adapters from the 3'-end of the sequences in a FASTA/FASTQ file.
 
 --------
 
-Written by Assaf Gordon (gordon@cshl.edu), based on Oliver Tam (tam@cshl.edu) and Ted Karginov's (karginov@cshl.edu) clipper.
 
+**Clipping Illustration:**
+
+.. image:: ../static/fastx_icons/fastx_clipper_illustration.png 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+**Clipping Example:**
+
+.. image:: ../static/fastx_icons/fastx_clipper_example.png 
+
+
+    
+**In the above example:**
+
+* Sequence no. 1 was discarded since it wasn't clipped (i.e. didn't contain the adapter sequence). (**Output** parameter).
+* Sequence no. 5 was discarded --- it's length (after clipping) was shorter than 15 nt (**Minimum Sequence Length** parameter).
+
+
+
+    
 </help>
 </tool>

@@ -8,6 +8,5 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-SUBDIRS = tools test-data static
-
-
+EXTRA_DIST = fastx_clipper_example.png \
+	     fastx_clipper_illustration.png
