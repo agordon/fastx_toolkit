@@ -9,4 +9,5 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 bin_SCRIPTS = fastx_barcode_splitter.pl \
-	      fastx_barcode_splitter_galaxy_wrapper.sh
+	      fastx_barcode_splitter_galaxy_wrapper.sh \
+	      fastq_nucleotide_distribution_graph.sh

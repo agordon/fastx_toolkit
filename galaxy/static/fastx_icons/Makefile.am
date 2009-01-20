@@ -10,4 +10,8 @@
 
 EXTRA_DIST = fastx_clipper_example.png \
 	     fastx_clipper_illustration.png \
-	     barcode_splitter_output_example.png
+	     barcode_splitter_output_example.png \
+	     fastq_nucleotides_distribution_1.png \
+	     fastq_nucleotides_distribution_2.png \
+	     fastq_nucleotides_distribution_3.png \
+	     fastq_nucleotides_distribution_4.png
