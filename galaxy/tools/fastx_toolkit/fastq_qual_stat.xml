@@ -23,6 +23,10 @@
 
 Creates quality statistics report for the given Solexa/FASTQ library.
 
+.. class:: infomark
+
+**TIP:** This statistics report can be used as input for **Quality Score** and **Nucleotides Distribution** tools.
+
 -----
 
 **The output file will contain the following fields:**
@@ -45,10 +49,6 @@ Creates quality statistics report for the given Solexa/FASTQ library.
 * T_Count	= Count of 'T' nucleotides found in this column.
 * N_Count = Count of 'N' nucleotides found in this column.  
 
-
-.. class:: infomark
-
-**TIP:** This statistics report can be used as input for **Quality Score** and **Nucleotides Distribution** tools.
 
 
 
