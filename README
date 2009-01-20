@@ -145,14 +145,24 @@ Galaxy Installation should be done manually, and requires technical
 understading of the Galaxy framework.
 
 1. build and install the command line tools (as described above).
+
 2. Make backup of your galaxy installation (better safe than sorry).
+
 3. Run the 'install_galaxy_files.sh' script, 
    and specify the galaxy root directory.
    This script copies the files from the 'galaxy' sub-directory into
    your galaxy mirror directory.
+   
 4. Manually add the content of ./galaxy/fastx_toolkit_conf.xml file,
    into your Galaxy's tool_conf.xml
-5. Restart Galaxy.
+   
+5. Edit [YOUR-GALAXY]/tool-data/fastx_clipper_sequences.txt file,
+   And add your custom adapters/linkers.
+   
+6. Modify the "fastx_barcode_splitter_galaxy_wrapper.sh" as explained
+   Below (see section "Special configuration for Barcode-Splitter").
+
+7. Restart Galaxy.
 
 Always make backup of your galaxy server files before trying to install 
 the FASTX-Toolkit. 
@@ -248,6 +258,15 @@ While IANAL, these licenses basically mean that:
 See the COPYING file for the full Affero GPL.
 See the GALAXY-LICENSE file for galaxy's license.
 
+Please remember: 
+  THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY
+APPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT
+HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY
+OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM
+IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF
+ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
 
 
 =============
