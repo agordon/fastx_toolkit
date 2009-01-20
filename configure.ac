@@ -36,7 +36,6 @@ AC_PROG_RANLIB
 
 AC_CONFIG_FILES([
    Makefile
-   README
    doc/Makefile
    m4/Makefile
    src/Makefile
