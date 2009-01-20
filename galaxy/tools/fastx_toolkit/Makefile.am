@@ -18,4 +18,5 @@ EXTRA_DIST = fastq_qual_conv.xml \
 	fastx_trimmer.xml \
 	fastx_barcode_splitter.xml \
 	fastq_nucleotides_distribution.xml \
-	fastq_quality_boxplot.xml
+	fastq_quality_boxplot.xml \
+	fasta_clipping_histogram.xml

@@ -11,4 +11,5 @@
 bin_SCRIPTS = fastx_barcode_splitter.pl \
 	      fastx_barcode_splitter_galaxy_wrapper.sh \
 	      fastq_nucleotide_distribution_graph.sh \
-	      fastq_quality_boxplot_graph.sh
+	      fastq_quality_boxplot_graph.sh \
+	      fasta_clipping_histogram.pl
