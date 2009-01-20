@@ -1,7 +1,7 @@
 <tool id="cshl_fastq_quality_boxplot" name="Quality Score">
 	<description>chart</description>
 	
-	<command>fastq_quality_boxplot_graph.sh -t '$input.tag' -i $input -o $output</command>
+	<command>fastq_quality_boxplot_graph.sh -t '$input.name' -i $input -o $output</command>
 	
 	<inputs>
 		<param format="txt" name="input" type="data" label="Statistics report file (output of 'FASTQ Statistics' tool)" />

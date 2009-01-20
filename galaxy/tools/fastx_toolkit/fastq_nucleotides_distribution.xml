@@ -1,6 +1,6 @@
 <tool id="cshl_fastq_nucleotides_distribution" name="Nucleotides Distribution">
 	<description>chart</description>
-	<command>fastq_nucleotide_distribution_graph.sh -t '$input.tag' -i $input -o $output</command>
+	<command>fastq_nucleotide_distribution_graph.sh -t '$input.name' -i $input -o $output</command>
 	
 	<inputs>
 		<param format="txt" name="input" type="data" label="Statistics Text File (output of 'FASTQ Statistics' tool)" />

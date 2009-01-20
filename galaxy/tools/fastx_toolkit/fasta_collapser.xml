@@ -14,7 +14,7 @@
 	</tests>
 
 	<outputs>
-		<data format="fasta" name="output" metadata_source="input" label="$input.tag collapsed" />
+		<data format="fasta" name="output" metadata_source="input" />
 	</outputs>
   <help>
 
