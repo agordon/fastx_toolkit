@@ -34,21 +34,21 @@ This tool collapses identical sequences in a FASTA file into a single sequence.
 
 Example Input File (Sequence "ATAT" appears multiple times):: 
 
-    >HWI-EAS043_3_FC200MCAAXX_1_1_605_414
+    >CSHL_2_FC0042AGLLOO_1_1_605_414
     TGCG
-    >HWI-EAS043_3_FC200MCAAXX_1_1_537_759
+    >CSHL_2_FC0042AGLLOO_1_1_537_759
     ATAT
-    >HWI-EAS043_3_FC200MCAAXX_1_1_774_520
+    >CSHL_2_FC0042AGLLOO_1_1_774_520
     TGGC
-    >HWI-EAS043_3_FC200MCAAXX_1_1_742_502
+    >CSHL_2_FC0042AGLLOO_1_1_742_502
     ATAT
-    >HWI-EAS043_3_FC200MCAAXX_1_1_781_514
+    >CSHL_2_FC0042AGLLOO_1_1_781_514
     TGAG
-    >HWI-EAS043_3_FC200MCAAXX_1_1_757_487
+    >CSHL_2_FC0042AGLLOO_1_1_757_487
     TTCA
-    >HWI-EAS043_3_FC200MCAAXX_1_1_903_769
+    >CSHL_2_FC0042AGLLOO_1_1_903_769
     ATAT
-    >HWI-EAS043_3_FC200MCAAXX_1_1_724_499
+    >CSHL_2_FC0042AGLLOO_1_1_724_499
     ATAT
 
 Example Output file::
@@ -66,7 +66,7 @@ Example Output file::
     
 .. class:: infomark
 
-Original Sequence Names / Lane descriptions (e.g. "HWI-EAS043_3_FC200MCAAXX_1_1_742_502") are discarded. 
+Original Sequence Names / Lane descriptions (e.g. "CSHL_2_FC0042AGLLOO_1_1_742_502") are discarded. 
 
 The output seqeunce name is composed of two numbers: the first is the sequence's number, the second is the multiplicity value.
 
@@ -76,10 +76,6 @@ The following output::
     ATAT
 
 means that the sequence "ATAT" is the second sequence in the file, and it appeared 4 times in the input FASTA file.
-
---------
-
-Written by Assaf Gordon (gordon@cshl.edu) and Yaniv Erlich (erlich@cshl.edu)
 
 </help>
 </tool>
