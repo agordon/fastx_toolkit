@@ -1,12 +1,17 @@
 <tool id="cshl_fastq_qual_conv" name="Quality format converter">
 	<description>(ASCII-Numeric)</description>
-	<command>zcat -f $input | fastq_quality_converter $QUAL_FORMAT -o $output</command>
+	<command>zcat -f $input | fastq_quality_converter $GZIPOUT $QUAL_FORMAT -o $output</command>
 	<inputs>
 		<param format="fastqsolexa" name="input" type="data" label="Library to convert" />
 
 		<param name="QUAL_FORMAT" type="select" label="Desired output format">
 			<option value="-a">ASCII (letters) quality scores</option>
 			<option value="-n">Numeric quality scores</option>
+		</param>
+
+		<param name="GZIPOUT" type="select" label="Compress output file (using GZIP) ">
+			<option value="-z">yes</option>
+			<option value="">no</option>
 		</param>
 	</inputs>
 
@@ -15,30 +20,34 @@
 			<!-- ASCII to NUMERIC -->
 			<param name="input" value="fastq_qual_conv1.fastq" />
 			<param name="QUAL_FORMAT" value="Numeric quality scores" />
+			<param name="GZIPOUT" value=""/>
 			<output name="output" file="fastq_qual_conv1.out" />
 		</test>
 		<test>
 			<!-- ASCII to ASCII (basically, a no-op, but it should still produce a valid output -->
 			<param name="input" value="fastq_qual_conv1.fastq" />
 			<param name="QUAL_FORMAT" value="ASCII (letters) quality scores" />
+			<param name="GZIPOUT" value=""/>
 			<output name="output" file="fastq_qual_conv1a.out" />
 		</test>
 		<test>
 			<!-- NUMERIC to ASCII -->
 			<param name="input" value="fastq_qual_conv2.fastq" />
 			<param name="QUAL_FORMAT" value="ASCII (letters) quality scores" />
+			<param name="GZIPOUT" value=""/>
 			<output name="output" file="fastq_qual_conv2.out" />
 		</test>
 		<test>
 			<!-- NUMERIC to NUMERIC (basically, a no-op, but it should still produce a valid output -->
 			<param name="input" value="fastq_qual_conv2.fastq" />
 			<param name="QUAL_FORMAT" value="Numeric quality scores" />
+			<param name="GZIPOUT" value=""/>
 			<output name="output" file="fastq_qual_conv2n.out" />
 		</test>
 	</tests>
 
 	<outputs>
-		<data format="fastqsolexa" name="output" metadata_source="input" />
+		<data format="fastqsolexa" name="output" metadata_source="input" label="$input.name (Converted FASTQ)" />
 	</outputs>
 <help>
 

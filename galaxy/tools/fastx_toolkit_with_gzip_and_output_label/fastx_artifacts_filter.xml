@@ -1,9 +1,14 @@
 <tool id="cshl_fastx_artifacts_filter" name="Artifacts Filter">
 	<description></description>
-	<command>zcat -f '$input' | fastx_artifacts_filter -v -o "$output"</command>
+	<command>zcat -f '$input' | fastx_artifacts_filter $GZIPOUT -v -o "$output"</command>
 
 	<inputs>
 		<param format="fasta,fastqsolexa" name="input" type="data" label="Library to filter" />
+
+		<param name="GZIPOUT" type="select" label="Compress output file (using GZIP) ">
+			<option value="-z">yes</option>
+			<option value="">no</option>
+		</param>
 
 	</inputs>
 
@@ -11,17 +16,19 @@
 		<test>
 			<!-- Filter FASTA file -->
 			<param name="input" value="fastx_artifacts1.fasta" /> 
+			<param name="GZIPOUT" value=""/>
 			<output name="output" file="fastx_artifacts1.out" />
 		</test>
 		<test>
 			<!-- Filter FASTQ file -->
 			<param name="input" value="fastx_artifacts2.fastq" />
+			<param name="GZIPOUT" value=""/>
 			<output name="output" file="fastx_artifacts2.out" />
 		</test>
 	</tests>
 
 	<outputs>
-		<data format="input" name="output" metadata_source="input" />
+		<data format="input" name="output" label="$input.tag (without artifacts)" metadata_source="input" />
 	</outputs>
 <help>
 **What it does**

@@ -1,14 +1,20 @@
 <tool id="cshl_fasta_collapser" name="Collapse">
 	<description>sequences</description>
-	<command interpreter="perl">fasta_collapser.pl $input $output</command>
+	<command interpreter="perl">fasta_collapser.pl $GZIPOUT $input $output</command>
 
 	<inputs>
 		<param format="fasta" name="input" type="data" label="Library to collapse" />
+		
+		<param name="GZIPOUT" type="select" label="Compress output file (using GZIP) ">
+			<option value="">no</option>
+			<option value="-g">yes</option>
+		</param>
 	</inputs>
 
 	<tests>
 		<test>
 			<param name="input" value="fasta_collapser1.fasta" />
+			<param name="GZIPOUT" value=""/>
 			<output name="output" file="fasta_collapser1.out" />
 		</test>
 	</tests>

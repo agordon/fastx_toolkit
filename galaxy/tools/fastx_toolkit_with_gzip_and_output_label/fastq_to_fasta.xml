@@ -1,6 +1,6 @@
 <tool id="cshl_fastq_to_fasta" name="FASTQ to FASTA">
 	<description>converter</description>
-	<command>gunzip -cf $input | fastq_to_fasta $SKIPN $RENAMESEQ -o $output -v </command>
+	<command>gunzip -cf $input | fastq_to_fasta $GZIPOUT $SKIPN $RENAMESEQ -o $output -v </command>
 
 	<inputs>
 		<param format="fastqsolexa" name="input" type="data" label="FASTQ Library to convert" />
@@ -8,6 +8,11 @@
 		<param name="SKIPN" type="select" label="Discard sequences with unknown (N) bases ">
 			<option value="">yes</option>
 			<option value="-n">no</option>
+		</param>
+
+		<param name="GZIPOUT" type="select" label="Compress output file (using GZIP) ">
+			<option value="-z">yes</option>
+			<option value="">no</option>
 		</param>
 
 		<param name="RENAMESEQ" type="select" label="Rename sequence names in output file (reduces file size)">
@@ -22,6 +27,7 @@
 			<!-- FASTQ-To-FASTA, keep N, don't rename -->
 			<param name="input" value="fastq_to_fasta1.fastq" />
 			<param name="SKIPN" value=""/>
+			<param name="GZIPOUT" value=""/>
 			<param name="RENAMESEQ" value=""/>
 			<output name="output" file="fastq_to_fasta1a.out" />
 		</test>
@@ -29,13 +35,14 @@
 			<!-- FASTQ-To-FASTA, discard N, rename -->
 			<param name="input" value="fastq_to_fasta1.fastq" />
 			<param name="SKIPN" value="no"/>
+			<param name="GZIPOUT" value=""/>
 			<param name="RENAMESEQ" value="yes"/>
 			<output name="output" file="fastq_to_fasta1b.out" />
 		</test>
 	</tests>
 
 	<outputs>
-		<data format="fasta" name="output" metadata_source="input" />
+		<data format="fasta" name="output" metadata_source="input" label="$input.tag FASTA" />
 	</outputs>
 
 <help>

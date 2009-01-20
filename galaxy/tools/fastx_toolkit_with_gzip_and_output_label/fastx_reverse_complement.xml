@@ -1,26 +1,34 @@
 <tool id="cshl_fastx_reverse_complement" name="Reverse-Complement">
 	<description>sequences</description>
-	<command>zcat -f '$input' | fastx_reverse_complement -v -o $output</command>
+	<command>zcat -f '$input' | fastx_reverse_complement $GZIPOUT -v -o $output</command>
 	<inputs>
 		<param format="fasta,fastqsolexa" name="input" type="data" label="Library to reverse-complement" />
+
+		<param name="GZIPOUT" type="select" label="Compress output file (using GZIP) ">
+			<option value="-z">yes</option>
+			<option value="">no</option>
+		</param>
+
 	</inputs>
 
 	<tests>
 		<test>
 			<!-- Reverse-complement a FASTA file -->
 			<param name="input" value="fastx_rev_comp1.fasta" /> 
+			<param name="GZIPOUT" value=""/>
 			<output name="output" file="fastx_reverse_complement1.out" />
 		</test>
 		<test>
 			<!-- Reverse-complement a FASTQ file -->
 			<param name="input" value="fastx_rev_comp2.fastq" />
+			<param name="GZIPOUT" value=""/>
 			<output name="output" file="fastx_reverse_complement2.out" />
 		</test>
 	</tests>
 
   
 	<outputs>
-		<data format="input" name="output" metadata_source="input" />
+		<data format="input" name="output" label="$input.tag reverse-complemented" metadata_source="input" />
 	</outputs>
 
 <help>
