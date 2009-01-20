@@ -22,7 +22,7 @@
 		</param>
 
 		<when value="user">
-			<param name="clip_sequence" size="30" label="Enter custom clipping sequence" type="text" value="CTGTAGGCACCATCAATC" />
+			<param name="clip_sequence" size="30" label="Enter custom clipping sequence" type="text" value="AATTGGCC" />
 		</when>
 
 		<when value="prebuilt">
