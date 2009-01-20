@@ -8,7 +8,7 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-EXTRA_DIST = reconf configure README
+EXTRA_DIST = reconf configure README install_galaxy_files.sh
 
 SUBDIRS = m4 src doc galaxy scripts
 
