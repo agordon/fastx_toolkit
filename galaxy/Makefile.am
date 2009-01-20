@@ -10,4 +10,4 @@
 
 SUBDIRS = tools test-data static tool-data
 
-
+EXTRA_DIST = README

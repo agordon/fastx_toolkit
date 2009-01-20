@@ -1,0 +1,15 @@
+FASTX-Toolkit - Galaxy Files
+============================
+
+These files allows easy integration of the FASTX-toolkit tools in the
+Galaxy framework.
+
+Installation
+============
+See the README file.
+
+LICENSE
+=======
+All files under the 'galaxy' sub-directory are licensed under
+Galaxy's license. see GALAXY-LICENSE file.
+(The rest of the FASTX-Toolkit files are licensed under AGPLv3 or later).
