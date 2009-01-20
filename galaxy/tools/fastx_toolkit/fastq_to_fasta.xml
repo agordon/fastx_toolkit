@@ -74,3 +74,4 @@ Will be converted to FASTA (with 'rename sequence names' = YES)::
     
 </help>
 </tool>
+<!-- FASTQ-to-FASTA is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->

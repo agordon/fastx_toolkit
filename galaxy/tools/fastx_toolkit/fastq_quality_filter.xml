@@ -77,3 +77,4 @@ Using **percent = 100** and **cut-off = 20** - This read will be discarded (not 
 	    
 	</help>
 </tool>
+<!-- FASTQ-Quality-Filter is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->

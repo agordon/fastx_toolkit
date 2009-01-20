@@ -84,3 +84,4 @@ This tool filters sequencing artifacts (reads with all but 3 identical bases).
 
 </help>
 </tool>
+<!-- FASTX-Artifacts-filter is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->

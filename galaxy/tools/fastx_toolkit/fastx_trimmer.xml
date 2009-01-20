@@ -74,3 +74,4 @@ Trimming with First=6 and Last=10, will generate a FASTA file with 5 bases (base
     
 </help>
 </tool>
+<!-- FASTX-Trimmer is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->

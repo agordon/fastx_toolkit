@@ -97,3 +97,4 @@ Creates quality statistics report for the given Solexa/FASTQ library.
 
 </help>
 </tool>
+<!-- FASTQ-Statistics is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->
