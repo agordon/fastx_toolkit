@@ -44,7 +44,6 @@ const char* usage=
 
 #define DO_NOT_TRIM_LAST_BASE (0)
 
-//Default adapter (Solexa's MODBAN) used at the Hannon Lab
 int keep_first_base=1;
 int keep_last_base=DO_NOT_TRIM_LAST_BASE;
 

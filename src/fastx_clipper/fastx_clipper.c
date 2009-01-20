@@ -35,7 +35,7 @@ const char* usage=
 "\n" \
 "version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
-"   [-a ADAPTER] = ADAPTER string. default is CTGTAGGCACCATCAATC.\n" \
+"   [-a ADAPTER] = ADAPTER string. default is CCTTAAGG (dummy adapter).\n" \
 "   [-s N]       = Max. number of mismatches allowed. default is 2.\n" \
 "   [-l N]       = discard sequences shorter than N nucleotides. default is 5.\n" \
 "   [-d N]       = Keep the adapter and N bases after it.\n" \
@@ -52,8 +52,8 @@ const char* usage=
 "   [-o OUTFILE] = FASTA/Q output file. default is STDOUT.\n" \
 "\n";
 
-//Default adapter (Solexa's MODBAN) used at the Hannon Lab
-char adapter[MAX_ADAPTER_LEN]="CTGTAGGCACCATCAATC";
+//Default adapter - Dummy sequence
+char adapter[MAX_ADAPTER_LEN]="CCTTAAGG";
 int max_mismatches=2;
 int min_length=5;
 int discard_unknown_bases=1;
@@ -78,7 +78,7 @@ FASTX fastx;
 	input - 
 		sequence - sequence NULL-terminated string to match.
 		start_offset - first character to match in <sequence>
-		modban   - second NULL-terminated string to match. 
+		adapter - second NULL-terminated string to match. 
 	output - 
 		match score (number of identical characters in both string).
 
@@ -105,17 +105,17 @@ FASTX fastx;
 		(note that <start_offset>==26, so the first 26 characters in <sequence> are skipped).
 */
 int match_score(const char *sequence, int start_offset, 
-		const char* modban)
+		const char* adapter)
 {
 	int score = 0 ;
 	
 	while (start_offset-- && *sequence!=0)
 		sequence++;
 	
-	while ( *sequence!=0 && *modban!=0 ) {
-		score += (*sequence == *modban);
+	while ( *sequence!=0 && *adapter!=0 ) {
+		score += (*sequence == *adapter);
 		sequence++;
-		modban++;
+		adapter++;
 	}
 	
 	return score;
@@ -127,25 +127,25 @@ int match_score(const char *sequence, int start_offset,
 		matching offset.
 
 	input - 
-		sequence, modban - two NULL terminated string to match.
+		sequence, adapter- two NULL terminated string to match.
 
 	output - 
 		-1  =  no match was found.
-		>=0 = offset in <sequence> where <modban> matches with highest score.
+		>=0 = offset in <sequence> where <adapter> matches with highest score.
 */
-int best_match_offset(const char *sequence, const char* modban)
+int best_match_offset(const char *sequence, const char* adapter)
 {
 
 	int i, overlapping_characters, matching_characters, score=0;
 	int best_index=-1, best_score=0;
 	int sequence_length = strlen(sequence);
-	int modban_length = strlen(modban);
+	int adapter_length = strlen(adapter);
 		
 	// printf("Seq=%s (%d chars)\n\n", sequence, sequence_length );
 	//
 	for (i=0;i<sequence_length;i++) {
-		overlapping_characters = ((sequence_length - i)>modban_length) ? modban_length : (sequence_length- i);
-		matching_characters = match_score(sequence, i, modban);
+		overlapping_characters = ((sequence_length - i)>adapter_length) ? adapter_length : (sequence_length- i);
+		matching_characters = match_score(sequence, i, adapter);
 
 		//Too many mismatches?
 		if ( overlapping_characters - matching_characters > max_mismatches) 
@@ -153,7 +153,7 @@ int best_match_offset(const char *sequence, const char* modban)
 
 
 		// For tiny overlaps (when the number of overlapping characters
-		// between the sequence and the modban is smaller than (max_mismatches*2)
+		// between the sequence and the adapter is smaller than (max_mismatches*2)
 		// We require a perfect match (= matching_characeters==overlapping_characters )
 		if ( (overlapping_characters <= (max_mismatches*2) )
 			&&
@@ -196,7 +196,7 @@ int parse_program_args(int optind, int optc, char* optarg)
 		case 'a':
 			strncpy(adapter,optarg,sizeof(adapter)-1);
 			//TODO:
-			//if (!valid_sequence_string(modban)) 
+			//if (!valid_sequence_string(adapter)) 
 			//	errx(1,"Invalid adapter string (-a %s)", adapter);
 			break ;
 			

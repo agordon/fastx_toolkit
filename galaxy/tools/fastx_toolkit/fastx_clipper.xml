@@ -26,8 +26,8 @@
 		</when>
 
 		<when value="prebuilt">
-			<param name="clip_sequence" type="select" label="Choose modban">
-				<options from_file="cshl_modban_sequences.txt">
+			<param name="clip_sequence" type="select" label="Choose Adapter">
+				<options from_file="fastx_clipper_sequences.txt">
 					<column name="name" index="1"/>
 					<column name="value" index="0"/>
 				</options>
@@ -36,7 +36,7 @@
 	</conditional>
 
 	<param name="keepdelta" size="2" type="integer" value="0">
-		<label>enter non-zero value to keep the modban sequence and x bases that follow it</label>
+		<label>enter non-zero value to keep the adapter sequence and x bases that follow it</label>
 		<help>use this for hairpin barcoding. keep at 0 unless you know what you're doing.</help>
 	</param>
 
