@@ -18,6 +18,10 @@
 #ifndef __FASTX_HEADER__
 #define __FASTX_HEADER__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef PATH_MAX
 #include <linux/limits.h>
 #endif
@@ -124,6 +128,9 @@ size_t num_input_reads(const FASTX *pFASTX);
 size_t num_output_sequences(const FASTX *pFASTX);
 size_t num_output_reads(const FASTX *pFASTX);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 
