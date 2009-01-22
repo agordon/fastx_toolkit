@@ -48,6 +48,7 @@ AC_CONFIG_FILES([
    src/fastq_quality_filter/Makefile
    src/fastx_artifacts_filter/Makefile
    src/fastx_reverse_complement/Makefile
+   src/fastx_collapser/Makefile
    galaxy/Makefile
    galaxy/tools/Makefile
    galaxy/tools/fastx_toolkit/Makefile
