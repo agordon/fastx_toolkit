@@ -15,6 +15,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -67,7 +68,7 @@ FILE* get_report_file()
 }
 
 int fastx_parse_cmdline( int argc, char* argv[],
-			 char* program_options,
+			 const char* program_options,
 			 parse_argument_func program_parse_args ) 
 {
 	int opt;
