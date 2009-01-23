@@ -11,7 +11,7 @@
 SUBDIRS = libfastx \
 	fastx_clipper \
 	fastx_trimmer \
-	fastq_quality_stats \
+	fastx_quality_stats \
 	fastq_quality_converter \
 	fastq_to_fasta \
 	fastq_quality_filter \
