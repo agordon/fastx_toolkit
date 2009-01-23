@@ -9,13 +9,13 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 
-bin_PROGRAMS = fastq_quality_stats
+bin_PROGRAMS = fastx_quality_stats
 
 AM_CPPFLAGS = \
 	$(CC_WARNINGS) \
 	-I../libfastx
 
-fastq_quality_stats_SOURCES = fastq_quality_stats.c
+fastx_quality_stats_SOURCES = fastx_quality_stats.c
 
-fastq_quality_stats_LDADD = ../libfastx/libfastx.a
+fastx_quality_stats_LDADD = ../libfastx/libfastx.a
 
