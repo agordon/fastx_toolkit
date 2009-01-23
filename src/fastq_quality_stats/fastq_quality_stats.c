@@ -117,6 +117,7 @@ void read_file()
 {
 	int index;
 	int quality_value;
+	int reads_count ;
 
 	while ( fastx_read_next_record(&fastx) ) {
 
@@ -126,26 +127,31 @@ void read_file()
 		
 		//for each base in the sequence...
 		for (index=0; index<strlen(fastx.nucleotides); index++) {
-			
-			quality_value = fastx.quality[index];
 
-			//Update the quality statistics
-			if (columns[index].min > quality_value)
-				columns[index].min  = quality_value;
-			if (columns[index].max < quality_value)
-				columns[index].max  = quality_value;
-			columns[index].sum += quality_value;
-			columns[index].count++;
-			columns[index].bases_values_count[quality_value - MIN_QUALITY_VALUE ] ++ ;
+			if (fastx.read_fastq) {
+				quality_value = fastx.quality[index];
+
+				//Update the quality statistics
+				if (columns[index].min > quality_value)
+					columns[index].min  = quality_value;
+				if (columns[index].max < quality_value)
+					columns[index].max  = quality_value;
+				columns[index].sum += quality_value;
+				columns[index].bases_values_count[quality_value - MIN_QUALITY_VALUE ] ++ ;
+			}
+
+			//Update Nucleotides Counts
+			reads_count = get_reads_count(&fastx); //if this is a collapsed FASTA file, each sequence can represent multiple reads
+			columns[index].count += reads_count;
 			
 			//update the base counts statistics
 			switch(fastx.nucleotides[index])
 			{
-				case 'A': columns[index].A_count++; break;
-				case 'C': columns[index].C_count++; break;
-				case 'T': columns[index].T_count++; break;
-				case 'G': columns[index].G_count++; break;
-				case 'N': columns[index].N_count++; break;
+				case 'A': columns[index].A_count+=reads_count; break;
+				case 'C': columns[index].C_count+=reads_count; break;
+				case 'T': columns[index].T_count+=reads_count; break;
+				case 'G': columns[index].G_count+=reads_count; break;
+				case 'N': columns[index].N_count+=reads_count; break;
 
 				/* This shoudn't really happen, as 'fastx_read_next_record' should catch invalid values */
 				default: errx(1, "Internal error: invalid base value (%c)!", fastx.nucleotides[index]) ;
@@ -255,7 +261,7 @@ void parse_commandline(int argc, char* argv[])
 	fastx_parse_cmdline(argc, argv, "", NULL);
 
 	fastx_init_reader(&fastx, get_input_filename(), 
-		FASTQ_ONLY, ALLOW_N, REQUIRE_UPPERCASE);
+		FASTA_OR_FASTQ, ALLOW_N, REQUIRE_UPPERCASE);
 
 	if (strcmp( get_output_filename(), "-" ) == 0 ) {
 		outfile = stdout;
