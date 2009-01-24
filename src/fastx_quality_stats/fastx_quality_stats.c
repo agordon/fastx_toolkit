@@ -56,6 +56,7 @@ const char* usage=
 "	G_Count	= Count of 'G' nucleotides found in this column.\n" \
 "	T_Count	= Count of 'T' nucleotides found in this column.\n" \
 "	N_Count = Count of 'N' nucleotides found in this column.\n" \
+"	max-count = max. number of bases (in all cycles)\n" \
 "\n";
 ;
 
@@ -206,7 +207,8 @@ void print_statistics()
 	fprintf(outfile,"count\tmin\tmax\tsum\t");
 	fprintf(outfile,"mean\tQ1\tmed\tQ3\t");
 	fprintf(outfile,"IQR\tlW\trW\t");
-	fprintf(outfile,"A_Count\tC_Count\tG_Count\tT_Count\tN_Count\n");
+	fprintf(outfile,"A_Count\tC_Count\tG_Count\tT_Count\tN_Count\t");
+	fprintf(outfile,"Max_count\n");
 	for (i=0;i<MAX_SEQUENCE_LENGTH;i++) {
 		if (columns[i].count==0)
 			break;
@@ -247,12 +249,20 @@ void print_statistics()
 			RightWisker
 			);
 			
-		fprintf(outfile,"%d\t%d\t%d\t%d\t%d\n",
+		fprintf(outfile,"%d\t%d\t%d\t%d\t%d\t",
 			columns[i].A_count,
 			columns[i].C_count,
 			columns[i].G_count,
 			columns[i].T_count,
 			columns[i].N_count);
+
+
+		//Maximum number of bases (out of all cycles/columns).
+		//it is always equal to the count of the first column
+		//(since all reads have a base at the first column, 
+		// but some might not have base at later columns (if they were clipped) )
+		fprintf(outfile,"%d\n",
+			columns[0].count ) ;
 	}
 }
 

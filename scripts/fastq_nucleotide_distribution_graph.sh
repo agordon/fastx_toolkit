@@ -23,7 +23,7 @@ function usage()
 	echo "Usage: $0 [-i INPUT.TXT] [-t TITLE] [-p] [-o OUTPUT]"
 	echo
 	echo "  [-p]           - Generate PostScript (.PS) file. Default is PNG image."
-	echo "  [-i INPUT.TXT] - Input file. Should be the output of \"fastq_quality_statistics\" program."
+	echo "  [-i INPUT.TXT] - Input file. Should be the output of \"fastx_quality_statistics\" program."
 	echo "  [-o OUTPUT]    - Output file name. default is STDOUT."
 	echo "  [-t TITLE]     - Title - will be plotted on the graph."
 	echo
@@ -36,7 +36,7 @@ function usage()
 
 TITLE=""					# default title is empty
 FILENAME=""
-OUTPUTTERM="set term png size 2048,768"		# default output terminal is "PNG"
+OUTPUTTERM="set term png size 1048,768"		# default output terminal is "PNG"
 OUTPUTFILE="/dev/stdout"   			# Default output file is simply "stdout"
 while getopts ":t:i:o:ph" Option
 	do
@@ -80,11 +80,11 @@ set noytics
 set xtics 1
 set yrange [ 0.00000 : 100.000 ] noreverse nowriteback
 
-plot '$FILENAME' using (100.*column(13)/column(2)):xtic(1) title \"A\" lt rgb \"#5050ff\", \
-       '' using (100.*column(14)/column(2)) title \"C\" lt rgb \"#e00000\", \
-       '' using (100.*column(15)/column(2)) title \"G\" lt rgb \"#00c000\", \
-       '' using (100.*column(16)/column(2)) title \"T\" lt rgb \"#e6e600\", \
-       '' using (100.*column(17)/column(2)) title \"N\" lt rgb \"pink\"
+plot '$FILENAME' using (100.*column(13)/column(18)):xtic(1) title \"A\" lt rgb \"#5050ff\", \
+       '' using (100.*column(14)/column(18)) title \"C\" lt rgb \"#e00000\", \
+       '' using (100.*column(15)/column(18)) title \"G\" lt rgb \"#00c000\", \
+       '' using (100.*column(16)/column(18)) title \"T\" lt rgb \"#e6e600\", \
+       '' using (100.*column(17)/column(18)) title \"N\" lt rgb \"pink\"
 "
 
 echo "$GNUPLOTCMD" | gnuplot > "$OUTPUTFILE"
