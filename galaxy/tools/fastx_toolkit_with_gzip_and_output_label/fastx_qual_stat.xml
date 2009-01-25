@@ -1,9 +1,9 @@
 <tool id="cshl_fastq_qual_stat" name="Quality Statistics">
 	<description></description>
-	<command>zcat -f $input | fastq_quality_stats -o $output</command>
+	<command>zcat -f $input | fastx_quality_stats -o $output</command>
 
 	<inputs>
-		<param format="fastqsolexa" name="input" type="data" label="Library to analyse" />
+		<param format="fasta,fastqsolexa" name="input" type="data" label="Library to analyse" />
 	</inputs>
 
 	<tests>
