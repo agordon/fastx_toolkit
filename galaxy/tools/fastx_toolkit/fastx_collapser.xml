@@ -1,6 +1,6 @@
 <tool id="cshl_fasta_collapser" name="Collapse">
 	<description>sequences</description>
-	<command>fasta_collapser.pl $input $output</command>
+	<command>zcat -f '$input' | fastx_collapser -v -o '$output' </command>
 
 	<inputs>
 		<param format="fasta" name="input" type="data" label="Library to collapse" />

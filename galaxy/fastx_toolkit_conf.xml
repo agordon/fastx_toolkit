@@ -16,6 +16,6 @@
     <tool file="fastx_toolkit/fastx_reverse_complement.xml" />
     <tool file="fastx_toolkit/fastx_artifacts_filter.xml" />
     <tool file="fastx_toolkit/fastq_quality_filter.xml" />
-    <tool file="fastx_toolkit/fasta_collapser.xml" />
+    <tool file="fastx_toolkit/fastx_collapser.xml" />
     <tool file="fastx_toolkit/fastx_barcode_splitter.xml" />
   </section>
