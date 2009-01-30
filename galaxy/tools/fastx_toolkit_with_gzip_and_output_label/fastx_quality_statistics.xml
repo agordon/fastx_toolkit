@@ -1,4 +1,4 @@
-<tool id="cshl_fastq_qual_stat" name="Quality Statistics">
+<tool id="cshl_fastx_quality_statistics" name="Quality Statistics">
 	<description></description>
 	<command>zcat -f $input | fastx_quality_stats -o $output</command>
 
