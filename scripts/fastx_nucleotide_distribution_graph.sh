@@ -18,7 +18,7 @@
 
 usage()
 {
-	echo "FASTQ Nucleotide Distribution Plotter"
+	echo "FASTA/Q Nucleotide Distribution Plotter"
 	echo
 	echo "Usage: $0 [-i INPUT.TXT] [-t TITLE] [-p] [-o OUTPUT]"
 	echo
