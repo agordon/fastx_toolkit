@@ -49,6 +49,7 @@ AC_CONFIG_FILES([
    src/fastx_artifacts_filter/Makefile
    src/fastx_reverse_complement/Makefile
    src/fastx_collapser/Makefile
+   src/seqalign_test/Makefile
    galaxy/Makefile
    galaxy/tools/Makefile
    galaxy/tools/fastx_toolkit/Makefile
