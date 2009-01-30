@@ -8,16 +8,16 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-EXTRA_DIST = fastq_qual_conv.xml \
+EXTRA_DIST = fastq_quality_converter.xml \
 	fastq_quality_filter.xml \
-	fastq_qual_stat.xml \
+	fastx_quality_statistics.xml \
 	fastq_to_fasta.xml \
 	fastx_artifacts_filter.xml \
 	fastx_clipper.xml \
 	fastx_reverse_complement.xml \
 	fastx_trimmer.xml \
 	fastx_barcode_splitter.xml \
-	fastq_nucleotides_distribution.xml \
+	fastx_nucleotides_distribution.xml \
 	fastq_quality_boxplot.xml \
 	fasta_clipping_histogram.xml \
-	fasta_collapser.xml
+	fastx_collapser.xml
