@@ -2,7 +2,7 @@
 # Add the following sections to your Galaxy server's tool_conf.xml file.
 #
   <section name="FASTA/Q Information" id="cshl_library_information">
-    <tool file="fastx_toolkit/fastq_qual_stat.xml" />
+    <tool file="fastx_toolkit/fastx_qual_stat.xml" />
     <tool file="fastx_toolkit/fastq_quality_boxplot.xml" />
     <tool file="fastx_toolkit/fastq_nucleotides_distribution.xml" />
     <tool file="fastx_toolkit/fasta_clipping_histogram.xml" />

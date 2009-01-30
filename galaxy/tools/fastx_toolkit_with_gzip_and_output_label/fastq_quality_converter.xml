@@ -1,4 +1,4 @@
-<tool id="cshl_fastq_qual_conv" name="Quality format converter">
+<tool id="cshl_fastq_quality_converter" name="Quality format converter">
 	<description>(ASCII-Numeric)</description>
 	<command>zcat -f $input | fastq_quality_converter $GZIPOUT $QUAL_FORMAT -o $output</command>
 	<inputs>
