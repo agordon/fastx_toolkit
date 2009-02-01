@@ -24,8 +24,8 @@ AC_DEFINE([NDEBUG], [], [Description])
 AC_DEFINE([YOUR_OS], [], [Description])
 
 #Is this the right way to add compiler flags?
-CFLAGS="-Wall -g"
-CXXFLAGS="-Wall -g"
+CFLAGS="-Wall -g -O1"
+CXXFLAGS="-Wall -g -O1"
 
 
 LF_CONFIGURE_CC

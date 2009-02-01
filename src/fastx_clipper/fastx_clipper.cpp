@@ -28,10 +28,17 @@
 #include "fastx.h"
 #include "fastx_args.h"
 
+#include <algorithm>
+#include <ostream>
+#include <iostream>
+#include <string>
+#include <vector>
+#include "sequence_alignment.h"
+
 #define MAX_ADAPTER_LEN 100
 
 const char* usage=
-"usage: fastx_clipper [-h] [-a ADAPTER] [-s N] [-l N] [-n] [-d N] [-c] [-C] [-v] [-z] [-i INFILE] [-o OUTFILE]\n" \
+"usage: fastx_clipper [-h] [-a ADAPTER] [-D] [-s N] [-l N] [-n] [-d N] [-c] [-C] [-v] [-z] [-i INFILE] [-o OUTFILE]\n" \
 "\n" \
 "version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
@@ -48,6 +55,7 @@ const char* usage=
 "                  If [-o] is not specified (and output goes to STDOUT),\n" \
 "                  report will be printed to STDERR.\n" \
 "   [-z]         = Compress output with GZIP.\n" \
+"   [-D]	 = DEBUG output.\n" \
 "   [-i INFILE]  = FASTA/Q input file. default is STDIN.\n" \
 "   [-o OUTFILE] = FASTA/Q output file. default is STDOUT.\n" \
 "\n";
@@ -55,11 +63,12 @@ const char* usage=
 //Default adapter - Dummy sequence
 char adapter[MAX_ADAPTER_LEN]="CCTTAAGG";
 int max_mismatches=2;
-int min_length=5;
+unsigned int min_length=5;
 int discard_unknown_bases=1;
 int keep_delta=0;
 int discard_non_clipped=0;
 int discard_clipped=0;
+int debug = 0 ;
 
 
 //Statistics for verbose report
@@ -71,114 +80,15 @@ unsigned int count_discarded_adapter_found=0; // see [-C] option
 unsigned int count_discarded_N=0; // see [-n]
 
 FASTX fastx;
-
-/*
-	match_score
-		calculates the matching score between two given strings.
-	input - 
-		sequence - sequence NULL-terminated string to match.
-		start_offset - first character to match in <sequence>
-		adapter - second NULL-terminated string to match. 
-	output - 
-		match score (number of identical characters in both string).
-
-	Example:
-		
-		match_score("ABCDE",0,"AACD") returns 3, becuase:
-			ABCDE
-			AACD
-			----
-			MxMM = 3 (M = match, x = no match)
-
-		match_score("ABCDE",2,"AACD") returns 0, because:
-			ABCDE
-			  AACD
-			------
-			XXXXX  = 0 (X = no match)
-		(note that <start_offset>==2, so the first two characters in <sequence> are skipped).
-		
-		match_score("AATTGATCAGGACATAGGACAACTGTAGGCACCAT", 22, "CTGTAGGCACCATCAATC") returns 12, because:
-			AATTGATCAGGACATAGGACAACTGTAGACACCAT
-			                      CTGTAGGCACCATCAATC
-			----------------------------------------
-					      MMMMMMxMMMMMM      = 12
-		(note that <start_offset>==26, so the first 26 characters in <sequence> are skipped).
-*/
-int match_score(const char *sequence, int start_offset, 
-		const char* adapter)
-{
-	int score = 0 ;
-	
-	while (start_offset-- && *sequence!=0)
-		sequence++;
-	
-	while ( *sequence!=0 && *adapter!=0 ) {
-		score += (*sequence == *adapter);
-		sequence++;
-		adapter++;
-	}
-	
-	return score;
-}
-
-/*
-	best_match_offset - 
-		given two strings, returns the best (if any)
-		matching offset.
-
-	input - 
-		sequence, adapter- two NULL terminated string to match.
-
-	output - 
-		-1  =  no match was found.
-		>=0 = offset in <sequence> where <adapter> matches with highest score.
-*/
-int best_match_offset(const char *sequence, const char* adapter)
-{
-
-	int i, overlapping_characters, matching_characters, score=0;
-	int best_index=-1, best_score=0;
-	int sequence_length = strlen(sequence);
-	int adapter_length = strlen(adapter);
-		
-	// printf("Seq=%s (%d chars)\n\n", sequence, sequence_length );
-	//
-	for (i=0;i<sequence_length;i++) {
-		overlapping_characters = ((sequence_length - i)>adapter_length) ? adapter_length : (sequence_length- i);
-		matching_characters = match_score(sequence, i, adapter);
-
-		//Too many mismatches?
-		if ( overlapping_characters - matching_characters > max_mismatches) 
-			continue;	
-
-
-		// For tiny overlaps (when the number of overlapping characters
-		// between the sequence and the adapter is smaller than (max_mismatches*2)
-		// We require a perfect match (= matching_characeters==overlapping_characters )
-		if ( (overlapping_characters <= (max_mismatches*2) )
-			&&
-	             (matching_characters != overlapping_characters) )
-		     	continue;
-
-		score = matching_characters ;
-		
-		//DEBUG
-		//printf("Ofs %2d, overlapping %2d, matching %2d, MisMatch %2d, score %2d\n",
-		//	i, overlapping_characters, matching_characters, 
-		//	overlapping_characters - matching_characters, score) ;
-		
-		if (score>best_score) {
-			best_index = i;
-			best_score = score;
-		}
-	}
-	
-	return best_index;
-}
+HalfLocalSequenceAlignment align;
 
 int parse_program_args(int optind, int optc, char* optarg)
 {
 	switch(optc) {
+		case 'D':
+			debug++;
+			break ;
+
 		case 'c':
 			discard_non_clipped = 1;
 			break;
@@ -229,11 +139,53 @@ int parse_program_args(int optind, int optc, char* optarg)
 
 int parse_commandline(int argc, char* argv[])
 {
-	fastx_parse_cmdline(argc, argv, "Ccd:a:s:l:n", parse_program_args);
+	fastx_parse_cmdline(argc, argv, "DCcd:a:s:l:n", parse_program_args);
 
 	if (keep_delta>0) 
 		keep_delta += strlen(adapter);
 	return 1;
+}
+
+int adapter_cutoff_index ( const SequenceAlignmentResults& alignment_results ) __attribute__ ((const));
+int adapter_cutoff_index ( const SequenceAlignmentResults& alignment_results )
+{
+	#if 0
+	int mismatches = alignment_results.mismatches ;
+	
+	//The adapter(=target) is expected to align from the first base.
+	//If the start is not zero (=not aligned from first base),
+	//count each skipped base as a mismatch
+	mismatches += alignment_results.target_start ;
+
+	//The adapter is expected to align up to the end
+	//of the adapter(=target), or the end of the query.
+	//If it doesn't, count the un-aligned bases as mismatches
+	int missing_from_query_end = (alignment_results.query_size - alignment_results.query_end-1);
+	int missing_from_target_end = (alignment_results.target_size - alignment_results.target_end-1);
+
+	int missing_from_end = std::min(missing_from_query_end, missing_from_target_end);
+	
+	mismatches += missing_from_end ;
+	
+
+	 
+	std::cout << "Missing from start = " << alignment_results.target_start
+		  << " Missing from end = " << missing_from_end
+		  << " mismatches = " << mismatches 
+		  << std::endl;
+	
+	if (mismatches > max_mismatches)
+		return -1;
+
+	return alignment_results.query_start;
+	#endif
+
+	int i = alignment_results.target_alignment.find_first_not_of('N') ;
+
+	if ( i < 0 )
+		return -1;
+
+	return i;
 }
 
 
@@ -252,11 +204,26 @@ int main(int argc, char* argv[])
 	while ( fastx_read_next_record(&fastx) ) {
 
 		reads_count = get_reads_count(&fastx);
+		
+		#if 0
+		std::string query = std::string(fastx.nucleotides) + std::string( strlen(adapter), 'N' ); 
+		std::string target= std::string( strlen(fastx.nucleotides), 'N' ) + std::string(adapter);
+		#else
+		std::string query = std::string(fastx.nucleotides) ;
+		std::string target= std::string(adapter);
+		#endif
+		
+		align.align( query, target ) ;
+
+		if (debug>1) 
+			align.print_matrix();
+		if (debug>0)
+			align.results().print();
 
 		count_input+= reads_count;
 
 		//Find the best match with the adapter
-		i = best_match_offset(fastx.nucleotides, adapter);
+		i = adapter_cutoff_index ( align.results() ) ;
 		if (i!=-1 && i>0) {
 			i += keep_delta;
 			//Just trim the string after this position

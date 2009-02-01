@@ -15,7 +15,7 @@ AM_CPPFLAGS = \
 	$(CC_WARNINGS) \
 	-I../libfastx
 
-fastx_clipper_SOURCES = fastx_clipper.c
+fastx_clipper_SOURCES = fastx_clipper.cpp
 
 fastx_clipper_LDADD = ../libfastx/libfastx.a
 
