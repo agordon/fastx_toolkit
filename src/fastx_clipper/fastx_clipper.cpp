@@ -180,12 +180,18 @@ int adapter_cutoff_index ( const SequenceAlignmentResults& alignment_results )
 	return alignment_results.query_start;
 	#endif
 
-	int i = alignment_results.target_alignment.find_first_not_of('N') ;
+	int alignment_size = alignment_results.matches + 
+			     alignment_results.mismatches +
+			     alignment_results.gaps ;
 
-	if ( i < 0 )
+	if (alignment_size==0)
 		return -1;
 
-	return i;
+/*	if ( 100 * (alignment_results.mismatches + alignment_results.gaps )  /
+		alignment_size < 34 )*/
+		return alignment_results.query_start ;
+
+	return -1;
 }
 
 

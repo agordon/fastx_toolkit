@@ -20,6 +20,8 @@
 
 struct SequenceAlignmentResults
 {
+	int alignment_found ;
+
 	size_t query_size ;
 	size_t query_start ;
 	size_t query_end ;
@@ -29,10 +31,11 @@ struct SequenceAlignmentResults
 	size_t target_end ;
 
 	size_t gaps;
+	size_t neutral_matches ;
 	size_t matches ;
 	size_t mismatches ;
 
-	size_t score ;
+	float score ;
 
 	std::string query_alignment ;
 	std::string target_alignment ;
@@ -41,6 +44,7 @@ struct SequenceAlignmentResults
 	std::string target_sequence ;
 
 	SequenceAlignmentResults() :
+		alignment_found(false),
 		query_size(0),
 		query_start(0),
 		query_end(0),
@@ -49,6 +53,8 @@ struct SequenceAlignmentResults
 		target_start(0),
 		target_end(0),
 
+		gaps(0),
+		neutral_matches(0),	
 		matches(0),
 		mismatches(0),
 
@@ -65,19 +71,28 @@ struct SequenceAlignmentResults
 class SequenceAlignment
 {
 protected:
+	#if 0
+	typedef ssize_t score_type;
+	#else
+	typedef float score_type;
+	#endif
+
 	typedef enum {
 		FROM_UPPER = 1,
 		FROM_LEFT  = 2,
-		FROM_UPPER_LEFT = 3
+		FROM_UPPER_LEFT = 3,
+		FROM_NOWHERE = 4
 	} DIRECTION ;
 
-	std::vector< std::vector< float >  > score_matrix ;
+	std::vector< std::vector< score_type >  > score_matrix ;
 	std::vector< std::vector< DIRECTION >  > origin_matrix ;
 	std::vector< std::vector< char > > match_matrix ;
 
-	ssize_t _gap_panelty ;
-	ssize_t _match_panelty ;
-	ssize_t _mismatch_panelty ;
+	score_type _gap_panelty ;
+	score_type _match_panelty ;
+	score_type _mismatch_panelty ;
+	score_type _neutral_panelty ;
+
  
 	SequenceAlignmentResults _alignment_results ;
 
@@ -91,16 +106,17 @@ public:
 	size_t matrix_width() const { return  score_matrix.size(); }
 	size_t matrix_height() const { return  score_matrix[0].size(); }
 
-	ssize_t gap_panelty() const { return _gap_panelty ; }
-	ssize_t match_panelty() const { return _match_panelty ; }
-	ssize_t mismatch_panelty() const { return _mismatch_panelty ; }
+	score_type gap_panelty() const { return _gap_panelty ; }
+	score_type match_panelty() const { return _match_panelty ; }
+	score_type mismatch_panelty() const { return _mismatch_panelty ; }
+	score_type neutral_panelty() const { return _neutral_panelty ; }
 
 	const std::string& query_sequence() const { return _query_sequence; }
 	const std::string& target_sequence() const { return _target_sequence; }
 
 	const SequenceAlignmentResults& results() const { return _alignment_results; }
 
-	float cell_score ( size_t query_index, size_t target_index )  const
+	score_type cell_score ( size_t query_index, size_t target_index )  const
 	{
 		//printf("cell_score(q=%zu,t=%zu)=%f\n", query_index, target_index, score_matrix[query_index][target_index]) ;
 		return score_matrix[query_index][target_index] ;
@@ -114,18 +130,19 @@ public:
 		return ( q==t ) ? 'M' : 'x' ;
 	}
 
-	float match_score(const size_t query_index, const size_t target_index) const
+	score_type match_score(const size_t query_index, const size_t target_index) const
 	{
-		if ( query_sequence()[query_index-1]=='N')
-			return 0.1 ;
-		if ( target_sequence()[target_index-1]=='N')
-			return 0.1 ;
+		if ( query_sequence()[query_index-1]=='N' && target_sequence()[target_index-1]=='N')
+			return 0.0 ;
+
+		if ( query_sequence()[query_index-1]=='N' || target_sequence()[target_index-1]=='N')
+			return neutral_panelty() ;
 
 		return (query_sequence()[query_index-1] == target_sequence()[target_index-1]) ? 
 				match_panelty() : mismatch_panelty() ;
 	}
 
-	void print_matrix();
+	void print_matrix(std::ostream& strm = std::cout);
 
 	ssize_t alignment_score(const size_t query_index, const size_t target_index) const
 	{
