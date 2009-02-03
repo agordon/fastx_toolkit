@@ -49,7 +49,7 @@ void  SequenceAlignmentResults::print(std::ostream& strm) const
 		strm << std::string( delta - query_start, ' ') ;
 	//Un-Aligned query part (prefix)
 	if ( query_start > 0 )
-		strm << query_sequence.substr(0, query_start) ;
+		strm << query_sequence.substr(0, query_start-1) ;
 	//Aligned query part
 	strm << "(" << query_alignment << ")";
 	//Un-Aligned query part (suffix)
@@ -59,7 +59,7 @@ void  SequenceAlignmentResults::print(std::ostream& strm) const
 
 	//Alignment bars
 	if ( delta > 0 )
-		strm << std::string( delta, ' ') ;
+		strm << std::string( delta-1, ' ') ;
 	strm << "(" ;
 	for (index=0; index<query_alignment.length(); index++) {
 		strm << ((query_alignment[index]==target_alignment[index]) ? '*' : '|' );
@@ -72,7 +72,7 @@ void  SequenceAlignmentResults::print(std::ostream& strm) const
 		strm <<  std::string( delta - target_start, ' ') ;
 	//Un-Aligned target part (prefix)
 	if ( target_start > 0 )
-		strm << target_sequence.substr(0, target_start);
+		strm << target_sequence.substr(0, target_start-1);
 	//Aligned target part
 	strm << "(" << target_alignment << ")";
 
@@ -328,7 +328,7 @@ void HalfLocalSequenceAlignment::reset_matrix( size_t width, size_t height )
 			//((query_sequence()[x-1]=='N') ? neutral_panelty() : gap_panelty()) * (ssize_t)x ;
 			//((query_sequence()[x-1]=='N') ? 0 : gap_panelty()) * (ssize_t)x ;
 			0 ;
-		origin_matrix[x][0] = FROM_UPPER_LEFT ;
+		origin_matrix[x][0] = FROM_LEFT ;
 	}
 
 	for (y=0; y<height; y++) {
@@ -337,7 +337,7 @@ void HalfLocalSequenceAlignment::reset_matrix( size_t width, size_t height )
 			0;
 			//((target_sequence()[y-1]=='N') ? 0 : gap_panelty()) * (ssize_t)y ;
 			//((target_sequence()[y-1]=='N') ? neutral_panelty() : gap_panelty()) * (ssize_t)y ;
-		origin_matrix[0][y] = FROM_UPPER_LEFT;
+		origin_matrix[0][y] = FROM_UPPER;
 	}
 			
 }
@@ -443,14 +443,17 @@ void HalfLocalSequenceAlignment::find_optimal_alignment ( )
 		
 		const char q_nuc = query_nucleotide(query_index);
 		const char t_nuc = target_nucleotide(target_index);
+
+		//Gordon's improvement over Alex's clipper
 		if (t_nuc=='N')
 			break ;
+
 		const DIRECTION current_origin = origin(query_index, target_index);
 		const char current_match = match ( query_index, target_index ) ;
 		current_score = score(query_index, target_index);
 		
 
-		#if 1
+		#if 0
 		printf("query_index=%d   target_index=%d  query=%c target=%c score_matrix=%3.1f origin=%d  accumulated_score = %3.2f\n",
 			query_index, target_index, 
 			q_nuc, t_nuc,
@@ -461,6 +464,10 @@ void HalfLocalSequenceAlignment::find_optimal_alignment ( )
 	
 		_alignment_results.query_start = query_index ;
 		_alignment_results.target_start= target_index ;
+
+		//Original Alex's clipper behaviour, remove for better(?) gordon behaviour
+		//if ( current_score < match_panelty() )
+		//	break ;
 
 		/*
 		if ( current_origin == FROM_LEFT || current_origin == FROM_UPPER_LEFT || current_origin == STOP_MARKER ) {
@@ -577,16 +584,22 @@ void HalfLocalSequenceAlignment::post_process()
 
 	_alignment_results.query_sequence.erase ( _query_sequence.find_last_not_of('N') + 1) ;
 	_alignment_results.target_sequence.erase ( 0, _target_sequence.find_first_not_of('N') ) ;
-	_alignment_results.query_size = _query_sequence.length();
-	_alignment_results.target_size = _target_sequence.length();
+	_alignment_results.query_size = _alignment_results.query_sequence.length();
+	_alignment_results.target_size = _alignment_results.target_sequence.length();
 
 
+	size_t query_n_position = _alignment_results.query_alignment.find_last_not_of('N') ;
+	int query_n_count;
 
-	int query_n_position = _alignment_results.query_alignment.find_last_not_of('N')+1 ;
-	int query_n_count    = _alignment_results.query_alignment.length() - query_n_position ;
+	if ( query_n_position != string::npos )
+		query_n_count = _alignment_results.query_alignment.length() - query_n_position ;
+	else
+		query_n_count = 0 ;
+
 	int target_n_count = _alignment_results.target_alignment.find_first_not_of('N') ;
 
-	_alignment_results.query_alignment.erase( query_n_position ) ;
+	if (query_n_position != string::npos )
+		_alignment_results.query_alignment.erase( query_n_position ) ;
 	_alignment_results.target_alignment.erase( 0,target_n_count ) ;
 
 	//Update Results strucure
