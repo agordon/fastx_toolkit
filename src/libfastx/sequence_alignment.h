@@ -18,6 +18,8 @@
 #ifndef __SEQUENCE_ALIGNMENT_HEADER__
 #define __SEQUENCE_ALIGNMENT_HEADER__
 
+#include <err.h>
+
 struct SequenceAlignmentResults
 {
 	int alignment_found ;
@@ -82,6 +84,7 @@ protected:
 		FROM_LEFT  = 2,
 		FROM_UPPER_LEFT = 3,
 		FROM_NOWHERE = 4
+		//STOP_MARKER = 5 
 	} DIRECTION ;
 
 	std::vector< std::vector< score_type >  > score_matrix ;
@@ -114,13 +117,10 @@ public:
 	const std::string& query_sequence() const { return _query_sequence; }
 	const std::string& target_sequence() const { return _target_sequence; }
 
-	const SequenceAlignmentResults& results() const { return _alignment_results; }
+	const char query_nucleotide(size_t query_index) const { return _query_sequence[query_index] ; }
+	const char target_nucleotide(size_t target_index) const { return _target_sequence[target_index] ; }
 
-	score_type cell_score ( size_t query_index, size_t target_index )  const
-	{
-		//printf("cell_score(q=%zu,t=%zu)=%f\n", query_index, target_index, score_matrix[query_index][target_index]) ;
-		return score_matrix[query_index][target_index] ;
-	}
+	const SequenceAlignmentResults& results() const { return _alignment_results; }
 
 	char match_value ( const char q, const char t ) const
 	{
@@ -130,27 +130,46 @@ public:
 		return ( q==t ) ? 'M' : 'x' ;
 	}
 
-	score_type match_score(const size_t query_index, const size_t target_index) const
+	char match ( const size_t query_index, const size_t target_index) const 
 	{
-		if ( query_sequence()[query_index-1]=='N' && target_sequence()[target_index-1]=='N')
+		return match_matrix[query_index][target_index];
+	}
+	DIRECTION origin (  const size_t query_index, const size_t target_index) const 
+	{
+		return origin_matrix[query_index][target_index];
+	}
+
+	score_type score ( const size_t query_index, const size_t target_index) const 
+	{
+		return score_matrix[query_index][target_index];
+	}
+
+	score_type nucleotide_match_score(const size_t query_index, const size_t target_index) const
+	{
+		char q = query_nucleotide(query_index);
+		char t = target_nucleotide(target_index);
+
+		if ( q=='N' && t=='N' )
 			return 0.0 ;
 
-		if ( query_sequence()[query_index-1]=='N' || target_sequence()[target_index-1]=='N')
+		if ( q=='N' || t=='N' )
 			return neutral_panelty() ;
 
-		return (query_sequence()[query_index-1] == target_sequence()[target_index-1]) ? 
-				match_panelty() : mismatch_panelty() ;
+		return ( q==t ) ? match_panelty() : mismatch_panelty() ;
 	}
 
 	void print_matrix(std::ostream& strm = std::cout);
 
-	ssize_t alignment_score(const size_t query_index, const size_t target_index) const
+	score_type calculate_alignment_score(const size_t query_index, const size_t target_index) const
 	{
-		ssize_t score = -100000000;
+		score_type score = -100000000;
+
+		/*
+		score_type
 
 		//Score from the left-cell
 		if ( query_index > 0 )
-			if ((score_matrix[query_index-1][target_index] + gap_panelty()) > score)
+			if ( (score(query_index-1,target_index) + gap_panelty()) > score)
 				score = score_matrix[query_index-1][target_index] + gap_panelty();
 
 		//Score from the upper-cell
@@ -162,7 +181,7 @@ public:
 		if ( target_index>0 && query_index> 0) {
 			if (score_matrix[query_index-1][target_index-1] + match_score(query_index,target_index) > score) 
 				score = score_matrix[query_index-1][target_index-1] + match_score(query_index,target_index) ;
-		}
+		}*/
 		return score;
 
 	}

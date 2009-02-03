@@ -39,32 +39,45 @@ void  SequenceAlignmentResults::print(std::ostream& strm) const
 	     << " tend " << target_end 
 	     << std::endl ;
 
+        strm << endl;
+
 	delta = max(target_start, query_start);
 
+
+	//Spaces before the query string
 	if ( delta - query_start > 0 )
 		strm << std::string( delta - query_start, ' ') ;
+	//Un-Aligned query part (prefix)
 	if ( query_start > 0 )
 		strm << query_sequence.substr(0, query_start) ;
-	strm << query_alignment ;
-
-	if ( query_end+1 < query_sequence.length() )
+	//Aligned query part
+	strm << "(" << query_alignment << ")";
+	//Un-Aligned query part (suffix)
+	if ( query_end < query_sequence.length() )
 		strm << query_sequence.substr( query_end+1 ) ;
 	strm << std::endl ;
 
+	//Alignment bars
 	if ( delta > 0 )
 		strm << std::string( delta, ' ') ;
+	strm << "(" ;
 	for (index=0; index<query_alignment.length(); index++) {
 		strm << ((query_alignment[index]==target_alignment[index]) ? '*' : '|' );
 	}
+	strm << ")" ;
 	strm << std::endl;
 
+	//Spaces before the target string
 	if ( delta - target_start > 0 )
 		strm <<  std::string( delta - target_start, ' ') ;
+	//Un-Aligned target part (prefix)
 	if ( target_start > 0 )
 		strm << target_sequence.substr(0, target_start);
-	strm << target_alignment;
+	//Aligned target part
+	strm << "(" << target_alignment << ")";
 
-	if ( target_end+1 < target_sequence.length() )
+	//Un-Aligned target part (suffix)
+	if ( target_end < target_sequence.length() )
 		strm << target_sequence.substr( target_end+1 );
 	strm << std::endl;
 
@@ -101,7 +114,7 @@ const SequenceAlignmentResults& SequenceAlignment::align ( const std::string& qu
 
 	reset_alignment_results();
 
-	resize_matrix ( query_sequence().length()+1, target_sequence().length()+1 ) ;
+	resize_matrix ( query_sequence().length(), target_sequence().length() ) ;
 
 	reset_matrix( matrix_width(), matrix_height() );
 	populate_matrix();
@@ -131,7 +144,7 @@ void SequenceAlignment::resize_matrix(size_t width, size_t height)
 	for (size_t x=0; x<width; x++)
 		for(size_t y=0;y<height;y++)
 			match_matrix[x][y] = 
-				match_value ( query_sequence()[x-1], target_sequence()[y-1] ) ;
+				match_value ( query_nucleotide(x), target_nucleotide(y) ) ;
 }
 
 void SequenceAlignment::post_process()
@@ -163,21 +176,20 @@ void SequenceAlignment::print_matrix(std::ostream &strm)
 	#endif
 
 	strm << "Score-Matrix:" << endl ;
-	strm << setw(9) << left << "-" ;
 
-	for ( target_index=1; target_index<matrix_height(); target_index++ ) 
-		strm << setw(9) << left << target_sequence()[target_index-1];
+	//Print Target nucleotides
+	strm << setw(2) << left << " - " ;
+	for ( target_index=0; target_index<matrix_height(); target_index++ ) 
+		strm << setw(9) << left << target_nucleotide ( target_index ) ;
 	strm << endl;
 
-	for ( query_index=1; query_index<matrix_width(); query_index++ ) {
+	for ( query_index=0; query_index<matrix_width(); query_index++ ) {
 
-		strm << setw(9) << left << query_sequence()[query_index-1] ;
+		strm << setw(2) << left << query_nucleotide ( query_index ) ;
 
-		for ( target_index=1 ; target_index<matrix_height(); target_index++ ) {
-			DIRECTION origin = origin_matrix[query_index][target_index];
-
+		for ( target_index=0 ; target_index<matrix_height(); target_index++ ) {
 			char ch ;
-			switch (origin) 
+			switch (origin ( query_index, target_index ) ) 
 			{
 			case FROM_UPPER:      ch = '|' ;  break ;
 			case FROM_LEFT:       ch = '-' ;  break ;
@@ -186,10 +198,10 @@ void SequenceAlignment::print_matrix(std::ostream &strm)
 			default:              ch = '*' ; break ;
 			}
 
-			strm << setw(1) << match_matrix[query_index][target_index] ;
+			strm << setw(1) << match(query_index,target_index);
 			strm << setw(1) << ch ;
 			strm << setw(7) << fixed << setprecision(1) 
-			     << score_matrix[query_index][target_index] ;
+			     << score(query_index,target_index) ;
 		}
 		strm << endl;
 	}
@@ -310,19 +322,23 @@ void HalfLocalSequenceAlignment::reset_matrix( size_t width, size_t height )
 	highest_scored_query_index = 0 ;
 	highest_scored_target_index = 0 ;
 
-	for (x=0; x<width; x++) 
+	for (x=0; x<width; x++) {
 		score_matrix[x][0] = 
 			//gap_panelty() * (ssize_t)x ;
 			//((query_sequence()[x-1]=='N') ? neutral_panelty() : gap_panelty()) * (ssize_t)x ;
-			((query_sequence()[x-1]=='N') ? 0 : gap_panelty()) * (ssize_t)x ;
-			//0 ;
+			//((query_sequence()[x-1]=='N') ? 0 : gap_panelty()) * (ssize_t)x ;
+			0 ;
+		origin_matrix[x][0] = FROM_UPPER_LEFT ;
+	}
 
-	for (y=0; y<height; y++) 
+	for (y=0; y<height; y++) {
 		score_matrix[0][y] = 
 			//(gap_panelty() * (ssize_t)y);
-			//0;
-			((target_sequence()[y-1]=='N') ? 0 : gap_panelty()) * (ssize_t)y ;
+			0;
+			//((target_sequence()[y-1]=='N') ? 0 : gap_panelty()) * (ssize_t)y ;
 			//((target_sequence()[y-1]=='N') ? neutral_panelty() : gap_panelty()) * (ssize_t)y ;
+		origin_matrix[0][y] = FROM_UPPER_LEFT;
+	}
 			
 }
 
@@ -340,10 +356,10 @@ void HalfLocalSequenceAlignment::populate_matrix ( )
 		for ( target_index=1 ; target_index<matrix_height(); target_index++ ) {
 		//for ( target_index=1 ; target_index<=query_index; target_index++ ) {
 
-			float up_score     = cell_score ( query_index, target_index-1 ) + gap_panelty() ;
-			float left_score   = cell_score ( query_index-1, target_index ) + gap_panelty() ; 
-			float upleft_score = cell_score ( query_index-1, target_index - 1 ) + 
-						match_score ( query_index, target_index );
+			float up_score     = score(query_index,  target_index-1) + gap_panelty() ;
+			float left_score   = score(query_index-1,target_index )  + gap_panelty() ; 
+			float upleft_score = score(query_index-1,target_index-1) + 
+						nucleotide_match_score(query_index, target_index);
 
 			//On the diagonal line, best score can not come from upper cell
 			//only from left or upper-left cells
@@ -359,13 +375,13 @@ void HalfLocalSequenceAlignment::populate_matrix ( )
 				score = upleft_score ;
 				origin = FROM_UPPER_LEFT;
 			}
-			if ( left_score > score ) {
-				score = left_score ;
-				origin = FROM_LEFT ;
-			}
 			if ( up_score > score ) {
 				score = up_score ;
 				origin = FROM_UPPER ;
+			}
+			if ( left_score > score ) {
+				score = left_score ;
+				origin = FROM_LEFT ;
 			}
 			//printf("query_index=%d, target_index=%d,  score=%f origin=%d\n",
 			//		query_index, target_index, score, origin );
@@ -392,8 +408,8 @@ void HalfLocalSequenceAlignment::populate_matrix ( )
 void HalfLocalSequenceAlignment::find_optimal_alignment ( ) 
 {
 	#if 1
-	size_t query_index = highest_scored_query_index ;
-	size_t target_index = highest_scored_target_index;
+	ssize_t query_index = highest_scored_query_index ;
+	ssize_t target_index = highest_scored_target_index;
 	#else
 	size_t target_index = matrix_height()-1;
 
@@ -407,8 +423,8 @@ void HalfLocalSequenceAlignment::find_optimal_alignment ( )
 	}
 	#endif
 
-	_alignment_results.query_end = query_index-1 ;
-	_alignment_results.target_end= target_index-1 ;
+	_alignment_results.query_end = query_index ;
+	_alignment_results.target_end= target_index ;
 
 	_alignment_results.score = score_matrix[query_index][target_index];
 
@@ -420,78 +436,109 @@ void HalfLocalSequenceAlignment::find_optimal_alignment ( )
 
 	//printf ( "backtrace starting from (qindex=%d, tindex=%d, score=%d)\n",
 	//		query_index, target_index, score_matrix[query_index][target_index]) ;
+	
+	score_type current_score = 0;
 
-	while ( query_index > 0 && target_index > 0 ) {
-		//if ( score_matrix[query_index][target_index]< match_panelty()) 
-		//	break ;
+	while ( query_index >= 0 && target_index >= 0 ) {
 		
+		const char q_nuc = query_nucleotide(query_index);
+		const char t_nuc = target_nucleotide(target_index);
+		if (t_nuc=='N')
+			break ;
+		const DIRECTION current_origin = origin(query_index, target_index);
+		const char current_match = match ( query_index, target_index ) ;
+		current_score = score(query_index, target_index);
 		
-		#if 0
+
+		#if 1
 		printf("query_index=%d   target_index=%d  query=%c target=%c score_matrix=%3.1f origin=%d  accumulated_score = %3.2f\n",
 			query_index, target_index, 
-			query_sequence()[query_index-1], target_sequence()[target_index-1],
-			score_matrix[query_index][target_index],
-			origin_matrix[query_index][target_index],
+			q_nuc, t_nuc,
+			current_score, 
+			current_origin,
 			_alignment_results.score) ;
 		#endif
+	
+		_alignment_results.query_start = query_index ;
+		_alignment_results.target_start= target_index ;
 
+		/*
+		if ( current_origin == FROM_LEFT || current_origin == FROM_UPPER_LEFT || current_origin == STOP_MARKER ) {
+			_alignment_results.query_alignment += q_nuc ;
+		} else {
+			_alignment_results.query_alignment += "-" ;
+		}
 
-		DIRECTION origin = origin_matrix[query_index][target_index];
-
-		if ( origin == FROM_LEFT ) {
+		if ( current_origin == FROM_UPPER || current_origin == FROM_UPPER_LEFT || current_origin = STOP_MARKER ) {
+			_alignment_results.target_alignment += t_nuc;
+		} else {
 			_alignment_results.target_alignment += "-" ;
-			_alignment_results.query_alignment += query_sequence()[query_index-1] ;
+		}*/
+
+		switch ( current_origin )
+		{
+		case FROM_LEFT:
+			_alignment_results.target_alignment += "-" ;
+			_alignment_results.query_alignment += q_nuc ;
 			_alignment_results.gaps++;
 			_alignment_results.score += gap_panelty();
 
 			query_index--;
-		}
-		else
-		if ( origin == FROM_UPPER_LEFT ) {
-			_alignment_results.target_alignment += target_sequence()[target_index-1];
-			_alignment_results.query_alignment += query_sequence()[query_index-1] ;
+			break ;
 
-				
-		//	char q = query_sequence()[query_index-1];
-		//	char t = target_sequence()[target_index-1];
-		//		(++_alignment_results.matches) : (++_alignment_results.mismatches) ;
-			char match_type = match_matrix[query_index][target_index];
-			if ( match_type == 'N' ) {
+		case FROM_UPPER_LEFT:
+			_alignment_results.target_alignment += t_nuc;
+			_alignment_results.query_alignment += q_nuc ;
+
+			switch ( current_match ) 
+			{
+			case 'N':
 				_alignment_results.neutral_matches++ ;
 				_alignment_results.score += neutral_panelty();
-			} else
-			if ( match_type == 'M' ) {
+				break ;
+
+			case 'M':
 				_alignment_results.matches++;
 				_alignment_results.score += match_panelty();
-			} else
-			if ( match_type == 'x' ) {
+				break;
+
+			case 'x':
 				_alignment_results.mismatches++;
 				_alignment_results.score += mismatch_panelty();
-			} else {
+				break ;
+
+			default:
 				errx(1,"Internal error: unknown match type (%c) at query_index=%d, target_index=%d\n",
-					match_type, query_index, target_index ) ;
+					current_match, query_index, target_index ) ;
 			}
-			
+
 			query_index--;
 			target_index--;
-		}
-		else
-		if (origin == FROM_UPPER ) {
-			_alignment_results.target_alignment += target_sequence()[target_index-1];
+			break ;
+
+		case FROM_UPPER:
+			//HalfLocal Alignment doesn't allow insertions in the query
+			//break;
+
+			_alignment_results.target_alignment += t_nuc ;
 			_alignment_results.query_alignment += "-" ;
 			_alignment_results.gaps++;
 			_alignment_results.score += gap_panelty();
 
 			target_index--;
-		}
-		else
-		if (origin == FROM_NOWHERE ) {
-			break ;
-		}
-		else {
+			break;
+
+	/*	case STOP_MARKER:
+			_alignment_results.target_alignment += t_nuc;
+			_alignment_results.query_alignment += q_nuc ;
+			break ;*/
+
+		case FROM_NOWHERE:
+
+		default:
 			print_matrix();
 			printf("Invalid origin (%d) at query_index=%d, target_index=%d\n", 
-					origin, query_index, target_index ) ;
+					current_origin, query_index, target_index ) ;
 			printf("Query = %s\n", query_sequence().c_str());
 			printf("Target= %s\n", target_sequence().c_str());
 			exit(1);
@@ -508,8 +555,8 @@ void HalfLocalSequenceAlignment::find_optimal_alignment ( )
 		_alignment_results.alignment_found = true ;
 	}
 
-	_alignment_results.query_start = query_index ;
-	_alignment_results.target_start= target_index ;
+	//_alignment_results.score = current_score ;
+
 
 	_alignment_results.query_size = query_sequence().length();
 	_alignment_results.target_size= target_sequence().length();
