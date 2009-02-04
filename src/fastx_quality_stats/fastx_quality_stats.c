@@ -116,7 +116,7 @@ void init_values()
 
 void read_file()
 {
-	int index;
+	size_t index;
 	int quality_value;
 	int reads_count ;
 

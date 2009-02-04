@@ -23,9 +23,35 @@ AC_DEFINE([CXX_HAS_NO_BOOL], [], [Description])
 AC_DEFINE([NDEBUG], [], [Description])
 AC_DEFINE([YOUR_OS], [], [Description])
 
-#Is this the right way to add compiler flags?
-CFLAGS="-Wall -g -O1"
-CXXFLAGS="-Wall -g -O1"
+dnl --enable-wall
+EXTRA_CHECKS="-Wall -Wextra -Wformat-nonliteral -Wformat-security -Wswitch-default -Wswitch-enum -Wunused-parameter -Wfloat-equal -Werror"
+AC_ARG_ENABLE(wall,
+[  --enable-wall          Enable many common GCC warnings (-Wall,-Wextra, -Werror etc., default enabled)],
+[case "${enableval}" in
+  yes) wall=true ;;
+  no)  wall=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-wall) ;;
+esac],[wall=true])
+if test "$wall" = "true"
+then
+  CFLAGS="${CFLAGS} ${EXTRA_CHECKS}"
+  CXXFLAGS="${CXXFLAGS} ${EXTRA_CHECKS}"
+fi
+
+dnl --enable-debug
+AC_ARG_ENABLE(debug,
+[  --enable-debug          Enable debug mode (default enabled)],
+[case "${enableval}" in
+  yes) debug=true ;;
+  no)  debug=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
+esac],[debug=true])
+if test "$debug" = "true"
+then
+  CFLAGS="${CFLAGS} -DDEBUG -g -O1"
+else
+  CFLAGS="${CFLAGS} -O3"
+fi
 
 
 LF_CONFIGURE_CC

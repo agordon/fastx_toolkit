@@ -53,7 +53,7 @@ int min_percent=0;
 
 FASTX fastx;
 
-int parse_program_args(int optind, int optc, char* optarg)
+int parse_program_args(int __attribute__((unused)) optind, int optc, char* optarg)
 {
 	switch(optc) {
 	case 'q':
@@ -69,6 +69,8 @@ int parse_program_args(int optind, int optc, char* optarg)
 		if (min_percent<=0 ||  min_percent>100) 
 			errx(1,"Invalid percent value (-p %s)", optarg);
 		break;
+	default:
+		errx(1, __FILE__ ":%d: Unknown argument (%c)", __LINE__, optc ) ;
 	}
 	return 1;
 }
@@ -107,7 +109,7 @@ int get_index_of_nth_element(int *array, int array_size, int n)
 
 int get_percentile_quality(const FASTX *fastx, int percentile)
 {
-	int i;
+	size_t i;
 	int count=0;
 	int quality_values[QUALITY_VALUES_RANGE];
 

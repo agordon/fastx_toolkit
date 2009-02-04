@@ -112,7 +112,7 @@ static void detect_input_format(FASTX *pFASTX)
 
 static void convert_ascii_quality_score_line(const char* ascii_quality_scores, FASTX *pFASTX)
 {
-	int i;
+	size_t i;
 
 	if (strlen(ascii_quality_scores) != strlen(pFASTX->nucleotides))
 		errx(1,"number of quality values (%d) doesn't match number of nucleotides (%d) on line %lld",
@@ -131,7 +131,7 @@ static void convert_ascii_quality_score_line(const char* ascii_quality_scores, F
 
 static void convert_numeric_quality_score_line ( const char* numeric_quality_line, FASTX *pFASTX )
 {
-	int index;
+	size_t index;
 	const char *quality_tok;
 	char *endptr;
 	int quality_value;
@@ -203,9 +203,8 @@ int open_output_file(const char* filename)
 	return fd;
 }
 
-int open_output_compressor(FASTX *pFASTX, const char* filename)
+int open_output_compressor(FASTX __attribute__((unused)) *pFASTX, const char* filename)
 {
-	int i;
 	int fd;
 	pid_t child_pid;
 	int parent_pipe[2];
@@ -295,6 +294,10 @@ void fastx_init_writer(FASTX *pFASTX,
 
 		pFASTX->output_sequence_id_prefix = (pFASTX->write_fastq) ? '@' : '>';
 		break;
+
+	default:
+		errx(1, __FILE__ ":%d: Unknown output_type (%d)", 
+			__LINE__, output_type ) ;
 	}
 }
 	

@@ -105,8 +105,6 @@ void reverse_complement_fastx(FASTX* pFASTX)
 
 int main(int argc, char* argv[])
 {
-	int i;
-	
 	fastx_parse_cmdline(argc, argv, "", NULL);
 
 	fastx_init_reader(&fastx, get_input_filename(), 

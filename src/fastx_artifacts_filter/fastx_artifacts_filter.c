@@ -88,6 +88,9 @@ int artifact_sequence(const FASTX *fastx)
 		case 'N':
 			n_count++;
 			break;
+		default:
+			errx(1, __FILE__":%d: invalid nucleotide value (%c) at position %d",
+				__LINE__, fastx->nucleotides[i], i ) ;
 		}
 		i++;
 	}

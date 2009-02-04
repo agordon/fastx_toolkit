@@ -49,7 +49,7 @@ FASTX fastx;
 int flag_rename_seqid = 0;
 int flag_discard_N = 1 ;
 
-int parse_program_args(int optind, int optc, char* optarg)
+int parse_program_args(int __attribute__((unused)) optind, int optc, char __attribute__((unused)) *optarg)
 {
 	switch(optc) {
 	case 'n':
@@ -59,6 +59,8 @@ int parse_program_args(int optind, int optc, char* optarg)
 	case 'r':
 		flag_rename_seqid = 1;
 		break;
+	default:
+		errx(1, __FILE__ ":%d: Unknown argument (%c)", __LINE__, optc ) ;
 	}
 	return 1;
 }
@@ -74,11 +76,6 @@ int main(int argc, char* argv[])
 	fastx_init_writer(&fastx, get_output_filename(), OUTPUT_FASTA, compress_output_flag());
 
 	while ( fastx_read_next_record(&fastx) ) {
-
-#ifdef DEBUG
-		fastx_debug_print_record($fastx);
-#endif
-
 		//See if the input sequence contained 'N' nucleotides
 		if ( flag_discard_N  && (strchr(fastx.nucleotides,'N') != NULL)) 
 				continue;

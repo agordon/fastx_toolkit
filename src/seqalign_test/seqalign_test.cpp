@@ -5,7 +5,7 @@
 #include "sequence_alignment.h"
 
 
-int main(int argc, char* argv[])
+int main( /*int argc, char* argv[] */)
 {
 	HalfLocalSequenceAlignment lsa ;
 

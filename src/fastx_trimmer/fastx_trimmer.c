@@ -49,7 +49,7 @@ int keep_last_base=DO_NOT_TRIM_LAST_BASE;
 
 FASTX fastx;
 
-int parse_program_args(int optind, int optc, char* optarg)
+int parse_program_args(int __attribute__((unused)) optind, int optc, char* optarg)
 {
 	switch(optc) {
 	case 'f':
@@ -68,6 +68,9 @@ int parse_program_args(int optind, int optc, char* optarg)
 			errx(1,"Invalid number bases to keep (-l %s)", optarg);
 		break;
 
+	default:
+		errx(1, __FILE__ ":%d: Unknown argument (%c)", __LINE__, optc ) ;
+
 	}
 	return 1;
 }
@@ -75,7 +78,7 @@ int parse_program_args(int optind, int optc, char* optarg)
 
 int main(int argc, char* argv[])
 {
-	int i;
+	size_t i;
 	
 	fastx_parse_cmdline(argc, argv, "l:f:", parse_program_args);
 

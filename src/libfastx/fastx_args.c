@@ -92,7 +92,7 @@ int fastx_parse_cmdline( int argc, char* argv[],
 		//Parse the default options
 		switch(opt) {
 		case 'h':
-			printf(usage);
+			printf("%s", usage);
 			exit(1);
 		
 		case 'v':
