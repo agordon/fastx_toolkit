@@ -352,7 +352,7 @@ void HalfLocalSequenceAlignment::populate_matrix ( )
 	size_t target_index ;
 	DIRECTION origin = FROM_LEFT;
 
-	float highest_score = -1000000 ;
+	score_type highest_score = -1000000 ;
 	highest_scored_query_index = -1 ;
 	highest_scored_target_index = -1 ;
 
@@ -360,9 +360,9 @@ void HalfLocalSequenceAlignment::populate_matrix ( )
 		for ( target_index=1 ; target_index<matrix_height(); target_index++ ) {
 		//for ( target_index=1 ; target_index<=query_index; target_index++ ) {
 
-			float up_score     = score(query_index,  target_index-1) + gap_panelty() ;
-			float left_score   = score(query_index-1,target_index )  + gap_panelty() ; 
-			float upleft_score = score(query_index-1,target_index-1) + 
+			score_type up_score     = score(query_index,  target_index-1) + gap_panelty() ;
+			score_type left_score   = score(query_index-1,target_index )  + gap_panelty() ; 
+			score_type upleft_score = score(query_index-1,target_index-1) + 
 						nucleotide_match_score(query_index, target_index);
 
 			//On the diagonal line, best score can not come from upper cell
@@ -373,7 +373,7 @@ void HalfLocalSequenceAlignment::populate_matrix ( )
 			//printf("query_index=%d, target_index=%d,  upscore=%f, left_score=%f, upleft_score=%f\n",
 			//		query_index, target_index, up_score,left_score,upleft_score );
 
-			float score = -100000000 ;
+			score_type score = -100000000 ;
 
 			if ( upleft_score > score ) {
 				score = upleft_score ;
