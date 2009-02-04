@@ -117,8 +117,8 @@ public:
 	const std::string& query_sequence() const { return _query_sequence; }
 	const std::string& target_sequence() const { return _target_sequence; }
 
-	const char query_nucleotide(size_t query_index) const { return _query_sequence[query_index] ; }
-	const char target_nucleotide(size_t target_index) const { return _target_sequence[target_index] ; }
+	char query_nucleotide(size_t query_index) const { return _query_sequence[query_index] ; }
+	char target_nucleotide(size_t target_index) const { return _target_sequence[target_index] ; }
 
 	const SequenceAlignmentResults& results() const { return _alignment_results; }
 
@@ -160,6 +160,7 @@ public:
 
 	void print_matrix(std::ostream& strm = std::cout);
 
+	#if 0
 	score_type calculate_alignment_score(const size_t query_index, const size_t target_index) const
 	{
 		score_type score = -100000000;
@@ -185,6 +186,7 @@ public:
 		return score;
 
 	}
+	#endif
 
 	const SequenceAlignmentResults& align ( const std::string& query, const std::string& target ) ;
 

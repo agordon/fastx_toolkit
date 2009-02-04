@@ -82,7 +82,7 @@ unsigned int count_discarded_N=0; // see [-n]
 FASTX fastx;
 HalfLocalSequenceAlignment align;
 
-int parse_program_args(int optind, int optc, char* optarg)
+int parse_program_args(int __attribute__((unused)) optind, int optc, char* optarg)
 {
 	switch(optc) {
 		case 'D':
@@ -124,14 +124,14 @@ int parse_program_args(int optind, int optc, char* optarg)
 				errx(1,"[-l] parameter requires an argument value");
 			
 			min_length = strtoul(optarg, NULL, 10);
-			if (min_length<0) 
-				errx(1,"Invalid minimum length specified (-l %s)", optarg);
 			break;
 			
 		case 'n':
 			discard_unknown_bases = 0 ;
 			break;
 
+		default:
+			errx(1,"Unknown argument (%c)", optc ) ;
 
 	}
 	return 1;
