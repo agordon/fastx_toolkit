@@ -129,9 +129,8 @@ void SequenceAlignment::resize_matrix(size_t width, size_t height)
 {
 	size_t i;
 
-	match_matrix.resize ( width );
-	for (i=0;i<width;i++)
-		match_matrix[i].resize(height) ;
+	if ( matrix_width() >= width && matrix_height() >= height )
+		return ;
 
 	score_matrix.resize ( width );
 	for (i=0;i<width;i++)
@@ -140,6 +139,11 @@ void SequenceAlignment::resize_matrix(size_t width, size_t height)
 	origin_matrix.resize ( width );
 	for (i=0;i<width;i++)
 		origin_matrix[i].resize(height) ;
+
+	match_matrix.resize ( width );
+	for (i=0;i<width;i++) {
+		match_matrix[i].resize(height) ;
+	}
 
 	for (size_t x=0; x<width; x++)
 		for(size_t y=0;y<height;y++)

@@ -49,8 +49,10 @@ esac],[debug=true])
 if test "$debug" = "true"
 then
   CFLAGS="${CFLAGS} -DDEBUG -g -O1"
+  CXXFLAGS="${CFLAGS} -DDEBUG -g -O1"
 else
   CFLAGS="${CFLAGS} -O3"
+  CXXFLAGS="${CFLAGS} -O3"
 fi
 
 
