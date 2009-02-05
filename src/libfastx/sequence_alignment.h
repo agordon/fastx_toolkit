@@ -73,11 +73,7 @@ struct SequenceAlignmentResults
 class SequenceAlignment
 {
 protected:
-	#if 0
-	typedef ssize_t score_type;
-	#else
 	typedef float score_type;
-	#endif
 
 	typedef enum {
 		FROM_UPPER = 1,
@@ -224,6 +220,9 @@ protected:
 	size_t highest_scored_target_index ;
 
 public:
+	HalfLocalSequenceAlignment ( ) ;
+	virtual ~HalfLocalSequenceAlignment() {}
+
 	virtual void set_sequences ( const std::string& _query, const std::string &target ) ;
 	virtual void reset_matrix( size_t width, size_t height )  ;
 	virtual void populate_matrix ( ) ;

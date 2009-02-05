@@ -88,7 +88,6 @@ SequenceAlignment::SequenceAlignment ( ) :
 	_match_panelty(1),
 	_mismatch_panelty(-1),
 	_neutral_panelty(0.1)
-
 {
 }
 
@@ -311,6 +310,10 @@ void LocalSequenceAlignment::find_optimal_alignment ( )
 	std::reverse(_alignment_results.query_alignment.begin(), _alignment_results.query_alignment.end());
 }
 #endif
+
+HalfLocalSequenceAlignment::HalfLocalSequenceAlignment()
+{
+}
 
 void HalfLocalSequenceAlignment::set_sequences(const std::string& _query, const std::string& _target)
 {
