@@ -133,6 +133,9 @@ void SequenceAlignment::resize_matrix(size_t width, size_t height)
 	if ( matrix_width() >= width && matrix_height() >= height )
 		return ;
 
+	query_border.resize ( width ) ;
+	target_border.resize ( height ) ;
+
 	score_matrix.resize ( width );
 	for (i=0;i<width;i++)
 		score_matrix[i].resize(height) ;
@@ -161,7 +164,7 @@ void SequenceAlignment::post_process()
 	
 }
 
-void SequenceAlignment::print_matrix(std::ostream &strm)
+void SequenceAlignment::print_matrix(std::ostream &strm) const
 {
 	size_t query_index ;
 	size_t target_index ;
@@ -187,16 +190,21 @@ void SequenceAlignment::print_matrix(std::ostream &strm)
 	strm << "Score-Matrix:" << endl ;
 
 	//Print Target nucleotides
-	strm << setw(2) << left << " - " ;
-	for ( target_index=0; target_index<matrix_height(); target_index++ ) 
-		strm << setw(9) << left << target_nucleotide ( target_index ) ;
+	strm << setw(2) << left << "-" << setw(7) << "-" ;
+	for ( query_index=0; query_index<matrix_width(); query_index++ ) 
+		strm << setw(9) << left << query_nucleotide ( query_index ) ;
+	strm << endl;
+	strm << setw(2) << left << "-" << setw(7) << "-" ;
+	for ( query_index=0; query_index<matrix_width(); query_index++ ) 
+		strm << setw(9) << left << query_border[query_index] ;
 	strm << endl;
 
-	for ( query_index=0; query_index<matrix_width(); query_index++ ) {
+	for ( target_index=0; target_index<matrix_height(); target_index++ ) {
 
-		strm << setw(2) << left << query_nucleotide ( query_index ) ;
+		strm << setw(2) << left << target_nucleotide ( target_index ) ;
+		strm << setw(6) << right << target_border[target_index] << setw(1) << " ";
 
-		for ( target_index=0 ; target_index<matrix_height(); target_index++ ) {
+		for ( query_index=0 ; query_index<matrix_width(); query_index++ ) {
 			char ch ;
 			switch (origin ( query_index, target_index ) ) 
 			{
@@ -207,6 +215,7 @@ void SequenceAlignment::print_matrix(std::ostream &strm)
 			default:              ch = '*' ; break ;
 			}
 
+			strm << left ;
 			strm << setw(1) << match(query_index,target_index);
 			strm << setw(1) << ch ;
 			strm << setw(7) << fixed << setprecision(1) 
@@ -319,8 +328,10 @@ void LocalSequenceAlignment::find_optimal_alignment ( )
 
 void HalfLocalSequenceAlignment::set_sequences(const std::string& _query, const std::string& _target)
 {
-	_query_sequence  = _query + std::string( _target.length(), 'N' ); 
-	_target_sequence = std::string( _query.length(), 'N' ) + _target;
+	//_query_sequence  = _query + std::string( _target.length(), 'N' ); 
+	//_target_sequence = std::string( _query.length(), 'N' ) + _target;
+	_query_sequence = _query ;
+	_target_sequence = _target ;
 }
 
 
@@ -332,21 +343,19 @@ void HalfLocalSequenceAlignment::reset_matrix( size_t width, size_t height )
 	highest_scored_target_index = 0 ;
 
 	for (x=0; x<width; x++) {
-		score_matrix[x][0] = 
+		query_border[x] = 
 			//gap_panelty() * (ssize_t)x ;
 			//((query_sequence()[x-1]=='N') ? neutral_panelty() : gap_panelty()) * (ssize_t)x ;
 			//((query_sequence()[x-1]=='N') ? 0 : gap_panelty()) * (ssize_t)x ;
 			0 ;
-		origin_matrix[x][0] = FROM_LEFT ;
 	}
 
 	for (y=0; y<height; y++) {
-		score_matrix[0][y] = 
-			//(gap_panelty() * (ssize_t)y);
-			0;
+		target_border[y] = 
+			( y <= 3 ) ? 0 : (gap_panelty() * (ssize_t)(y-3));
+			//0;
 			//((target_sequence()[y-1]=='N') ? 0 : gap_panelty()) * (ssize_t)y ;
 			//((target_sequence()[y-1]=='N') ? neutral_panelty() : gap_panelty()) * (ssize_t)y ;
-		origin_matrix[0][y] = FROM_UPPER;
 	}
 			
 }
@@ -361,19 +370,22 @@ void HalfLocalSequenceAlignment::populate_matrix ( )
 	highest_scored_query_index = -1 ;
 	highest_scored_target_index = -1 ;
 
-	for ( query_index=1; query_index<matrix_width(); query_index++ ) {
-		for ( target_index=1 ; target_index<matrix_height(); target_index++ ) {
-		//for ( target_index=1 ; target_index<=query_index; target_index++ ) {
+	for ( query_index=0; query_index<matrix_width(); query_index++ ) {
+		for ( target_index=0 ; target_index<matrix_height(); target_index++ ) {
 
-			score_type up_score     = score(query_index,  target_index-1) + gap_panelty() ;
-			score_type left_score   = score(query_index-1,target_index )  + gap_panelty() ; 
-			score_type upleft_score = score(query_index-1,target_index-1) + 
+			//Note:
+			// 'safe_score()' can accept negative value of -1 (and will return the border value)
+			score_type up_score     = safe_score(query_index,  ((ssize_t)target_index)-1) + gap_panelty() ;
+			score_type left_score   = safe_score(((ssize_t)query_index)-1,target_index )  + gap_panelty() ; 
+			score_type upleft_score = safe_score(((ssize_t)query_index)-1,((ssize_t)target_index)-1) + 
 						nucleotide_match_score(query_index, target_index);
 
 			//On the diagonal line, best score can not come from upper cell
 			//only from left or upper-left cells
-			//if ( target_index == query_index )
-			//	left_score = -100000 ;
+			if ( target_index>3 && target_index-3 > query_index ) {
+				left_score = -100000 ;
+				up_score = -10000 ;
+			}
 
 			//printf("query_index=%d, target_index=%d,  upscore=%f, left_score=%f, upleft_score=%f\n",
 			//		query_index, target_index, up_score,left_score,upleft_score );
@@ -414,113 +426,142 @@ void HalfLocalSequenceAlignment::populate_matrix ( )
 	}
 }
 
-void HalfLocalSequenceAlignment::find_optimal_alignment ( ) 
+bool HalfLocalSequenceAlignment::starting_point_close_to_end_of_sequences(const size_t query_index, const size_t target_index) const
 {
-	#if 1
-	ssize_t query_index = highest_scored_query_index ;
-	ssize_t target_index = highest_scored_target_index;
-	#else
-	size_t target_index = matrix_height()-1;
+	if ( (size_t)query_index  >= query_sequence().length() - 2  ||
+	     (size_t)target_index >= target_sequence().length() - 2 ) {
+		/* We've reach either the end of the Adapter
+		 * (and the adapter is shorter than the query)
+		 * Or the end of the query 
+		 * (and the adapter covers up to the end of the query, and then continues on)
+		 *
+		 * So we can safely start the alignment from this point
+		 */
+		return true;
+	}
+	else {
+		/* The adapter is not covering the query until the end.
+		 */
+		return false;
+	}
+}
 
-	size_t query_index = 0;
-	ssize_t max_score = score_matrix[query_index][target_index] ;
-	for ( size_t index = 0 ; index < matrix_width(); index++ ) {
-		if ( score_matrix[index][target_index] > max_score ) {
-			max_score = score_matrix[index][target_index];
-			query_index = index ;
+#undef DEBUG_STARTING_POINT
+void HalfLocalSequenceAlignment::find_alignment_starting_point(ssize_t &new_query_index, ssize_t &new_target_index) const
+{
+	 /*
+	 * Force the alignment to start from the end of the query,
+	 * find the best score at the end of the query
+	 *
+	 * Try (desperately) to find a match that starts at the end of the query or the end of the target/adapter)
+	 */
+	score_type max_score = score( matrix_width()-1, matrix_height()-1 ) ;
+	for ( size_t q_index = 0 ; q_index < matrix_width(); q_index++ ) {
+		for ( size_t t_index = matrix_height()-2 ; t_index < matrix_height(); t_index++ ) {
+			if ( origin ( q_index, t_index ) > 0 && 
+				safe_score ( q_index, t_index ) > max_score ) {
+				max_score = safe_score ( q_index, t_index ) ;
+				#ifdef DEBUG_STARTING_POINT
+				printf("Found new max score = %f at %d,%d\n", max_score, q_index, t_index ) ;
+				#endif
+				new_target_index = t_index ;
+				new_query_index = q_index ;
+			}
 		}
 	}
+	for ( size_t q_index = matrix_width()-2 ; q_index < matrix_width(); q_index++ ) {
+		for ( size_t t_index = 0 ; t_index < matrix_height(); t_index++ ) {
+			if ( origin ( q_index, t_index ) > 0 && 
+				safe_score ( q_index, t_index ) > max_score ) {
+				max_score = safe_score ( q_index, t_index ) ;
+				#ifdef DEBUG_STARTING_POINT
+				printf("Found new max score = %f at %d,%d\n", max_score, q_index, t_index ) ;
+				#endif
+				new_target_index = t_index ;
+				new_query_index = q_index ;
+			}
+		}
+	}
+	#ifdef DEBUG_STARTING_POINT
+	printf("Forcing alignment from query_index=%d, target_index=%d, score=%f, origin=%d\n",
+		new_query_index, new_target_index,
+		score ( new_query_index, new_target_index ),
+		origin ( new_query_index, new_target_index ) );
 	#endif
+}
 
-	_alignment_results.query_end = query_index ;
-	_alignment_results.target_end= target_index ;
 
-	_alignment_results.score = score_matrix[query_index][target_index];
+#undef DEBUG_FIND_OPTIMAL_ALIGNMENT
+SequenceAlignmentResults HalfLocalSequenceAlignment::find_optimal_alignment_from_point ( const size_t query_start, const size_t target_start ) const
+{
+	SequenceAlignmentResults results;
 
-	_alignment_results.neutral_matches = 0 ;
-	_alignment_results.matches = 0 ;
-	_alignment_results.mismatches = 0 ;
-	_alignment_results.gaps = 0 ;
-	_alignment_results.score = 0 ;
+	results.query_sequence = query_sequence();
+	results.target_sequence= target_sequence();
 
-	//printf ( "backtrace starting from (qindex=%d, tindex=%d, score=%d)\n",
-	//		query_index, target_index, score_matrix[query_index][target_index]) ;
+	ssize_t query_index = query_start;
+	ssize_t target_index = target_start ;
+
+	results.query_end = query_index ;
+	results.target_end= target_index ;
+
+	#ifdef DEBUG_FIND_OPTIMAL_ALIGNMENT
+	printf ( "backtrace starting from (qindex=%d, tindex=%d, score=%f)\n",
+			query_index, target_index, score_matrix[query_index][target_index]) ;
+	#endif
 	
-	score_type current_score = 0;
-
 	while ( query_index >= 0 && target_index >= 0 ) {
 		
 		const char q_nuc = query_nucleotide(query_index);
 		const char t_nuc = target_nucleotide(target_index);
 
-		//Gordon's improvement over Alex's clipper
-		if (t_nuc=='N')
-			break ;
-
 		const DIRECTION current_origin = origin(query_index, target_index);
 		const char current_match = match ( query_index, target_index ) ;
-		current_score = score(query_index, target_index);
-		
 
-		#if 0
+
+		#ifdef DEBUG_FIND_OPTIMAL_ALIGNMENT
+		const score_type current_score = score(query_index, target_index);
 		printf("query_index=%d   target_index=%d  query=%c target=%c score_matrix=%3.1f origin=%d  accumulated_score = %3.2f\n",
 			query_index, target_index, 
 			q_nuc, t_nuc,
 			current_score, 
 			current_origin,
-			_alignment_results.score) ;
+			results.score) ;
 		#endif
 	
-		_alignment_results.query_start = query_index ;
-		_alignment_results.target_start= target_index ;
-
-		//Original Alex's clipper behaviour, remove for better(?) gordon behaviour
-		//if ( current_score < match_panelty() )
-		//	break ;
-
-		/*
-		if ( current_origin == FROM_LEFT || current_origin == FROM_UPPER_LEFT || current_origin == STOP_MARKER ) {
-			_alignment_results.query_alignment += q_nuc ;
-		} else {
-			_alignment_results.query_alignment += "-" ;
-		}
-
-		if ( current_origin == FROM_UPPER || current_origin == FROM_UPPER_LEFT || current_origin = STOP_MARKER ) {
-			_alignment_results.target_alignment += t_nuc;
-		} else {
-			_alignment_results.target_alignment += "-" ;
-		}*/
+		results.query_start = query_index ;
+		results.target_start= target_index ;
 
 		switch ( current_origin )
 		{
 		case FROM_LEFT:
-			_alignment_results.target_alignment += "-" ;
-			_alignment_results.query_alignment += q_nuc ;
-			_alignment_results.gaps++;
-			_alignment_results.score += gap_panelty();
+			results.target_alignment += "-" ;
+			results.query_alignment += q_nuc ;
+			results.gaps++;
+			results.score += gap_panelty();
 
 			query_index--;
 			break ;
 
 		case FROM_UPPER_LEFT:
-			_alignment_results.target_alignment += t_nuc;
-			_alignment_results.query_alignment += q_nuc ;
+			results.target_alignment += t_nuc;
+			results.query_alignment += q_nuc ;
 
 			switch ( current_match ) 
 			{
 			case 'N':
-				_alignment_results.neutral_matches++ ;
-				_alignment_results.score += neutral_panelty();
+				results.neutral_matches++ ;
+				results.score += neutral_panelty();
 				break ;
 
 			case 'M':
-				_alignment_results.matches++;
-				_alignment_results.score += match_panelty();
+				results.matches++;
+				results.score += match_panelty();
 				break;
 
 			case 'x':
-				_alignment_results.mismatches++;
-				_alignment_results.score += mismatch_panelty();
+				results.mismatches++;
+				results.score += mismatch_panelty();
 				break ;
 
 			default:
@@ -533,24 +574,15 @@ void HalfLocalSequenceAlignment::find_optimal_alignment ( )
 			break ;
 
 		case FROM_UPPER:
-			//HalfLocal Alignment doesn't allow insertions in the query
-			//break;
-
-			_alignment_results.target_alignment += t_nuc ;
-			_alignment_results.query_alignment += "-" ;
-			_alignment_results.gaps++;
-			_alignment_results.score += gap_panelty();
+			results.target_alignment += t_nuc ;
+			results.query_alignment += "-" ;
+			results.gaps++;
+			results.score += gap_panelty();
 
 			target_index--;
 			break;
 
-	/*	case STOP_MARKER:
-			_alignment_results.target_alignment += t_nuc;
-			_alignment_results.query_alignment += q_nuc ;
-			break ;*/
-
 		case FROM_NOWHERE:
-
 		default:
 			print_matrix();
 			printf("Invalid origin (%d) at query_index=%d, target_index=%d\n", 
@@ -561,24 +593,59 @@ void HalfLocalSequenceAlignment::find_optimal_alignment ( )
 		}
 	}
 
-	/*_alignment_results.score = 
-			_alignment_results.matches * match_panelty() +
-			_alignment_results.mismatches * mismatch_panelty() +
-			_alignment_results.gaps * gap_panelty() +
-			_alignment_results.neutral_matches * neutral_panelty() ;*/
+	results.query_size = query_sequence().length();
+	results.target_size= target_sequence().length();
+
+	std::reverse(results.target_alignment.begin(),results.target_alignment.end());
+	std::reverse(results.query_alignment.begin(), results.query_alignment.end());
+
+	return results;
+}
+
+void HalfLocalSequenceAlignment::find_optimal_alignment ( ) 
+{
+	SequenceAlignmentResults results ;
 	
-	if (query_index<=0) {
-		_alignment_results.alignment_found = true ;
+
+	//Try to find a good alignment, 
+	//starting from the highest score cell.
+	results = find_optimal_alignment_from_point ( highest_scored_query_index,
+						      highest_scored_target_index ) ;
+
+	//Some heuristics:
+	//If the adapter matched 7 nucleotides anywhere in the query
+	//without mismatches/gaps, accept it.
+	if ( results.matches >= 7 
+	     && 
+	     results.mismatches == 0
+	     &&
+	     results.gaps == 0 ) {
+	     	
+		_alignment_results = results ;
+		return ;
 	}
 
-	//_alignment_results.score = current_score ;
+	if ( starting_point_close_to_end_of_sequences ( highest_scored_query_index,
+						        highest_scored_target_index ) ) {
+		//We're already very close to the end of the target or query,
+		//can't improve much else, so return what we've got.
+		_alignment_results = results ;
+		return ;
+	}
 
 
-	_alignment_results.query_size = query_sequence().length();
-	_alignment_results.target_size= target_sequence().length();
+	//More heuristics:
+	/* The adapter is not covering the query until the end.
+	 * Force the alignment to start from the end of the query,
+	 * find the best score at the end of the query
+	 *
+	 * Try (desperately) to find a match that starts at the end of the query or the end of the target/adapter)
+	 */
+	ssize_t query_index = highest_scored_query_index ;
+	ssize_t target_index = highest_scored_target_index;
+	find_alignment_starting_point ( query_index, target_index ) ;
 
-	std::reverse(_alignment_results.target_alignment.begin(), _alignment_results.target_alignment.end());
-	std::reverse(_alignment_results.query_alignment.begin(), _alignment_results.query_alignment.end());
+	_alignment_results = results ;
 }
 
 void HalfLocalSequenceAlignment::post_process()

@@ -188,19 +188,16 @@ int adapter_cutoff_index ( const SequenceAlignmentResults& alignment_results )
 	if (alignment_size==0)
 		return -1;
 
-	if ( alignment_results.target_alignment.at(0) != 'N') {
-		if ( alignment_results.score >= 5 )
-			return alignment_results.query_start ;
-		if ( alignment_results.mismatches == 0 )
-			return alignment_results.query_start ;
-		if ( alignment_size < 5 && alignment_results.matches >= 3) 
-			return alignment_results.query_start ;
-	}
+	if ( alignment_results.mismatches == 0 )
+		return alignment_results.query_start ;
 
-	if ( alignment_results.target_alignment.at(0) != 'N' )
-		return -1;
+	if ( alignment_results.score >= 5 )
+		return alignment_results.query_start ;
 
-	return alignment_results.query_start + alignment_results.target_alignment.find_first_not_of('N') + 1 ;
+	if ( alignment_size < 5 && alignment_results.matches >= 3) 
+			return alignment_results.query_start ;
+
+	return -1;
 }
 
 

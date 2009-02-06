@@ -83,6 +83,9 @@ protected:
 		//STOP_MARKER = 5 
 	} DIRECTION ;
 
+	std::vector < score_type > query_border ;
+	std::vector < score_type > target_border ;
+
 	std::vector< std::vector< score_type >  > score_matrix ;
 	std::vector< std::vector< DIRECTION >  > origin_matrix ;
 	std::vector< std::vector< char > > match_matrix ;
@@ -140,6 +143,16 @@ public:
 		return score_matrix[query_index][target_index];
 	}
 
+	score_type safe_score ( const ssize_t query_index, const ssize_t target_index) const 
+	{
+		if (query_index==-1)
+			return target_border[target_index];
+		if (target_index==-1)
+			return query_border[query_index];
+
+		return score_matrix[query_index][target_index];
+	}
+
 	score_type nucleotide_match_score(const size_t query_index, const size_t target_index) const
 	{
 		char q = query_nucleotide(query_index);
@@ -154,7 +167,7 @@ public:
 		return ( q==t ) ? match_panelty() : mismatch_panelty() ;
 	}
 
-	void print_matrix(std::ostream& strm = std::cout);
+	void print_matrix(std::ostream& strm = std::cout) const;
 
 	#if 0
 	score_type calculate_alignment_score(const size_t query_index, const size_t target_index) const
@@ -226,6 +239,11 @@ public:
 	virtual void populate_matrix ( ) ;
 	virtual void find_optimal_alignment ( )  ;
 	virtual void post_process() ;
+
+	bool starting_point_close_to_end_of_sequences(const size_t query_index, const size_t target_index) const;
+	void find_alignment_starting_point(ssize_t &new_query_index, ssize_t &new_target_index) const;
+
+	SequenceAlignmentResults find_optimal_alignment_from_point ( const size_t query_start, const size_t target_start ) const ;
 };
 
 #endif
