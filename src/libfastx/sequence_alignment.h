@@ -188,6 +188,7 @@ public:
 
 protected:
 	void resize_matrix(size_t width, size_t height);
+	void populate_match_matrix();
 
 	virtual void reset_alignment_results() ; 
 
@@ -220,9 +221,6 @@ protected:
 	size_t highest_scored_target_index ;
 
 public:
-	HalfLocalSequenceAlignment ( ) ;
-	virtual ~HalfLocalSequenceAlignment() {}
-
 	virtual void set_sequences ( const std::string& _query, const std::string &target ) ;
 	virtual void reset_matrix( size_t width, size_t height )  ;
 	virtual void populate_matrix ( ) ;

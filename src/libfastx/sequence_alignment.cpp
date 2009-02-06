@@ -88,6 +88,7 @@ SequenceAlignment::SequenceAlignment ( ) :
 	_match_panelty(1),
 	_mismatch_panelty(-1),
 	_neutral_panelty(0.1)
+
 {
 }
 
@@ -114,6 +115,7 @@ const SequenceAlignmentResults& SequenceAlignment::align ( const std::string& qu
 	reset_alignment_results();
 
 	resize_matrix ( query_sequence().length(), target_sequence().length() ) ;
+	populate_match_matrix();
 
 	reset_matrix( matrix_width(), matrix_height() );
 	populate_matrix();
@@ -143,12 +145,16 @@ void SequenceAlignment::resize_matrix(size_t width, size_t height)
 	for (i=0;i<width;i++) {
 		match_matrix[i].resize(height) ;
 	}
+}
 
-	for (size_t x=0; x<width; x++)
-		for(size_t y=0;y<height;y++)
+void SequenceAlignment::populate_match_matrix()
+{
+	for (size_t x=0; x<matrix_width(); x++)
+		for(size_t y=0;y<matrix_height();y++)
 			match_matrix[x][y] = 
 				match_value ( query_nucleotide(x), target_nucleotide(y) ) ;
 }
+
 
 void SequenceAlignment::post_process()
 {
@@ -310,10 +316,6 @@ void LocalSequenceAlignment::find_optimal_alignment ( )
 	std::reverse(_alignment_results.query_alignment.begin(), _alignment_results.query_alignment.end());
 }
 #endif
-
-HalfLocalSequenceAlignment::HalfLocalSequenceAlignment()
-{
-}
 
 void HalfLocalSequenceAlignment::set_sequences(const std::string& _query, const std::string& _target)
 {
