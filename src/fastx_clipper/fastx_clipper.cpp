@@ -38,7 +38,7 @@
 #define MAX_ADAPTER_LEN 100
 
 const char* usage=
-"usage: fastx_clipper [-h] [-a ADAPTER] [-D] [-s N] [-l N] [-n] [-d N] [-c] [-C] [-v] [-z] [-i INFILE] [-o OUTFILE]\n" \
+"usage: fastx_clipper [-h] [-a ADAPTER] [-D] [-s N] [-l N] [-n] [-d N] [-c] [-C] [-o] [-v] [-z] [-i INFILE] [-o OUTFILE]\n" \
 "\n" \
 "version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
@@ -49,6 +49,7 @@ const char* usage=
 "                  (using '-d 0' is the same as not using '-d' at all. which is the default).\n" \
 "   [-c]         = Discard non-clipped sequences (i.e. - keep only sequences which contained the adapter).\n" \
 "   [-C]         = Discard clipped sequences (i.e. - keep only sequences which did not contained the adapter).\n" \
+"   [-k]         = Report Adapter-Only sequences.\n" \
 "   [-n]         = keep sequences with unknown (N) nucleotides. default is to discard such sequences.\n" \
 "   [-v]         = Verbose - report number of sequences.\n" \
 "                  If [-o] is specified,  report will be printed to STDOUT.\n" \
@@ -68,6 +69,7 @@ int discard_unknown_bases=1;
 int keep_delta=0;
 int discard_non_clipped=0;
 int discard_clipped=0;
+int show_adapter_only=0;
 int debug = 0 ;
 
 
@@ -85,6 +87,10 @@ HalfLocalSequenceAlignment align;
 int parse_program_args(int __attribute__((unused)) optind, int optc, char* optarg)
 {
 	switch(optc) {
+		case 'k':
+			show_adapter_only=1;
+			break;
+
 		case 'D':
 			debug++;
 			break ;
@@ -139,7 +145,7 @@ int parse_program_args(int __attribute__((unused)) optind, int optc, char* optar
 
 int parse_commandline(int argc, char* argv[])
 {
-	fastx_parse_cmdline(argc, argv, "DCcd:a:s:l:n", parse_program_args);
+	fastx_parse_cmdline(argc, argv, "kDCcd:a:s:l:n", parse_program_args);
 
 	if (keep_delta>0) 
 		keep_delta += strlen(adapter);
@@ -185,17 +191,45 @@ int adapter_cutoff_index ( const SequenceAlignmentResults& alignment_results )
 			     alignment_results.mismatches +
 			     alignment_results.gaps ;
 
+	//No alignment at all?
 	if (alignment_size==0)
 		return -1;
 
-	if ( alignment_results.mismatches == 0 )
+	//Any good alignment at the end of the query
+	//(even only a single nucleotide)
+	//Example:
+	//  The adapter starts with CTGTAG, The Query ends with CT - it's a match.
+	if ( alignment_results.query_end == alignment_results.query_size-1
+	     &&
+	     alignment_results.mismatches == 0 ) {
+	     	//printf("--1\n");
 		return alignment_results.query_start ;
+	}
 
-	if ( alignment_results.score >= 5 )
+	if ( alignment_size > 5
+	     &&
+	     alignment_results.target_start == 0
+	     &&
+	     (alignment_results.matches * 100 / alignment_size ) >= 75 ) {
+	     	//printf("--2\n");
 		return alignment_results.query_start ;
+	}
 
-	if ( alignment_size < 5 && alignment_results.matches >= 3) 
+	if ( alignment_size > 11 
+	     &&
+	     (alignment_results.matches * 100 / alignment_size ) >= 80 ) {
+	     	//printf("--2\n");
+		return alignment_results.query_start ;
+	}
+
+	//
+	//Be very lenient regarding alignments at the end of the query sequence
+	if ( alignment_results.query_end >= alignment_results.query_size-2
+	     &&
+	     alignment_size <= 5 && alignment_results.matches >= 3) {
+			//printf("--3\n");
 			return alignment_results.query_start ;
+		}
 
 	return -1;
 }
@@ -244,6 +278,9 @@ int main(int argc, char* argv[])
 
 		if (i==0) { // empty sequence ? (in which the adapter was found at index 0)
 			count_discarded_adapter_at_index_zero += reads_count;
+			
+			if (show_adapter_only)
+				fastx_write_record(&fastx);
 			continue;
 		}
 
@@ -267,8 +304,10 @@ int main(int argc, char* argv[])
 			continue;
 		}
 		
-		//none of the above condition matched, so print this sequence.
-		fastx_write_record(&fastx);
+		if (!show_adapter_only)  {
+			//none of the above condition matched, so print this sequence.
+			fastx_write_record(&fastx);
+		}
 	}
 
 	//

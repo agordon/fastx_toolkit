@@ -46,7 +46,7 @@ void  SequenceAlignmentResults::print(std::ostream& strm) const
 
 	//Spaces before the query string
 	if ( delta - query_start > 0 )
-		strm << std::string( delta - query_start, ' ') ;
+		strm << std::string( delta - query_start-1, ' ') ;
 	//Un-Aligned query part (prefix)
 	if ( query_start > 0 )
 		strm << query_sequence.substr(0, query_start-1) ;
@@ -384,7 +384,6 @@ void HalfLocalSequenceAlignment::populate_matrix ( )
 			//only from left or upper-left cells
 			if ( target_index>3 && target_index-3 > query_index ) {
 				left_score = -100000 ;
-				up_score = -10000 ;
 			}
 
 			//printf("query_index=%d, target_index=%d,  upscore=%f, left_score=%f, upleft_score=%f\n",
