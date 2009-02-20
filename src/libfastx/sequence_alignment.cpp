@@ -564,7 +564,7 @@ SequenceAlignmentResults HalfLocalSequenceAlignment::find_optimal_alignment_from
 				break ;
 
 			default:
-				errx(1,"Internal error: unknown match type (%c) at query_index=%d, target_index=%d\n",
+				errx(1,"Internal error: unknown match type (%c) at query_index=%zu, target_index=%zu\n",
 					current_match, query_index, target_index ) ;
 			}
 
@@ -584,7 +584,7 @@ SequenceAlignmentResults HalfLocalSequenceAlignment::find_optimal_alignment_from
 		case FROM_NOWHERE:
 		default:
 			print_matrix();
-			printf("Invalid origin (%d) at query_index=%d, target_index=%d\n", 
+			printf("Invalid origin (%d) at query_index=%zu, target_index=%zu\n", 
 					current_origin, query_index, target_index ) ;
 			printf("Query = %s\n", query_sequence().c_str());
 			printf("Target= %s\n", target_sequence().c_str());

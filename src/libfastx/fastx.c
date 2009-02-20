@@ -115,7 +115,7 @@ static void convert_ascii_quality_score_line(const char* ascii_quality_scores, F
 	size_t i;
 
 	if (strlen(ascii_quality_scores) != strlen(pFASTX->nucleotides))
-		errx(1,"number of quality values (%d) doesn't match number of nucleotides (%d) on line %lld",
+		errx(1,"number of quality values (%zu) doesn't match number of nucleotides (%zu) on line %lld",
 				strlen(ascii_quality_scores), strlen(pFASTX->nucleotides),
 				pFASTX->input_line_number);
 
@@ -156,7 +156,7 @@ static void convert_numeric_quality_score_line ( const char* numeric_quality_lin
 	} while (quality_tok != NULL && *quality_tok!='\0') ;
 
 	if (index != strlen(pFASTX->nucleotides)) {
-		errx(1,"number of quality values (%d) doesn't match number of nucleotides (%d) on line %lld",
+		errx(1,"number of quality values (%zu) doesn't match number of nucleotides (%zu) on line %lld",
 				index, strlen(pFASTX->nucleotides), pFASTX->input_line_number );
 	}
 }
