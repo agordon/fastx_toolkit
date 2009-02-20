@@ -15,6 +15,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <cstdlib>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -82,7 +83,7 @@ unsigned int count_discarded_adapter_found=0; // see [-C] option
 unsigned int count_discarded_N=0; // see [-n]
 
 FASTX fastx;
-HalfLocalSequenceAlignment align;
+HalfLocalSequenceAlignment *align;
 
 int parse_program_args(int __attribute__((unused)) optind, int optc, char* optarg)
 {
@@ -145,6 +146,7 @@ int parse_program_args(int __attribute__((unused)) optind, int optc, char* optar
 
 int parse_commandline(int argc, char* argv[])
 {
+
 	fastx_parse_cmdline(argc, argv, "kDCcd:a:s:l:n", parse_program_args);
 
 	if (keep_delta>0) 
@@ -242,6 +244,8 @@ int main(int argc, char* argv[])
 
 	parse_commandline(argc, argv);
 
+	align = new HalfLocalSequenceAlignment();
+
 	fastx_init_reader(&fastx, get_input_filename(), 
 		FASTA_OR_FASTQ, ALLOW_N, REQUIRE_UPPERCASE);
 
@@ -259,17 +263,19 @@ int main(int argc, char* argv[])
 		std::string target= std::string(adapter);
 		#endif
 		
-		align.align( query, target ) ;
+		
+		align->align( query, target ) ;
 
 		if (debug>1) 
-			align.print_matrix();
+			align->print_matrix();
 		if (debug>0)
-			align.results().print();
-
+			align->results().print();
+		
 		count_input+= reads_count;
 
 		//Find the best match with the adapter
-		i = adapter_cutoff_index ( align.results() ) ;
+		i = adapter_cutoff_index ( align->results() ) ;
+		
 		if (i!=-1 && i>0) {
 			i += keep_delta;
 			//Just trim the string after this position
