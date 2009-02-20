@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
 		fprintf(get_report_file(), "Output: %zu reads.\n", num_output_reads(&fastx) ) ;
 
 		size_t discarded = num_input_reads(&fastx) - num_output_reads(&fastx) ;
-		fprintf(get_report_file(), "discarded %u (%u%%) low-quality reads.\n", 
+		fprintf(get_report_file(), "discarded %zu (%zu%%) low-quality reads.\n", 
 			discarded, (discarded*100)/( num_input_reads(&fastx) ) ) ;
 	}	
 
