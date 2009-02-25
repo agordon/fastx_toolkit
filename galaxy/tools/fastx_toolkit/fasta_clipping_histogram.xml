@@ -25,13 +25,13 @@ This tool creates a histogram image of sequence lengths distribution in a given 
 In the following library, most sequences are 24-mers to 27-mers. 
 This could indicate an abundance of endo-siRNAs (depending of course of what you've tried to sequence in the first place).
 
-.. image:: ../static/fastx_icons/fasta_clipping_histogram_1.png
+.. image:: ./static/fastx_icons/fasta_clipping_histogram_1.png
 
 
 In the following library, most sequences are 19,22 or 23-mers. 
 This could indicate an abundance of miRNAs (depending of course of what you've tried to sequence in the first place).
 
-.. image:: ../static/fastx_icons/fasta_clipping_histogram_2.png
+.. image:: ./static/fastx_icons/fasta_clipping_histogram_2.png
 
 </help>
 </tool>
