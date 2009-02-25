@@ -86,7 +86,7 @@ static void detect_input_format(FASTX *pFASTX)
 {
 	//Get the first character in the file,
 	//and put it right back
-	char c = fgetc(pFASTX->input);
+	int c = fgetc(pFASTX->input);
 	ungetc(c, pFASTX->input);
 	
 	switch(c) {
@@ -103,6 +103,10 @@ static void detect_input_format(FASTX *pFASTX)
 				pFASTX->input_file_name);
 		pFASTX->read_fastq = 1;	
 		break;
+	
+	case -1:   /* EOF as first character - no input */
+		errx(1, "Premature End-Of-File (filename ='%s')", pFASTX->input_file_name);
+		break; 
 
 	default:
 		errx(1, "input file (%s) has unknown file format (not FASTA or FASTQ), first character = %c (%d)", 
