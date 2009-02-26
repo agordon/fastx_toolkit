@@ -31,9 +31,9 @@
 #define MAX_SEQUENCE_LENGTH (MAX_SEQ_LINE_LENGTH) // as of Nov. 2008,  110 Cycles is the max... change it as necessary
 
 const char* usage=
-"usage: fastq_qual_stat [-h] [-i INFILE] [-o OUTFILE]\n" \
+"usage: fastx_quality_stats [-h] [-i INFILE] [-o OUTFILE]\n" \
 "\n" \
-"version " VERSION " (C) 2008 by Assaf Gordon (gordon@cshl.edu)\n" \
+"version " VERSION " \n" \
 "   [-h] = This helpful help screen.\n" \
 "   [-i INFILE]  = FASTQ input file. default is STDIN.\n" \
 "   [-o OUTFILE] = TEXT output file. default is STDOUT.\n" \

@@ -38,12 +38,11 @@
 #define MAX_ADAPTER_LEN 100
 
 const char* usage=
-"usage: fastx_clipper [-h] [-a ADAPTER] [-D] [-s N] [-l N] [-n] [-d N] [-c] [-C] [-o] [-v] [-z] [-i INFILE] [-o OUTFILE]\n" \
+"usage: fastx_clipper [-h] [-a ADAPTER] [-D] [-l N] [-n] [-d N] [-c] [-C] [-o] [-v] [-z] [-i INFILE] [-o OUTFILE]\n" \
 "\n" \
 "version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-a ADAPTER] = ADAPTER string. default is CCTTAAGG (dummy adapter).\n" \
-"   [-s N]       = Max. number of mismatches allowed. default is 2.\n" \
 "   [-l N]       = discard sequences shorter than N nucleotides. default is 5.\n" \
 "   [-d N]       = Keep the adapter and N bases after it.\n" \
 "                  (using '-d 0' is the same as not using '-d' at all. which is the default).\n" \
@@ -63,7 +62,6 @@ const char* usage=
 
 //Default adapter - Dummy sequence
 char adapter[MAX_ADAPTER_LEN]="CCTTAAGG";
-int max_mismatches=2;
 unsigned int min_length=5;
 int discard_unknown_bases=1;
 int keep_delta=0;
@@ -116,15 +114,6 @@ int parse_program_args(int __attribute__((unused)) optind, int optc, char* optar
 			//	errx(1,"Invalid adapter string (-a %s)", adapter);
 			break ;
 			
-		case 's':
-			if (optarg==NULL) 
-				errx(1, "[-s] parameter requires an argument value");
-			
-			max_mismatches = strtoul(optarg, NULL, 10);
-			if (max_mismatches<0 || max_mismatches>5) 
-				errx(1,"Invalid number mismatches specified (-s %s). Allowed range: 0 to 5.", optarg);
-			break;
-
 		case 'l':
 			if (optarg==NULL) 
 				errx(1,"[-l] parameter requires an argument value");
@@ -317,7 +306,6 @@ int main(int argc, char* argv[])
 	//Print verbose report
 	if ( verbose_flag() ) {
 		fprintf(get_report_file(), "Clipping Adapter: %s\n", adapter );
-		fprintf(get_report_file(), "Max. mismatches: %d\n", max_mismatches ) ;
 		fprintf(get_report_file(), "Min. Length: %d\n", min_length) ;
 
 		if (discard_clipped)

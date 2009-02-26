@@ -29,7 +29,7 @@
 #include "fastx_args.h"
 
 const char* usage=
-"usage: fastq_qual_conv [-h] [-a] [-n] [-z] [-i INFILE] [-f OUTFILE]\n" \
+"usage: fastq_quality_converter [-h] [-a] [-n] [-z] [-i INFILE] [-f OUTFILE]\n" \
 "\n" \
 "version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \

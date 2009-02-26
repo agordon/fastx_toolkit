@@ -31,7 +31,7 @@
 #define MAX_ADAPTER_LEN 100
 
 const char* usage=
-"usage: fastq_artifacts_filter [-h] [-v] [-z] [-i INFILE] [-o OUTFILE]\n" \
+"usage: fastx_artifacts_filter [-h] [-v] [-z] [-i INFILE] [-o OUTFILE]\n" \
 "\n" \
 "version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
