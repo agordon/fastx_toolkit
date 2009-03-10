@@ -23,6 +23,8 @@ AC_DEFINE([CXX_HAS_NO_BOOL], [], [Description])
 AC_DEFINE([NDEBUG], [], [Description])
 AC_DEFINE([YOUR_OS], [], [Description])
 
+PKG_CHECK_MODULES([GTEXTUTILS],[gtextutils-0.1])
+
 dnl --enable-wall
 EXTRA_CHECKS="-Wall -Wextra -Wformat-nonliteral -Wformat-security -Wswitch-default -Wswitch-enum -Wunused-parameter -Wfloat-equal -Werror"
 AC_ARG_ENABLE(wall,
