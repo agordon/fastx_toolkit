@@ -63,7 +63,7 @@ public:
 		ostrm << sequence_id << std::endl;
 		if ( !sequence_bases.empty() ) {
 			size_t start = 0 ;
-			while ( (sequence_bases.length() - start) > max_width ) {
+			while ( (sequence_bases.length() - start) >= max_width ) {
 				ostrm << sequence_bases.substr ( start, max_width ) << std::endl;
 				start += max_width ;
 			}
