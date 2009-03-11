@@ -8,17 +8,13 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-SUBDIRS = libfastx \
-	fastx_clipper \
-	fastx_trimmer \
-	fastx_quality_stats \
-	fastq_quality_converter \
-	fastq_to_fasta \
-	fastq_quality_filter \
-	fastx_artifacts_filter \
-	fastx_reverse_complement \
-	fastx_collapser \
-	seqalign_test \
-	fasta_set_width
 
+bin_PROGRAMS = fasta_set_width
+
+AM_CPPFLAGS = $(CC_WARNINGS) 
+	
+INCLUDES = $(GTEXTUTILS_CFLAGS) -I../libfastx
+LDADD = $(GTEXTUTILS_LIBS) ../libfastx/libfastx.a
+
+fasta_set_width_SOURCES = fasta_set_width.cpp
 
