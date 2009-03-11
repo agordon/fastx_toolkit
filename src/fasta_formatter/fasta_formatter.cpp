@@ -3,40 +3,152 @@
 #include <iostream>
 #include <string>
 
+#include <getopt.h>
+#include <err.h>
+
 #include <gtextutils/stream_wrapper.h>
 #include <gtextutils/text_line_reader.h>
 #include <gtextutils/print_utils.h>
 
 #include "sequence_writers.h"
 
+#include "config.h"
+
 using namespace std;
 
 string input_filename;
 string output_filename;
-bool flag_output_empty_sequences = true;
+bool flag_output_empty_sequences = false ;
+bool flag_output_tabular = false ;
+int  flag_requested_output_width = 0 ;
+
+const char* usage_string=
+"usage: fasta_formatter [-h] [-i INFILE] [-o OUTFILE] [-w N] [-t] [-e]\n" \
+"Part of " PACKAGE_STRING " by gordon@cshl.edu\n" \
+"\n" \
+"   [-h]         = This helpful help screen.\n" \
+"   [-i INFILE]  = FASTA/Q input file. default is STDIN.\n" \
+"   [-o OUTFILE] = FASTA/Q output file. default is STDOUT.\n" \
+"   [-w N]       = max. sequence line width for output FASTA file.\n" \
+"                  When ZERO (the default), sequence lines will NOT be wrapped -\n" \
+"                  all nucleotides of each sequences will appear on a single \n" \
+"                  line (good for scripting).\n" \
+"   [-t]         = Output tabulated format (instead of FASTA format).\n" \
+"                  Sequence-Identifiers will be on first column,\n" \
+"                  Nucleotides will appear on second column (as single line).\n" \
+"   [-e]         = Output empty sequences (default is to discard them).\n" \
+"                  Empty sequences are ones who have only a sequence identifier,\n" \
+"                  but not actual nucleotides.\n" \
+"\n" \
+"Input Example:\n" \
+"   >MY-ID\n" \
+"   AAAAAGGGGG\n" \
+"   CCCCCTTTTT\n" \
+"   AGCTN\n" \
+"\n" \
+"Output example with unlimited line width [-w 0]:\n" \
+"   >MY-ID\n" \
+"   AAAAAGGGGGCCCCCTTTTTAGCTN\n" \
+"\n" \
+"Output example with max. line width=7 [-w 7]:\n" \
+"   >MY-ID\n" \
+"   AAAAAGG\n" \
+"   GGGTTTT\n" \
+"   TCCCCCA\n" \
+"   GCTN\n" \
+"\n" \
+"Output example with tabular output [-t]:\n" \
+"   MY-ID	AAAAAGGGGGCCCCCTTTTAGCTN\n" \
+"\n" \
+"example of empty sequence:\n" \
+"(will be discarded unless [-e] is used)\n" \
+"  >REGULAR-SEQUENCE-1\n" \
+"  AAAGGGTTTCCC\n" \
+"  >EMPTY-SEQUENCE\n" \
+"  >REGULAR-SEQUENCE-2\n" \
+"  AAGTAGTAGTAGTAGT\n" \
+"  GTATTTTATAT\n" \
+"\n" \
+"\n";
+
+void usage()
+{
+	printf("%s",usage_string);
+	exit(0);
+}
+
+void parse_command_line(int argc, char* argv[])
+{
+	int opt;
+
+	while ( (opt = getopt(argc, argv, "i:o:hw:te") ) != -1 ) {
+		
+		//Parse the default options
+		switch(opt) {
+		case 'h':
+			usage();
+		
+		case 'i':
+			input_filename = optarg;
+			break;
+
+		case 'o':
+			output_filename = optarg;
+			break;
+
+		case 'w':
+			flag_requested_output_width = atoi(optarg);
+			if ( flag_requested_output_width < 0 )
+				errx(1,"Invalid value (%s) for requested width [-w]", optarg);
+			break ;
+
+		case 't':
+			flag_output_tabular = true ;
+			break;
+
+		case 'e':
+			flag_output_empty_sequences = true;
+			break;
+			
+		default:
+			exit(1);
+		}
+	}
+}
 
 
-int main()
+int main(int argc, char* argv[])
 {
 	ios::sync_with_stdio(false);
+
+	parse_command_line(argc, argv);
 
 	InputStreamWrapper input ( input_filename ) ;
 	OutputStreamWrapper output ( output_filename );
 	TextLineReader reader ( input.stream() ) ;
 
+	/*
+	 * Use the writer according to the user's request
+	 */
 	SequencesWriter * pWriter = NULL ;
-	SingleLineFastaWriter* pSingleLineWriter = new SingleLineFastaWriter( output.stream() ) ;
-	pWriter = pSingleLineWriter;
 
-	MultiLineFastaWriter *pMultiLineWriter = new MultiLineFastaWriter ( output.stream(), 55 ) ;
-	pWriter = pMultiLineWriter ;
-
-
+	if ( flag_output_tabular ) {
+		pWriter = new TabulatedFastaWriter ( output.stream() ) ;
+	} else {
+		if ( flag_requested_output_width == 0 )
+			pWriter = new SingleLineFastaWriter ( output.stream() ) ;
+		else 
+			pWriter = new MultiLineFastaWriter ( output.stream(), flag_requested_output_width ) ;
+	}
 	if (!flag_output_empty_sequences) {
-		EmptySequencesFilter *filter = new EmptySequencesFilter ( *pWriter ) ;
+		EmptySequencesFilter *filter = new EmptySequencesFilter ( pWriter ) ;
 		pWriter = filter ;
 	}
-	
+
+
+	/*
+	 * FASTA read/process/write loop
+	 */
 	int max_length = 0 ;
 	string sequence_id ;
 	string sequence_bases ;
@@ -67,5 +179,7 @@ int main()
 
 	//Write the last sequence
 	pWriter->write ( sequence_id, sequence_bases ) ;
+
+	delete pWriter;
 }
 
