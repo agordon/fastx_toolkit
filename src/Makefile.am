@@ -19,6 +19,7 @@ SUBDIRS = libfastx \
 	fastx_reverse_complement \
 	fastx_collapser \
 	seqalign_test \
-	fasta_set_width
+	fasta_formatter
+
 
 

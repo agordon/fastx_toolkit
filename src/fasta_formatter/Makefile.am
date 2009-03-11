@@ -9,12 +9,12 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 
-bin_PROGRAMS = fasta_set_width
+bin_PROGRAMS = fasta_formatter
 
 AM_CPPFLAGS = $(CC_WARNINGS) 
 	
 INCLUDES = $(GTEXTUTILS_CFLAGS) -I../libfastx
 LDADD = $(GTEXTUTILS_LIBS) ../libfastx/libfastx.a
 
-fasta_set_width_SOURCES = fasta_set_width.cpp
+fasta_formatter_SOURCES = fasta_formatter.cpp
 
