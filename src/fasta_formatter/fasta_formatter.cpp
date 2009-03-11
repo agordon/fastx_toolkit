@@ -7,96 +7,14 @@
 #include <gtextutils/text_line_reader.h>
 #include <gtextutils/print_utils.h>
 
+#include "sequence_writers.h"
+
 using namespace std;
 
 string input_filename;
 string output_filename;
 bool flag_output_empty_sequences = true;
 
-class SequencesWriter
-{
-public:
-	virtual ~SequencesWriter() {}
-	virtual void write ( const std::string& sequence_id, const std::string& sequence_bases ) = 0 ;
-};
-
-class EmptySequencesFilter : public SequencesWriter
-{
-private:
-	SequencesWriter& upstream ;
-
-public:
-	EmptySequencesFilter ( SequencesWriter & _upstream ) : upstream(_upstream) {}
-
-	virtual void write ( const std::string & sequence_id, const std::string& sequence_bases)
-	{
-		if ( !sequence_bases.empty() )
-			upstream.write ( sequence_id, sequence_bases ) ;
-	}
-};
-
-class SingleLineFastaWriter : public SequencesWriter
-{
-private:
-	ostream& ostrm ;
-public:
-	SingleLineFastaWriter ( ostream& output_stream ) :
-		ostrm ( output_stream )
-	{
-	}
-
-	virtual void write ( const std::string & sequence_id, const std::string& sequence_bases )
-	{
-		ostrm << sequence_id << endl;
-		if ( !sequence_bases.empty() )
-			ostrm << sequence_bases << endl ;
-	}
-};
-
-class MultiLineFastaWriter : public SequencesWriter
-{
-private:
-	ostream& ostrm ;
-	size_t   max_width ;
-
-public:
-	MultiLineFastaWriter ( ostream& output_stream, size_t _max_width ) :
-		ostrm ( output_stream ), max_width ( _max_width ) 
-	{
-	}
-
-	virtual void write ( const std::string & sequence_id, const std::string& sequence_bases )
-	{
-		ostrm << sequence_id << endl;
-		if ( !sequence_bases.empty() ) {
-			size_t start = 0 ;
-			while ( (sequence_bases.length() - start) > max_width ) {
-				ostrm << sequence_bases.substr ( start, max_width ) << endl;
-				start += max_width ;
-			}
-			if ( sequence_bases.length() - start > 0 )
-				ostrm << sequence_bases.substr ( start ) << endl ;
-		}
-	}
-};
-
-class TabulatedFastaWriter : public SequencesWriter
-{
-private:
-	ostream& ostrm ;
-public:
-	TabulatedFastaWriter ( ostream& output_stream ) : ostrm ( output_stream ) { }
-
-	virtual void write ( const std::string & sequence_id, const std::string& sequence_bases )
-	{
-		ostrm << sequence_id ;
-		if ( !sequence_bases.empty() ) {
-			ostrm << "\t" ;
-			ostrm << sequence_bases ;
-		}
-		ostrm << endl;
-	}
-};
 
 int main()
 {

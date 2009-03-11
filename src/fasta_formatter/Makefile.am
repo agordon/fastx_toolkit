@@ -16,5 +16,6 @@ AM_CPPFLAGS = $(CC_WARNINGS)
 INCLUDES = $(GTEXTUTILS_CFLAGS) -I../libfastx
 LDADD = $(GTEXTUTILS_LIBS) ../libfastx/libfastx.a
 
-fasta_formatter_SOURCES = fasta_formatter.cpp
+fasta_formatter_SOURCES = fasta_formatter.cpp \
+			sequence_writers.h
 
