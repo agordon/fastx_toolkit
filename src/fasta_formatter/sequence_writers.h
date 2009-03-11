@@ -14,15 +14,20 @@ public:
 class EmptySequencesFilter : public SequencesWriter
 {
 private:
-	SequencesWriter& upstream ;
+	SequencesWriter* upstream ;
 
 public:
-	EmptySequencesFilter ( SequencesWriter & _upstream ) : upstream(_upstream) {}
+	EmptySequencesFilter ( SequencesWriter * _upstream ) : upstream(_upstream) {}
+
+	~EmptySequencesFilter()
+	{
+		delete upstream;
+	}
 
 	virtual void write ( const std::string & sequence_id, const std::string& sequence_bases)
 	{
 		if ( !sequence_bases.empty() )
-			upstream.write ( sequence_id, sequence_bases ) ;
+			upstream->write ( sequence_id, sequence_bases ) ;
 	}
 };
 
@@ -77,7 +82,7 @@ public:
 
 	virtual void write ( const std::string & sequence_id, const std::string& sequence_bases )
 	{
-		ostrm << sequence_id ;
+		ostrm << sequence_id.substr(1) ;
 		if ( !sequence_bases.empty() ) {
 			ostrm << "\t" ;
 			ostrm << sequence_bases ;
