@@ -314,6 +314,7 @@ int fastx_read_next_record(FASTX *pFASTX)
 	if (pFASTX==NULL)
 		errx(1,"Internal error: pFASTX==NULL (%s:%d)", __FILE__,__LINE__);
 
+	pFASTX->input_line_number++;
 	if (fgets(pFASTX->input_sequence_id_prefix, MAX_SEQ_LINE_LENGTH, pFASTX->input) == NULL)
 		return 0; //assume end-of-file, if we couldn't read the first line of the foursome
 
