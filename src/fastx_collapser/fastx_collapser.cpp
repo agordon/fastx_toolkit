@@ -37,8 +37,8 @@ using namespace std;
 
 const char* usage=
 "usage: fastx_collapser [-h] [-v] [-i INFILE] [-o OUTFILE]\n" \
+"Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
-"version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-v]         = verbose: print short summary of input/output counts\n" \
 "   [-i INFILE]  = FASTA/Q input file. default is STDIN.\n" \

@@ -30,8 +30,8 @@
 
 const char* usage=
 "usage: fastq_quality_converter [-h] [-a] [-n] [-z] [-i INFILE] [-f OUTFILE]\n" \
+"Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
-"version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-a]         = Output ASCII quality scores (default).\n" \
 "   [-n]         = Output numeric quality scores.\n" \

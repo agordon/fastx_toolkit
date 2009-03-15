@@ -32,8 +32,8 @@
 
 const char* usage=
 "usage: fastx_trimmer [-h] [-f N] [-l N] [-z] [-v] [-i INFILE] [-o OUTFILE]\n" \
+"Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
-"version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-f N]       = First base to keep. Default is 1 (=first base).\n" \
 "   [-l N]       = Last base to keep. Default is entire read.\n" \

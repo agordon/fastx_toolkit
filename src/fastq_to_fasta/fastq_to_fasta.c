@@ -30,8 +30,8 @@
 
 const char* usage=
 "usage: fastq_to_fasta [-h] [-r] [-n] [-v] [-z] [-i INFILE] [-o OUTFILE]\n" \
+"Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
-"version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-r]         = Rename sequence identifiers to numbers.\n" \
 "   [-n]         = keep sequences with unknown (N) nucleotides.\n" \

@@ -39,8 +39,8 @@
 
 const char* usage=
 "usage: fastx_clipper [-h] [-a ADAPTER] [-D] [-l N] [-n] [-d N] [-c] [-C] [-o] [-v] [-z] [-i INFILE] [-o OUTFILE]\n" \
+"Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
-"version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-a ADAPTER] = ADAPTER string. default is CCTTAAGG (dummy adapter).\n" \
 "   [-l N]       = discard sequences shorter than N nucleotides. default is 5.\n" \

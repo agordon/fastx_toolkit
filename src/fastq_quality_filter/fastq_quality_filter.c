@@ -32,8 +32,8 @@
 
 const char* usage=
 "usage: fastq_quality_filter [-h] [-v] [-q N] [-p N] [-z] [-i INFILE] [-o OUTFILE]\n" \
+"Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
-"version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-q N]       = Minimum quality score to keep.\n" \
 "   [-p N]       = Minimum percent of bases that must have [-q] quality.\n" \

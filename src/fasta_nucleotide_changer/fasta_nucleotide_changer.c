@@ -32,8 +32,8 @@
 
 const char* usage=
 "usage: fasta_nucleotide_changer [-h] [-z] [-v] [-i INFILE] [-o OUTFILE] [-r] [-d]\n" \
+"Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
-"version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-z]         = Compress output with GZIP.\n" \
 "   [-v]         = Verbose mode. Prints a short summary.\n" \

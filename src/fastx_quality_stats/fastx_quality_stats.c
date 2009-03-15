@@ -32,8 +32,8 @@
 
 const char* usage=
 "usage: fastx_quality_stats [-h] [-i INFILE] [-o OUTFILE]\n" \
+"Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
-"version " VERSION " \n" \
 "   [-h] = This helpful help screen.\n" \
 "   [-i INFILE]  = FASTQ input file. default is STDIN.\n" \
 "   [-o OUTFILE] = TEXT output file. default is STDOUT.\n" \

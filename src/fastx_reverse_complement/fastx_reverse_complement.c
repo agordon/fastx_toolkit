@@ -30,8 +30,8 @@
 
 const char* usage=
 "usage: fastx_reverse_complement [-h] [-r] [-z] [-v] [-i INFILE] [-o OUTFILE]\n" \
+"Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
-"version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-z]         = Compress output with GZIP.\n" \
 "   [-i INFILE]  = FASTA/Q input file. default is STDIN.\n" \
