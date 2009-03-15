@@ -81,6 +81,7 @@ AC_CONFIG_FILES([
    src/fastx_collapser/Makefile
    src/seqalign_test/Makefile
    src/fasta_formatter/Makefile
+   src/fasta_nucleotide_changer/Makefile
    galaxy/Makefile
    galaxy/tools/Makefile
    galaxy/tools/fastx_toolkit/Makefile

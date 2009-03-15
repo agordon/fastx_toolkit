@@ -8,19 +8,14 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-SUBDIRS = libfastx \
-	fastx_clipper \
-	fastx_trimmer \
-	fastx_quality_stats \
-	fastq_quality_converter \
-	fastq_to_fasta \
-	fastq_quality_filter \
-	fastx_artifacts_filter \
-	fastx_reverse_complement \
-	fastx_collapser \
-	seqalign_test \
-	fasta_formatter \
-	fasta_nucleotide_changer
 
+bin_PROGRAMS = fasta_nucleotide_changer
 
+AM_CPPFLAGS = \
+	$(CC_WARNINGS) \
+	-I../libfastx
+
+fasta_nucleotide_changer_SOURCES = fasta_nucleotide_changer.c
+
+fasta_nucleotide_changer_LDADD = ../libfastx/libfastx.a
 
