@@ -20,4 +20,7 @@ EXTRA_DIST = fastq_quality_converter.xml \
 	fastx_nucleotides_distribution.xml \
 	fastq_quality_boxplot.xml \
 	fasta_clipping_histogram.xml \
-	fastx_collapser.xml
+	fastx_collapser.xml \
+	fasta_formatter.xml \
+	fasta_nucleotide_changer.xml
+
