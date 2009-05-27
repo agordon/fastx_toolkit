@@ -9,7 +9,7 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 AC_INIT([FASTX Toolkit],
-        [0.0.7],
+        [0.0.9],
         [Assaf Gordon gordon@cshl.edu],
         [fastx_toolkit])
 AC_CONFIG_AUX_DIR(config)
@@ -23,7 +23,7 @@ AC_DEFINE([CXX_HAS_NO_BOOL], [], [Description])
 AC_DEFINE([NDEBUG], [], [Description])
 AC_DEFINE([YOUR_OS], [], [Description])
 
-PKG_CHECK_MODULES([GTEXTUTILS],[gtextutils-0.1])
+PKG_CHECK_MODULES([GTEXTUTILS],[gtextutils-0.3])
 
 dnl --enable-wall
 EXTRA_CHECKS="-Wall -Wextra -Wformat-nonliteral -Wformat-security -Wswitch-default -Wswitch-enum -Wunused-parameter -Wfloat-equal -Werror"
