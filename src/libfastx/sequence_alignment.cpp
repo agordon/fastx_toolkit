@@ -367,8 +367,8 @@ void HalfLocalSequenceAlignment::populate_matrix ( )
 	DIRECTION origin = FROM_LEFT;
 
 	score_type highest_score = -1000000 ;
-	highest_scored_query_index = -1 ;
-	highest_scored_target_index = -1 ;
+	highest_scored_query_index = 0 ;
+	highest_scored_target_index = 0 ;
 
 	for ( query_index=0; query_index<matrix_width(); query_index++ ) {
 		for ( target_index=0 ; target_index<matrix_height(); target_index++ ) {
