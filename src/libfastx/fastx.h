@@ -23,7 +23,7 @@ extern "C" {
 #endif
 
 #ifndef PATH_MAX
-#include <linux/limits.h>
+#define PATH_MAX 4096
 #endif
 
 #define MIN_QUALITY_VALUE (-50)

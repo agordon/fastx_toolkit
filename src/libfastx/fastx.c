@@ -17,10 +17,8 @@
 */
 #include <stdio.h>
 #include <stdlib.h>
-#include <error.h>
 #include <err.h>
 #include <string.h>
-#include <linux/limits.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
