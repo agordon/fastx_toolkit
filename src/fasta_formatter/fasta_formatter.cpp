@@ -25,7 +25,6 @@
 
 #include <gtextutils/stream_wrapper.h>
 #include <gtextutils/text_line_reader.h>
-#include <gtextutils/print_utils.h>
 
 #include "sequence_writers.h"
 
