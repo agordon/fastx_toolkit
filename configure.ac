@@ -9,12 +9,17 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 AC_INIT([FASTX Toolkit],
-        [0.0.9],
+        [0.0.10],
         [Assaf Gordon gordon@cshl.edu],
         [fastx_toolkit])
 AC_CONFIG_AUX_DIR(config)
+AC_CONFIG_MACRO_DIR([m4])
 AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
+
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_LIBTOOL
 
 # 23dec08, Gordon
 # Only added those things because 'autoheader' was complaining...
@@ -23,7 +28,7 @@ AC_DEFINE([CXX_HAS_NO_BOOL], [], [Description])
 AC_DEFINE([NDEBUG], [], [Description])
 AC_DEFINE([YOUR_OS], [], [Description])
 
-PKG_CHECK_MODULES([GTEXTUTILS],[gtextutils-0.3])
+PKG_CHECK_MODULES([GTEXTUTILS],[gtextutils])
 
 dnl --enable-wall
 EXTRA_CHECKS="-Wall -Wextra -Wformat-nonliteral -Wformat-security -Wswitch-default -Wswitch-enum -Wunused-parameter -Wfloat-equal -Werror"
@@ -57,12 +62,6 @@ else
   CXXFLAGS="${CFLAGS} -O3"
 fi
 
-
-LF_CONFIGURE_CC
-LF_CONFIGURE_CXX
-LF_HOST_TYPE
-LF_SET_WARNINGS
-AC_PROG_RANLIB
 
 AC_CONFIG_FILES([
    Makefile
