@@ -22,9 +22,8 @@
 extern "C" {
 #endif
 
-#ifndef PATH_MAX
-#define PATH_MAX 4096
-#endif
+/* for PATH_MAX */
+#include <limits.h>
 
 #define MIN_QUALITY_VALUE (-50)
 #define MAX_QUALITY_VALUE 50

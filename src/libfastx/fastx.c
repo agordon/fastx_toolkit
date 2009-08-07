@@ -173,7 +173,7 @@ void fastx_init_reader(FASTX *pFASTX, const char* filename,
 
 	memset(pFASTX, 0, sizeof(FASTX));
 
-	if (strncmp(filename,"-",5)==0) {
+	if (strncmp(filename,"-",1)==0) {
 		pFASTX->input = stdin;	
 	} else {
 		pFASTX->input = fopen(filename, "r");
