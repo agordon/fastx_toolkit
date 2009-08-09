@@ -122,7 +122,7 @@ static void convert_ascii_quality_score_line(const char* ascii_quality_scores, F
 				pFASTX->input_line_number);
 
 	for (i=0; i<strlen(ascii_quality_scores); i++) {
-		pFASTX->quality[i] = (int) (ascii_quality_scores[i] - 64) ;
+		pFASTX->quality[i] = (int) (ascii_quality_scores[i] - pFASTX->fastq_ascii_quality_offset ) ;
 		if (pFASTX->quality[i] < -15 || pFASTX->quality[i] > 40) 
 			errx(1, "Invalid quality score value (char '%c' ord %d quality value %d) on line %lld",
 				ascii_quality_scores[i], ascii_quality_scores[i],
@@ -166,7 +166,8 @@ static void convert_numeric_quality_score_line ( const char* numeric_quality_lin
 void fastx_init_reader(FASTX *pFASTX, const char* filename, 
 		ALLOWED_INPUT_FILE_TYPES allowed_input_filetype,
 		ALLOWED_INPUT_UNKNOWN_BASES allow_N,
-		ALLOWED_INPUT_CASE allow_lowercase)
+		ALLOWED_INPUT_CASE allow_lowercase,
+		int fastq_ascii_quality_offset)
 {
 	if (pFASTX==NULL)
 		errx(1,"Internal error: pFASTX==NULL (%s:%d)", __FILE__,__LINE__);
@@ -186,6 +187,7 @@ void fastx_init_reader(FASTX *pFASTX, const char* filename,
 	pFASTX->allow_input_filetype = allowed_input_filetype;
 	pFASTX->allow_lowercase = allow_lowercase;
 	pFASTX->allow_N = allow_N;
+	pFASTX->fastq_ascii_quality_offset = fastq_ascii_quality_offset ;
 
 	create_lookup_table(pFASTX);
 
@@ -372,7 +374,7 @@ static void write_ascii_qual_string(FASTX *pFASTX, int length)
 	int rc;
 
 	for (i=0; i<length; i++) {
-		rc = fprintf(pFASTX->output, "%c", pFASTX->quality[i] + 64 ) ;
+		rc = fprintf(pFASTX->output, "%c", pFASTX->quality[i] + pFASTX->fastq_ascii_quality_offset ) ;
 		if (rc<=0)
 			err(1,"writing quality scores failed");
 	}

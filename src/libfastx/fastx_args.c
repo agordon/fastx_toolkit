@@ -40,7 +40,13 @@ const char* input_filename = "-";
 const char* output_filename = "-";
 int verbose = 0;
 int compress_output = 0 ;
+int fastq_ascii_quality_offset = 64 ;
 FILE* report_file;
+
+int get_fastq_ascii_quality_offset()
+{
+	return fastq_ascii_quality_offset;
+}
 
 const char* get_input_filename()
 {
@@ -75,7 +81,7 @@ int fastx_parse_cmdline( int argc, char* argv[],
 
 	char combined_options_string[100];
 
-	strcpy(combined_options_string, "zhvi:o:");
+	strcpy(combined_options_string, "Q:zhvi:o:");
 	strcat(combined_options_string, program_options);
 	
 	report_file = stderr ; //since the default output is STDOUT, the report goes by default to STDERR
@@ -119,6 +125,12 @@ int fastx_parse_cmdline( int argc, char* argv[],
 			report_file = stdout;
 			break;
 			
+		case 'Q':
+			if (optarg==NULL)
+				errx(1,"[-Q] option requires VALUE argument");
+			fastq_ascii_quality_offset = atoi(optarg);
+			break;
+
 		default:
 			printf("use '-h' for usage information.\n");
 			exit(1);

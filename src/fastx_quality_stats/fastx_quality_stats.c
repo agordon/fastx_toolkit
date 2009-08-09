@@ -271,7 +271,8 @@ void parse_commandline(int argc, char* argv[])
 	fastx_parse_cmdline(argc, argv, "", NULL);
 
 	fastx_init_reader(&fastx, get_input_filename(), 
-		FASTA_OR_FASTQ, ALLOW_N, REQUIRE_UPPERCASE);
+		FASTA_OR_FASTQ, ALLOW_N, REQUIRE_UPPERCASE,
+		get_fastq_ascii_quality_offset() );
 
 	if (strcmp( get_output_filename(), "-" ) == 0 ) {
 		outfile = stdout;

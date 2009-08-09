@@ -84,6 +84,7 @@ typedef struct
 
 	int     copy_input_fastq_format_to_output ; // 1 = copy 'read_fastq_ascii' to 'write_fastq_ascii'
 						    // so that the output format is the same as the input
+	int	fastq_ascii_quality_offset ;  // When reading FASTQ with ASCII quality values, subtract this value to get 'real' numeric quality score;
 
 
 	/* Internal data */
@@ -107,7 +108,8 @@ typedef struct
 void fastx_init_reader(FASTX *pFASTX, const char* filename, 
 		ALLOWED_INPUT_FILE_TYPES allowed_input_filetype,
 		ALLOWED_INPUT_UNKNOWN_BASES allow_N,
-		ALLOWED_INPUT_CASE allow_lowercase);
+		ALLOWED_INPUT_CASE allow_lowercase,
+		int fastq_ascii_quality_offset);
 
 // If the sequence identifier is collapsed (= "N-N") returns the reads_count,
 // otherwise, returns 1

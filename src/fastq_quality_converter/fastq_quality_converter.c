@@ -64,7 +64,8 @@ int main(int argc, char* argv[])
 	fastx_parse_cmdline(argc, argv, "an", parse_program_args);
 
 	fastx_init_reader(&fastx, get_input_filename(), 
-		FASTQ_ONLY, ALLOW_N, REQUIRE_UPPERCASE);
+		FASTQ_ONLY, ALLOW_N, REQUIRE_UPPERCASE,
+		get_fastq_ascii_quality_offset() );
 
 	fastx_init_writer(&fastx, get_output_filename(), 
 		flag_output_ascii ? OUTPUT_FASTQ_ASCII_QUAL : OUTPUT_FASTQ_NUMERIC_QUAL,

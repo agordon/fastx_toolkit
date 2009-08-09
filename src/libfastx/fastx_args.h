@@ -28,6 +28,7 @@ const char* get_input_filename();
 const char* get_output_filename();
 int verbose_flag();
 int compress_output_flag();
+int get_fastq_ascii_quality_offset();
 FILE* get_report_file();
 
 typedef int (*parse_argument_func)(int optind, int optc, char* optarg)  ;
