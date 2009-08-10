@@ -90,7 +90,7 @@ echo "You will be prompted to confirm overwriting them."
 echo "If you have made any changes to the XML files, DO NOT overwrite your files."
 echo 
 echo -n "Copying FASTX-toolkit XML tool configuration..."
-cp -i $SRC/galaxy/tools/fastx_toolkit/*.xml "$DEST/tools/fastx_toolkit"
+cp -i $SRC/galaxy/tools/fastx_toolkit/*.{xml,sh} "$DEST/tools/fastx_toolkit"
 echo "ok"
 
 
