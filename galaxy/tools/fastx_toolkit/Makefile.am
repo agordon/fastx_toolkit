@@ -16,6 +16,7 @@ EXTRA_DIST = fastq_quality_converter.xml \
 	fastx_clipper.xml \
 	fastx_reverse_complement.xml \
 	fastx_trimmer.xml \
+	fastx_renamer.xml \
 	fastx_barcode_splitter.xml fastx_barcode_splitter_galaxy_wrapper.sh \
 	fastx_nucleotides_distribution.xml \
 	fastq_quality_boxplot.xml \

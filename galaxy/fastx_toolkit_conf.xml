@@ -13,6 +13,7 @@
     <tool file="fastx_toolkit/fastq_quality_converter.xml" />
     <tool file="fastx_toolkit/fastx_clipper.xml" />
     <tool file="fastx_toolkit/fastx_trimmer.xml" />
+    <tool file="fastx_toolkit/fastx_renamer.xml" />
     <tool file="fastx_toolkit/fastx_reverse_complement.xml" />
     <tool file="fastx_toolkit/fasta_formatter.xml" />
     <tool file="fastx_toolkit/fasta_nucleotide_changer.xml" />
