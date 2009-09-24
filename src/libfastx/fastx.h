@@ -42,8 +42,9 @@ typedef enum {
 
 typedef enum {
 	DISALLOW_N=0,
-	ALLOW_N=1
-} ALLOWED_INPUT_UNKNOWN_BASES;
+	ALLOW_N=1,
+	ALLOW_U=2	
+} ALLOWED_INPUT_BASES;
 
 typedef enum {
 	REQUIRE_UPPERCASE=0,
@@ -75,6 +76,7 @@ typedef struct
 	/* Configuration */
 	int	allow_input_filetype;	// 0 = Allow only FASTA
 	int	allow_N;		// 1 = N is valid nucleotide, 0 = only A/G/C/T are valid
+	int	allow_U;		// 1 = U is a valid nucleotide
 	int	allow_lowercase;	
 	int	read_fastq;		// 1 = Input is FASTQ (only if allow_input_fastq==1)
 	int	read_fastq_ascii;	// 1 = Input is FASTQ with ASCII quality scores (0 = with numeric quality scores)
@@ -107,7 +109,7 @@ typedef struct
 
 void fastx_init_reader(FASTX *pFASTX, const char* filename, 
 		ALLOWED_INPUT_FILE_TYPES allowed_input_filetype,
-		ALLOWED_INPUT_UNKNOWN_BASES allow_N,
+		ALLOWED_INPUT_BASES allow_bases,
 		ALLOWED_INPUT_CASE allow_lowercase,
 		int fastq_ascii_quality_offset);
 

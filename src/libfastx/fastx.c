@@ -68,6 +68,8 @@ static void create_lookup_table(FASTX *pFASTX)
 
 	if (pFASTX->allow_N)
 		pFASTX->allowed_nucleotides['N'] = 1;
+	if (pFASTX->allow_U)
+		pFASTX->allowed_nucleotides['U'] = 1;
 
 	if (pFASTX->allow_lowercase) {
 		pFASTX->allowed_nucleotides['a'] = 1;
@@ -77,6 +79,8 @@ static void create_lookup_table(FASTX *pFASTX)
 
 		if (pFASTX->allow_N)
 			pFASTX->allowed_nucleotides['n'] = 1;
+		if (pFASTX->allow_U)
+			pFASTX->allowed_nucleotides['u'] = 1;
 	}
 }
 
@@ -165,7 +169,7 @@ static void convert_numeric_quality_score_line ( const char* numeric_quality_lin
 
 void fastx_init_reader(FASTX *pFASTX, const char* filename, 
 		ALLOWED_INPUT_FILE_TYPES allowed_input_filetype,
-		ALLOWED_INPUT_UNKNOWN_BASES allow_N,
+		ALLOWED_INPUT_BASES allow_bases,
 		ALLOWED_INPUT_CASE allow_lowercase,
 		int fastq_ascii_quality_offset)
 {
@@ -186,7 +190,8 @@ void fastx_init_reader(FASTX *pFASTX, const char* filename,
 
 	pFASTX->allow_input_filetype = allowed_input_filetype;
 	pFASTX->allow_lowercase = allow_lowercase;
-	pFASTX->allow_N = allow_N;
+	pFASTX->allow_N = ((allow_bases & ALLOW_N)!=0) ;
+	pFASTX->allow_U = ((allow_bases & ALLOW_U)!=0) ;
 	pFASTX->fastq_ascii_quality_offset = fastq_ascii_quality_offset ;
 
 	create_lookup_table(pFASTX);
@@ -328,7 +333,9 @@ int fastx_read_next_record(FASTX *pFASTX)
 	chomp(pFASTX->name);
 	chomp(pFASTX->nucleotides);
 
-	validate_nucleotides_string(pFASTX);
+	if (!validate_nucleotides_string(pFASTX)) 
+		errx(1,"found invalid nucleotide sequence (%s) on line %lld\n",
+				pFASTX->nucleotides,pFASTX->input_line_number);
 	
 	if (pFASTX->read_fastq) {
 		pFASTX->input_line_number++;
