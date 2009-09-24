@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
 	}
 
 	fastx_init_reader(&fastx, get_input_filename(), 
-		FASTA_OR_FASTQ, ALLOW_N, REQUIRE_UPPERCASE,
+		FASTA_OR_FASTQ, ALLOW_N | ALLOW_U, REQUIRE_UPPERCASE,
 		get_fastq_ascii_quality_offset() );
 
 	fastx_init_writer(&fastx, get_output_filename(), OUTPUT_FASTA, compress_output_flag());
