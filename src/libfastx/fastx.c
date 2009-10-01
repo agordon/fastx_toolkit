@@ -42,13 +42,11 @@
 	Remark -
 		sequences with unknown (N) bases are considered VALID.
 */
-static int validate_nucleotides_string(const FASTX *pFASTX)
+static int validate_nucleotides_string(int allowed_nucleotides[256], const char* seq)
 {
 	int match = 1 ;
-	const char* seq = pFASTX->nucleotides;
-	
 	while (*seq != '\0' && match) {
-		match &=  pFASTX->allowed_nucleotides[ (int) *seq ];
+		match &=  allowed_nucleotides[ (int) *seq ];
 		seq++;
 	}
 	return match;
@@ -323,6 +321,30 @@ int fastx_read_next_record(FASTX *pFASTX)
 	if (fgets(pFASTX->input_sequence_id_prefix, MAX_SEQ_LINE_LENGTH, pFASTX->input) == NULL)
 		return 0; //assume end-of-file, if we couldn't read the first line of the foursome
 
+	chomp(pFASTX->name);
+
+	// quick sanity check - 
+	//   FASTQ files should start with '@' in the identifier line
+	//   FASTA files should start with '>' in the identifier line
+	if ( pFASTX->read_fastq && (pFASTX->input_sequence_id_prefix[0] != '@' ) )
+		errx(1,"Invalid input: expecting FASTQ prefix character '@' on line %lld. Is this a valid FASTQ file?\n",
+				pFASTX->input_line_number) ;
+	if ( !pFASTX->read_fastq && (pFASTX->input_sequence_id_prefix[0] != '>') )  {
+		//Extra friendly check, warn users if they fed us a multiline FASTA file
+		if ( validate_nucleotides_string ( pFASTX->allowed_nucleotides, pFASTX->input_sequence_id_prefix ) ) 
+			errx(1,"Invalid input: This looks like a multi-line FASTA file.\n" \
+				"Line %lld contains a nucleotides string instead of a '>' prefix.\n" \
+				"FASTX-Toolkit can't handle multi-line FASTA files.\n" \
+				"Please use the FASTA-Formatter tool to convert this file into a single-line FASTA.\n", 
+				pFASTX->input_line_number) ;
+		
+		// Otherwise, assume it's just bad input file
+		errx(1,"Invalid input: expecting FASTA prefix character '>' on line %lld. Is this a valid FASTA file?\n",
+				pFASTX->input_line_number) ;
+	}
+
+
+
 	//for the rest of the lines, if they don't appear, it's an error
 	pFASTX->input_line_number++;
 
@@ -330,10 +352,9 @@ int fastx_read_next_record(FASTX *pFASTX)
 		errx(1,"Failed to read complete record, missing 2nd line (nucleotides), on line %lld\n",
 			pFASTX->input_line_number);
 
-	chomp(pFASTX->name);
 	chomp(pFASTX->nucleotides);
 
-	if (!validate_nucleotides_string(pFASTX)) 
+	if (!validate_nucleotides_string(pFASTX->allowed_nucleotides, pFASTX->nucleotides)) 
 		errx(1,"found invalid nucleotide sequence (%s) on line %lld\n",
 				pFASTX->nucleotides,pFASTX->input_line_number);
 	
