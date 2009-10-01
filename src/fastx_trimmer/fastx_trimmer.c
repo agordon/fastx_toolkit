@@ -94,6 +94,8 @@ int main(int argc, char* argv[])
 		}
 
 		if (keep_first_base != 1) {
+			if ( strlen(fastx.nucleotides) < (size_t)keep_first_base ) //sequence too short - remove it
+				continue ;
 			for (i=0; i < strlen(fastx.nucleotides)-keep_first_base+1 ; i++) {
 				fastx.nucleotides[i] = fastx.nucleotides[i+keep_first_base-1];
 				fastx.quality[i] = fastx.quality[i+keep_first_base-1];
