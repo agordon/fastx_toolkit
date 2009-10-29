@@ -75,6 +75,7 @@ AC_CONFIG_FILES([
    src/fastq_quality_converter/Makefile
    src/fastx_trimmer/Makefile
    src/fastq_quality_filter/Makefile
+   src/fastq_quality_trimmer/Makefile
    src/fastx_artifacts_filter/Makefile
    src/fastx_reverse_complement/Makefile
    src/fastx_collapser/Makefile
