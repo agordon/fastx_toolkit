@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <err.h>
+#include <stdio.h>
 
 #include "sequence_alignment.h"
 
