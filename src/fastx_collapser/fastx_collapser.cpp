@@ -105,9 +105,12 @@ int main(int argc, char* argv[])
 	PrintCollapsedSequence stats =  for_each ( sorted_collapsed_sequences.rbegin(), 
 			sorted_collapsed_sequences.rend(), PrintCollapsedSequence(real_output) ) ;
 
+	/* This (in)sanity check prevents collapsing an already-collapsed FASTA file, so skip it for now */
+	/*
 	if (stats.total_reads != num_input_reads(&fastx))
 		errx(1,"Internal error: stats.total_reads (%zu) != num_input_reads(&fastx) (%zu).\n", 
 			stats.total_reads, num_input_reads(&fastx) ); 
+	*/
 
 	if ( verbose_flag() ) {
 		fprintf(get_report_file(), "Collapsd %zu reads into %zu unique sequences.\n",
