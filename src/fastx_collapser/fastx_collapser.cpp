@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
 	ostream& real_output = (use_stdout) ? cout : output_file ;
 
 	while ( fastx_read_next_record(&fastx) ) {
-		collapsed_sequences[string(fastx.nucleotides)]++ ;
+		collapsed_sequences[string(fastx.nucleotides)]+= get_reads_count(&fastx);
 	}
 	
 	copy ( collapsed_sequences.begin(), collapsed_sequences.end(), 
