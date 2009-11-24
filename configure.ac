@@ -79,6 +79,7 @@ AC_CONFIG_FILES([
    src/fastx_artifacts_filter/Makefile
    src/fastx_reverse_complement/Makefile
    src/fastx_collapser/Makefile
+   src/fastx_uncollapser/Makefile
    src/seqalign_test/Makefile
    src/fasta_formatter/Makefile
    src/fasta_nucleotide_changer/Makefile

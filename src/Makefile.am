@@ -19,6 +19,7 @@ SUBDIRS = libfastx \
 	fastx_artifacts_filter \
 	fastx_reverse_complement \
 	fastx_collapser \
+	fastx_uncollapser \
 	seqalign_test \
 	fasta_formatter \
 	fasta_nucleotide_changer \
