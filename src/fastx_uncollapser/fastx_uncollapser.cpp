@@ -48,8 +48,8 @@ const char* usage=
 "   [-v]         = verbose: print short summary of input/output counts\n" \
 "   [-c N]       = Assume input is a tabular file (not FASTA file),\n" \
 "                  And the collapsed identifier (e.g. '1-1000') is on column N.\n" \
-"   [-i INFILE]  = FASTA/Q input file. default is STDIN.\n" \
-"   [-o OUTFILE] = FASTA/Q output file. default is STDOUT.\n" \
+"   [-i INFILE]  = FASTA/Tabular input file. default is STDIN.\n" \
+"   [-o OUTFILE] = FASTA/Tabular output file. default is STDOUT.\n" \
 "\n";
 
 size_t collapsed_identifier_column = 0;
@@ -88,6 +88,13 @@ void uncollapse_fasta_file()
 			fastx_write_record(&fastx);
 		}
 	}
+
+	if ( verbose_flag() ) {
+		fprintf(get_report_file(), "Input: %zu sequences (representing %zu reads)\n",
+				num_input_sequences(&fastx), num_input_reads(&fastx));
+		fprintf(get_report_file(), "Output: %zu sequences (representing %zu reads)\n",
+				num_output_sequences(&fastx), num_output_reads(&fastx));
+	}
 }
 
 //extract collapsed value, if any
@@ -118,6 +125,8 @@ size_t extract_collapsed_read_count(const std::string& text)
 void uncollapse_tabular_file()
 {
 	ios::sync_with_stdio(false);
+	size_t input_count=0;
+	size_t output_count=0;
 
 	string input_file(get_input_filename());
 	if (input_file=="-")
@@ -134,6 +143,7 @@ void uncollapse_tabular_file()
 	ostream &os = output.stream();
 //	size_t seqid=1;
 	while (reader.next_line()) {
+		++input_count;
 		vector<string> tokens;
 
 		//Split input line into fields
@@ -149,6 +159,7 @@ void uncollapse_tabular_file()
 		}
 
 		size_t count = extract_collapsed_read_count(tokens[collapsed_identifier_column-1]);
+		output_count += count;
 
 #if 0
 		/* replace the collapse-identifier column with a sequencial counter */
@@ -172,6 +183,10 @@ void uncollapse_tabular_file()
 		for (size_t i=0;i<count;++i)
 			os << reader.line_string() << endl;
 #endif
+	}
+	if ( verbose_flag() ) {
+		fprintf(get_report_file(), "Input: %zu lines (with collapsed sequence identifiers)\n", input_count);
+		fprintf(get_report_file(), "Output: %zu lines\n", output_count);
 	}
 }
 
