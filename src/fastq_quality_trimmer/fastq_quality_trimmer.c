@@ -38,8 +38,8 @@ const char* usage=
 "   [-l N]       = Minimum length - sequences shorter than this (after trimming)\n" \
 "                  will be discarded. Default = 0 = no minimum length. \n" \
 "   [-z]         = Compress output with GZIP.\n" \
-"   [-i INFILE]  = FASTA/Q input file. default is STDIN.\n" \
-"   [-o OUTFILE] = FASTA/Q output file. default is STDOUT.\n" \
+"   [-i INFILE]  = FASTQ input file. default is STDIN.\n" \
+"   [-o OUTFILE] = FASTQ output file. default is STDOUT.\n" \
 "   [-v]         = Verbose - report number of sequences.\n" \
 "                  If [-o] is specified,  report will be printed to STDOUT.\n" \
 "                  If [-o] is not specified (and output goes to STDOUT),\n" \
