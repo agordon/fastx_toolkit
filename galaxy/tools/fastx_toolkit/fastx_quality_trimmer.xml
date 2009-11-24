@@ -1,0 +1,85 @@
+<tool id="cshl_fastx_quality_trimmer" name="Trim By Quality">
+	<description></description>
+	<command>zcat -f '$input' | fastx_trimmer -v -t $cutoff -l $minlen -o $output</command>
+
+	<inputs>
+		<param format="fastqsanger,fastq" name="input" type="data" label="Library to clip" />
+
+		<param name="cutoff" size="4" type="integer" value="20">
+			<label>Minimum quality score</label>
+			<help>Nucleotides below this quality will be trimmed</help>
+		</param>
+
+		<param name="minlen" size="4" type="integer" value="0">
+			<label>Minimum sequence length</label>
+			<help>Sequences shorter than this length will be discard. Leave at zero to keep all sequences</help>
+		</param>
+	</inputs>
+
+	<tests>
+		
+	</tests>
+
+	<outputs>
+		<data format="input" name="output" metadata_source="input" />
+	</outputs>
+	<help>
+**What it does**
+
+This tool scans the sequence from the end for the first nucleotide to possess the specified minimum quality score. It will then trim (remove nucleotides from) the sequence after this position. After trimming, sequences that are shorter than the minimum length are discarded.
+  
+--------
+
+**Example**
+
+Input Fasta file (with 20 bases in each sequences)::
+
+    @1
+    TATGGTCAGAAACCATATGC
+    +1
+    40 40 40 40 40 40 40 40 40 40 40 20 19 19 19 19 19 19 19 19
+    @2
+    CAGCGAGGCTTTAATGCCAT
+    +2
+    40 40 40 40 40 40 40 40 30 20 19 20 19 19 19 19 19 19 19 19
+    @3
+    CAGCGAGGCTTTAATGCCAT
+    +3
+    40 40 40 40 40 40 40 40 20 19 19 19 19 19 19 19 19 19 19 19
+    
+
+Trimming with a cutoff of 20, we get the following FASTQ file::
+
+    @1
+    TATGGTCAGAAA
+    +1
+    40 40 40 40 40 40 40 40 40 40 40 20
+    @2
+    CAGCGAGGCTTT
+    +2
+    40 40 40 40 40 40 40 40 30 20 19 20
+    @3
+    CAGCGAGGC
+    +3
+    40 40 40 40 40 40 40 40 20
+
+Trimming with a cutoff of 20 and a minimum length of 12, we get the following FASTQ file::
+
+    @1
+    TATGGTCAGAAA
+    +1
+    40 40 40 40 40 40 40 40 40 40 40 20
+    @2
+    CAGCGAGGCTTT
+    +2
+    40 40 40 40 40 40 40 40 30 20 19 20
+    
+------
+
+This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
+
+ .. __: http://hannonlab.cshl.edu/fastx_toolkit/
+    
+</help>
+</tool>
+<!-- FASTX-Quality-Trimmer is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->

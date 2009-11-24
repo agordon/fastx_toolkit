@@ -1,0 +1,74 @@
+<tool id="cshl_fastx_uncollapser" name="Uncollapse" version="1.0.0">
+	<description>sequences</description>
+	<command>zcat -f '$input' | fastx_uncollapser -v -o '$output' </command>
+
+	<inputs>
+		<param format="fasta" name="input" type="data" label="Collapsed FASTA file" />
+	</inputs>
+
+    <!-- The order of sequences in the test output differ between 32 bit and 64 bit machines. 
+	<tests>
+		<test>
+			<param name="input" value="fasta_collapser1.fasta" />
+			<output name="output" file="fasta_collapser1.out" />
+		</test>
+	</tests>
+    -->
+	<outputs>
+		<data format="fasta" name="output" metadata_source="input" />
+	</outputs>
+  <help>
+
+**What it does**
+
+This tool takes a collapsed FASTA sequence and generates multiple sequences based on the collapsed read count.
+
+--------
+
+**Example**
+
+Example Input file (Sequence "ATAT" has four collapsed reads)::
+
+    >1-1
+    TGCG
+    >2-4
+    ATAT
+    >3-1
+    TGGC
+    >4-1
+    TGAG
+    >5-1
+    TTCA
+
+Example Output File (Sequence "ATAT" now appears as 4 separate sequences):: 
+
+    >1
+    TGCG
+    >2
+    ATAT
+    >3
+    ATAT
+    >4
+    ATAT
+    >5
+    ATAT
+    >6
+    TGGC
+    >7
+    TGAG
+    >8
+    TTCA
+    
+.. class:: infomark
+
+The original sequence id (with the read counts) are discarded, with the sequence given a numerical name. 
+
+-----
+
+This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
+
+ .. __: http://hannonlab.cshl.edu/fastx_toolkit/
+    
+</help>
+</tool>
+<!-- FASTX-Uncollapser is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->
