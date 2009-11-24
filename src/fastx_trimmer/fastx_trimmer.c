@@ -51,6 +51,8 @@ int keep_first_base=1;
 int keep_last_base=DO_NOT_TRIM_LAST_BASE;
 unsigned int trim_last_bases=0;
 unsigned int minimum_length=0;
+int trim_by_position=0;
+int trim_from_end=0;
 
 FASTX fastx;
 
@@ -63,6 +65,7 @@ int parse_program_args(int __attribute__((unused)) optind, int optc, char* optar
 		keep_first_base = strtoul(optarg,NULL,10);
 		if (keep_first_base<=0 || keep_first_base>=MAX_SEQ_LINE_LENGTH) 
 			errx(1,"Invalid number bases to keep (-f %s)", optarg);
+		trim_by_position=1;
 		break;
 
 	case 'l':
@@ -71,6 +74,7 @@ int parse_program_args(int __attribute__((unused)) optind, int optc, char* optar
 		keep_last_base = strtoul(optarg,NULL,10);
 		if (keep_last_base<=0 ||  keep_last_base>=MAX_SEQ_LINE_LENGTH) 
 			errx(1,"Invalid number bases to keep (-l %s)", optarg);
+		trim_by_position=1;
 		break;
 
 	case 't':
@@ -79,6 +83,7 @@ int parse_program_args(int __attribute__((unused)) optind, int optc, char* optar
 		trim_last_bases = strtoul(optarg,NULL,10);
 		if (trim_last_bases<=0 ||  trim_last_bases>=MAX_SEQ_LINE_LENGTH)
 			errx(1,"Invalid number bases to trim (-t %s)", optarg);
+		trim_from_end=1;
 		break;
 
 	case 'm':
@@ -104,7 +109,7 @@ int main(int argc, char* argv[])
 	fastx_parse_cmdline(argc, argv, "l:f:t:m:", parse_program_args);
 
 	//validate command line arguments
-	if ( (keep_first_base!=1 || keep_last_base!=DO_NOT_TRIM_LAST_BASE) && (trim_last_bases!=1) )
+	if (trim_by_position && trim_from_end)
 		errx(1,"[-t], [-f] and [-l] options can not be used together. Use [-t] or [-l,-f]");
 
 	fastx_init_reader(&fastx, get_input_filename(), 
