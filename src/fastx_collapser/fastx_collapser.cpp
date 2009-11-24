@@ -27,8 +27,9 @@
 #include <fstream>
 #include <map>
 #include <list>
+#include <stdio.h>
 
-#include <config.h>
+#include "config.h"
 
 #include "fastx.h"
 #include "fastx_args.h"
@@ -94,7 +95,7 @@ int main(int argc, char* argv[])
 	ostream& real_output = (use_stdout) ? cout : output_file ;
 
 	while ( fastx_read_next_record(&fastx) ) {
-		collapsed_sequences[string(fastx.nucleotides)]++ ;
+		collapsed_sequences[string(fastx.nucleotides)]+= get_reads_count(&fastx);
 	}
 	
 	copy ( collapsed_sequences.begin(), collapsed_sequences.end(), 
@@ -113,8 +114,10 @@ int main(int argc, char* argv[])
 	*/
 
 	if ( verbose_flag() ) {
-		fprintf(get_report_file(), "Collapsd %zu reads into %zu unique sequences.\n",
-			num_input_reads(&fastx), stats.counter) ;
+		fprintf(get_report_file(), "Input: %zu sequences (representing %zu reads)\n",
+				num_input_sequences(&fastx), num_input_reads(&fastx));
+		fprintf(get_report_file(), "Output: %zu sequences (representing %zu reads)\n",
+				stats.counter, stats.total_reads);
 	}
 	return 0;
 }
