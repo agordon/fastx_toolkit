@@ -238,7 +238,7 @@ int open_output_compressor(FASTX __attribute__((unused)) *pFASTX, const char* fi
 	dup2(fd, STDOUT_FILENO);
 	
 	//Run GZIP
-	execlp("gzip","gzip",NULL);
+	execlp("gzip","gzip",(char*)NULL);
 
 	//Should never get here...
 	err(1,"execlp(gzip) failed");
