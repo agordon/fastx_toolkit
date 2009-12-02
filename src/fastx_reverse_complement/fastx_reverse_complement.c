@@ -67,7 +67,8 @@ char reverse_complement_base ( const char input )
 	default:
 		errx(1,"Invalid nucleotide value (%c) in reverse_complement_base()", input ); 
 	}
-	
+
+	return '0'; //should not get here - just to please the compiler
 }
 
 void reverse_complement_fastx(FASTX* pFASTX)

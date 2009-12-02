@@ -242,6 +242,8 @@ int open_output_compressor(FASTX __attribute__((unused)) *pFASTX, const char* fi
 
 	//Should never get here...
 	err(1,"execlp(gzip) failed");
+
+	return 0; //just to please the compiler
 }
 
 
