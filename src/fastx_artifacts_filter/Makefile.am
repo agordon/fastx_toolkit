@@ -17,5 +17,5 @@ AM_CPPFLAGS = \
 
 fastx_artifacts_filter_SOURCES = fastx_artifacts_filter.c
 
-fastx_artifacts_filter_LDADD = ../libfastx/libfastx.a
+fastx_artifacts_filter_LDADD = ../libfastx/libfastx.a $(LT_LDFLAGS)
 

@@ -17,5 +17,5 @@ AM_CPPFLAGS = \
 
 fastq_to_fasta_SOURCES = fastq_to_fasta.c
 
-fastq_to_fasta_LDADD = ../libfastx/libfastx.a
+fastq_to_fasta_LDADD = ../libfastx/libfastx.a $(LT_LDFLAGS)
 

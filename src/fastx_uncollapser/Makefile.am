@@ -16,7 +16,7 @@ AM_CPPFLAGS = \
 	-I../libfastx
 
 INCLUDES = $(GTEXTUTILS_CFLAGS) -I../libfastx
-LDADD = $(GTEXTUTILS_LIBS) ../libfastx/libfastx.a
+LDADD = $(GTEXTUTILS_LIBS) ../libfastx/libfastx.a $(LT_LDFLAGS)
 
 fastx_uncollapser_SOURCES = fastx_uncollapser.cpp
 

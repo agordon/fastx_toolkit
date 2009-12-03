@@ -14,7 +14,7 @@ bin_PROGRAMS = fasta_formatter
 AM_CPPFLAGS = $(CC_WARNINGS) 
 	
 INCLUDES = $(GTEXTUTILS_CFLAGS) -I../libfastx
-LDADD = $(GTEXTUTILS_LIBS) ../libfastx/libfastx.a
+LDADD = $(GTEXTUTILS_LIBS) ../libfastx/libfastx.a $(LT_LDFLAGS)
 
 fasta_formatter_SOURCES = fasta_formatter.cpp \
 			sequence_writers.h
