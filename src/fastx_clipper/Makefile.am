@@ -17,5 +17,5 @@ AM_CPPFLAGS = \
 
 fastx_clipper_SOURCES = fastx_clipper.cpp
 
-fastx_clipper_LDADD = ../libfastx/libfastx.a
+fastx_clipper_LDADD = ../libfastx/libfastx.a $(LT_LDFLAGS)
 

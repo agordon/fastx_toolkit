@@ -17,5 +17,5 @@ AM_CPPFLAGS = \
 
 fastx_trimmer_SOURCES = fastx_trimmer.c
 
-fastx_trimmer_LDADD = ../libfastx/libfastx.a
+fastx_trimmer_LDADD = ../libfastx/libfastx.a $(LT_LDFLAGS)
 

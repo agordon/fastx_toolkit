@@ -17,5 +17,5 @@ AM_CPPFLAGS = \
 
 fasta_nucleotide_changer_SOURCES = fasta_nucleotide_changer.c
 
-fasta_nucleotide_changer_LDADD = ../libfastx/libfastx.a
+fasta_nucleotide_changer_LDADD = ../libfastx/libfastx.a $(LT_LDFLAGS)
 

@@ -18,5 +18,5 @@ AM_CPPFLAGS = \
 fastx_collapser_SOURCES = fastx_collapser.cpp \
 			  std_hash.h
 
-fastx_collapser_LDADD = ../libfastx/libfastx.a
+fastx_collapser_LDADD = ../libfastx/libfastx.a $(LT_LDFLAGS)
 

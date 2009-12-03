@@ -17,5 +17,5 @@ AM_CPPFLAGS = \
 
 fastx_renamer_SOURCES = fastx_renamer.c
 
-fastx_renamer_LDADD = ../libfastx/libfastx.a
+fastx_renamer_LDADD = ../libfastx/libfastx.a $(LT_LDFLAGS)
 

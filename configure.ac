@@ -62,6 +62,22 @@ else
   CXXFLAGS="${CFLAGS} -O3"
 fi
 
+dnl 'all-static' marco copied from subversion's configure.ac
+dnl Check for --enable-all-static option
+AC_ARG_ENABLE(all-static,
+	      AS_HELP_STRING([--enable-all-static],
+			     [Build completely static (standalone) binaries.]),
+			     [
+			      if test "$enableval" = "yes" ; then
+				      LT_LDFLAGS="-all-static $LT_LDFLAGS"
+			      elif test "$enableval" != "no" ; then
+				      AC_MSG_ERROR([--enable-all-static doesn't accept argument])
+				      fi
+				      ])
+
+AC_SUBST(LT_LDFLAGS)
+
+
 
 AC_CONFIG_FILES([
    Makefile
