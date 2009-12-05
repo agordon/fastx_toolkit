@@ -1,11 +1,12 @@
 <tool id="cshl_seqid_uncollapser" name="Uncollapse rows">
 	<description>containing collapsed sequence IDs</description>
-	<command>zcat -f '$input' | fastx_uncollapser -c $idcol -v -o '$output' </command>
+	<command>fastx_uncollapser -c $idcol -v -i '$input' -o '$output' </command>
 
 	<inputs>
 		<param format="tabular,pslx" name="input" type="data" label="Library to uncollapse" />
-	<param name="idcol" label="Column with collased sequence-identifier" type="data_column" data_ref="input" accept_default="false" >
-		  <help>This column contains the sequence id from a collapsed FASTA file in the form of "(seq number)-(read count)" (e.g. 15-4). Use 10 if you're analyzing BLAT output</help>
+
+	    <param name="idcol" label="Column with collased sequence-identifier" type="data_column" data_ref="input" accept_default="false" >
+ 		  <help>This column contains the sequence id from a collapsed FASTA file in the form of "(seq number)-(read count)" (e.g. 15-4). Use 10 if you're analyzing BLAT output</help>
 		</param>
 	</inputs>
 

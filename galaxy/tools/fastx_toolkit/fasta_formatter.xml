@@ -9,7 +9,7 @@
 			So this XML tool only changes the width (line-wrapping) of a
 			FASTA file.
 	-->
-	<command>zcat -f '$input' | fasta_formatter -w $width -o $output</command>
+	<command>fasta_formatter -w $width -i '$input' -o '$output'</command>
 	<inputs>
 		<param format="fasta" name="input" type="data" label="Library to re-format" />
 
@@ -21,7 +21,7 @@
 			<!-- Re-format a FASTA file into a single line -->
 			<param name="input" value="fasta_formatter1.fasta" /> 
 			<param name="width" value="0" />
-			<output name="output" file="fastx_formatter1.out" />
+			<output name="output" file="fasta_formatter1.out" />
 		</test>
 		<test>
 			<!-- Re-format a FASTA file into multiple lines wrapping at 60 charactes -->
@@ -75,5 +75,13 @@ Output FASTA file (with width=0 => single line)::
     AGGAATGATGACTACAATGATCAACTTAACCTATCTATTTAATTTAGTTCCCTAATGTCAGGGACCTACCTGTTTTTGTTATGTTTGGGTTTTGTTGTTGTTGTTTTTTTAATCTGAAGGTATTGTGCATTATATGACCTGTAATACACAATTAAAGTCAATTTTAATGAACATGTAGTAAAAACT
     >Scaffold9299
     CAGCATCTACATAATATGATCGCTATTAAACTTAAATCTCCTTGACGGAGTCTTCGGTCATAACACAAACCCAGACCTACGTATATGACAAAGCTAATAGaactggtctttacctTTAAGTTG
+
+
+------
+
+This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
+
+ .. __: http://hannonlab.cshl.edu/fastx_toolkit/    
 </help>
 </tool>
+<!-- FASTQ-to-FASTA is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->

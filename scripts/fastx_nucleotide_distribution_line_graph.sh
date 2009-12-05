@@ -15,6 +15,9 @@
 #
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#
+#    This script was modified by Oliver Tam (tam@cshl.edu)
 
 usage()
 {
@@ -36,7 +39,7 @@ usage()
 
 TITLE=""					# default title is empty
 FILENAME=""
-OUTPUTTERM="set term png size 1048,768"		# default output terminal is "PNG"
+OUTPUTTERM="set term png size 1048,768"		# default output terminal is "PDF"
 OUTPUTFILE="/dev/stdout"   			# Default output file is simply "stdout"
 while getopts ":t:i:o:ph" Option
 	do
@@ -63,9 +66,9 @@ fi
 
 GNUPLOTCMD="
 $OUTPUTTERM
-set boxwidth 0.75 absolute
+#set boxwidth 0.75 absolute
 set size 1,1
-set style fill solid 1.00 border -1
+#set style fill solid 1.00 border -1
 set xlabel \"read position\"
 set title \"Nucleotides distribution $TITLE\" 
 set ylabel \"% of total (per read position)\" 
@@ -74,17 +77,17 @@ set ylabel \"% of total (per read position)\"
 #set grid layerdefault   linetype 0 linewidth 1.000,  linetype 0 linewidth 1.000
 set key outside right top vertical Left reverse enhanced autotitles columnhead nobox
 set key invert samplen 4 spacing 1 width 0 height 0 
-set style histogram rowstacked 
-set style data histograms 
-set noytics
+#set style histogram rowstacked 
+#set style data histograms 
+set ytics 10
 set xtics 1
 set yrange [ 0.00000 : 100.000 ] noreverse nowriteback
 
-plot '$FILENAME' using (100.*column(13)/column(18)):xtic(1) title \"A\" lt rgb \"#5050ff\", \
-       '' using (100.*column(14)/column(18)) title \"C\" lt rgb \"#e00000\", \
-       '' using (100.*column(15)/column(18)) title \"G\" lt rgb \"#00c000\", \
-       '' using (100.*column(16)/column(18)) title \"T\" lt rgb \"#e6e600\", \
-       '' using (100.*column(17)/column(18)) title \"N\" lt rgb \"pink\"
+plot '$FILENAME' using (100.*column(13)/column(18)):xtic(1) title \"A\" with linespoints lt rgb \"#5050ff\", \
+       '' using (100.*column(14)/column(18)) title \"C\" with linespoints lt rgb \"#e00000\", \
+       '' using (100.*column(15)/column(18)) title \"G\" with linespoints lt rgb \"#00c000\", \
+       '' using (100.*column(16)/column(18)) title \"T\" with linespoints lt rgb \"#e6e600\", \
+       '' using (100.*column(17)/column(18)) title \"N\" with linespoints lt rgb \"pink\"
 "
 
 echo "$GNUPLOTCMD" | gnuplot > "$OUTPUTFILE"

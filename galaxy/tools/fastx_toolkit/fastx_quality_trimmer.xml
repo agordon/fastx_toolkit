@@ -1,9 +1,9 @@
 <tool id="cshl_fastx_quality_trimmer" name="Trim By Quality">
 	<description></description>
-	<command>zcat -f '$input' | fastx_trimmer -v -t $cutoff -l $minlen -o $output</command>
+	<command>fastx_trimmer -Q 33 -v -t $cutoff -l $minlen -i '$input' -o '$output'</command>
 
 	<inputs>
-		<param format="fastqsanger,fastq" name="input" type="data" label="Library to clip" />
+		<param format="fastqsanger" name="input" type="data" label="Library to clip" />
 
 		<param name="cutoff" size="4" type="integer" value="20">
 			<label>Minimum quality score</label>

@@ -1,19 +1,18 @@
 <tool id="cshl_fastx_uncollapser" name="Uncollapse" version="1.0.0">
-	<description>sequences</description>
-	<command>zcat -f '$input' | fastx_uncollapser -v -o '$output' </command>
+	<description></description>
+	<command>fastx_uncollapser -v -i '$input' -o '$output' </command>
 
 	<inputs>
 		<param format="fasta" name="input" type="data" label="Collapsed FASTA file" />
 	</inputs>
 
-    <!-- The order of sequences in the test output differ between 32 bit and 64 bit machines. 
 	<tests>
 		<test>
-			<param name="input" value="fasta_collapser1.fasta" />
-			<output name="output" file="fasta_collapser1.out" />
+			<param name="input" value="fasta_uncollapser1.fasta" />
+			<output name="output" file="fasta_uncollapser1.out" />
 		</test>
 	</tests>
-    -->
+
 	<outputs>
 		<data format="fasta" name="output" metadata_source="input" />
 	</outputs>

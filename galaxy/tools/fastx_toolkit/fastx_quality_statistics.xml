@@ -1,14 +1,14 @@
-<tool id="cshl_fastx_quality_statistics" name="Quality Statistics">
+<tool id="cshl_fastx_quality_statistics" name="Compute quality statistics">
 	<description></description>
-	<command>zcat -f $input | fastx_quality_stats -o $output</command>
+	<command>fastx_quality_stats -Q 33 -i '$input' -o '$output'</command>
 
 	<inputs>
-		<param format="fasta,fastqsolexa" name="input" type="data" label="Library to analyse" />
+		<param format="fasta,fastqsanger" name="input" type="data" label="Library to analyse" />
 	</inputs>
 
 	<tests>
 		<test>
-			<param name="input" value="fastq_stats1.fastq" />
+			<param name="input" value="fastq_stats1.fastq" ftype="fastqsanger"/>
 			<output name="output" file="fastq_stats1.out" />
 		</test>
 	</tests>
@@ -31,7 +31,7 @@ Creates quality statistics report for the given Solexa/FASTQ library.
 
 **The output file will contain the following fields:**
 
-* column	= column number (1 to 36 for a 36-cycles read solexa file)
+* column	= column number (1 to 36 for a 36-cycles read FASTQ file)
 * count   = number of bases found in this column.
 * min     = Lowest quality score value found in this column.
 * max     = Highest quality score value found in this column.
@@ -94,6 +94,11 @@ Creates quality statistics report for the given Solexa/FASTQ library.
     35	6362991	-5	40	138910532	21.83	10	20	40	30	-5	40	1532519	3495057	23229	1311834	352
     36	6362991	-5	40	117158566	18.41	7	15	30	23	-5	40	4074444	1402980	63287	822035	245
     
+------
+
+This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
+
+ .. __: http://hannonlab.cshl.edu/fastx_toolkit/
 
 </help>
 </tool>

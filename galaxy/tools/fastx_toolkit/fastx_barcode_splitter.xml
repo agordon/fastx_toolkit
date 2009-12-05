@@ -4,7 +4,7 @@
 
 	<inputs>
 		<param format="txt" name="BARCODE" type="data" label="Barcodes to use" />
-		<param format="fasta,fastqsolexa" name="input" type="data" label="Library to split" />
+		<param format="fasta,fastq,fastqsanger" name="input" type="data" label="Library to split" />
 
 		<param name="EOL" type="select" label="Barcodes found at">
 			<option value="--bol">Start of sequence (5' end)</option>
@@ -36,7 +36,7 @@
 
 **What it does**
 
-This tool splits a solexa library (FASTQ file) or a regular FASTA file to several files, using barcodes as the split criteria.
+This tool splits a FASTQ or FASTA file into several files, using barcodes as the split criteria.
 
 --------
 
@@ -62,6 +62,12 @@ The output of this tool is an HTML file, displaying the split counts and the fil
 **Output Example**
 
 .. image:: ./static/fastx_icons/barcode_splitter_output_example.png
+
+------
+
+This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
+
+ .. __: http://hannonlab.cshl.edu/fastx_toolkit/    
 
 </help>
 </tool>

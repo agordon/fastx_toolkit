@@ -39,4 +39,5 @@ src/fastq_quality_trimmer/fastq_quality_trimmer
 src/fastx_artifacts_filter/fastx_artifacts_filter
 src/fastx_clipper/fastx_clipper
 src/fastq_quality_converter/fastq_quality_converter
+src/seqalign_test/seqalign_test
 

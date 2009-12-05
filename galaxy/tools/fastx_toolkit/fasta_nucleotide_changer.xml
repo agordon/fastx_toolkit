@@ -1,6 +1,6 @@
 <tool id="cshl_fasta_nucleotides_changer" name="RNA/DNA" >
 	<description>converter</description>
-	<command>zcat -f '$input' | fasta_nucleotide_changer $mode -v -o $output</command>
+	<command>fasta_nucleotide_changer $mode -v -i '$input' -o '$output'</command>
 	<inputs>
 		<param format="fasta" name="input" type="data" label="Library to convert" />
 
@@ -61,5 +61,11 @@ Output DNA FASTA file (with RNA-to-DNA mode)::
     >cel-miR-1 MIMAT0000003 Caenorhabditis elegans miR-1
     TGGAATGTAAAGAAGTATGTA
 
+------
+
+This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
+
+ .. __: http://hannonlab.cshl.edu/fastx_toolkit/    
 </help>
 </tool>
+<!-- FASTQ-to-FASTA is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->

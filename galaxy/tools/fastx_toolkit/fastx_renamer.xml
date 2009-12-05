@@ -1,9 +1,9 @@
-<tool id="cshl_fastx_renamer" name="Rename" version="0.0.11" >
-	<description>sequence identifiers</description>
-	<command>zcat -f $input | fastx_renamer -n $TYPE -o $output -v </command>
+<tool id="cshl_fastx_renamer" name="Rename sequences" version="0.0.11" >
+	<description></description>
+	<command>fastx_renamer -Q 33 -n $TYPE -i $'input' -o '$output' -v </command>
 
 	<inputs>
-		<param format="fastqsolexa,fasta,fastq" name="input" type="data" label="FASTQ/A Library to rename" />
+		<param format="fastqsanger,fasta" name="input" type="data" label="FASTQ/A Library to rename" />
 
 		<param name="TYPE" type="select" label="Rename sequence identifiers to">
 			<option value="SEQ">Nucleotides sequence</option>
@@ -23,7 +23,7 @@ This tool renames the sequence identifiers in a FASTQ/A file.
 
 .. class:: infomark
 
-Use this tool at the beginning of your workflow, as a way to keep the original sequence (before trimming,clipping,barcode-removal, etc).
+Use this tool at the beginning of your workflow, as a way to keep the original sequence (before trimming, clipping, barcode-removal, etc).
 
 --------
 
@@ -50,7 +50,11 @@ Renamed to **numeric counter**::
     +1
     40 40 40 40 40 40 40 40 40 40 38 40 40 40 40 40 14 40 40 40 40 40 36 40 13 14 24 24 9 24 9 40 10 10 15 40
 
-    
+------
+
+This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
+
+ .. __: http://hannonlab.cshl.edu/fastx_toolkit/   
 </help>
 </tool>
-<!-- FASTQ-to-FASTA is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->
+<!-- FASTX-renamer is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->
