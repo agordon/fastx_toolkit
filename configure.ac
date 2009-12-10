@@ -103,7 +103,7 @@ AC_CONFIG_FILES([
    galaxy/Makefile
    galaxy/tools/Makefile
    galaxy/tools/fastx_toolkit/Makefile
-   galaxy/tools/fastx_toolkit_with_gzip_and_output_label/Makefile
+   galaxy/tools/cshl_custom_fastx_toolkit/Makefile
    galaxy/test-data/Makefile
    galaxy/static/Makefile
    galaxy/static/fastx_icons/Makefile

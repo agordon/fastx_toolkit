@@ -8,4 +8,4 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-SUBDIRS = fastx_toolkit fastx_toolkit_with_gzip_and_output_label
+SUBDIRS = fastx_toolkit cshl_custom_fastx_toolkit
