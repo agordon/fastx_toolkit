@@ -71,7 +71,7 @@ typedef struct
 	char	name2[MAX_SEQ_LINE_LENGTH+1];
 	int	quality[MAX_SEQ_LINE_LENGTH+1];  //note: this is NOT ascii values, but numerical values
 					       //      numeric quality scores and ASCII quality scores
-					       //      are automatically converted to numbers (-15 to 40)
+					       //      are automatically converted to numbers (-15 to 93)
 
 	/* Configuration */
 	int	allow_input_filetype;	// 0 = Allow only FASTA
