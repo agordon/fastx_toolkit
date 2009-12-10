@@ -57,6 +57,8 @@ const char* usage=
 "                  report will be printed to STDERR.\n" \
 "   [-z]         = Compress output with GZIP.\n" \
 "   [-D]	 = DEBUG output.\n" \
+"   [-M N]       = require minimum adapter alignment length of N.\n" \
+"                  If less than N nucleotides aligned with the adapter - don't clip it." \
 "   [-i INFILE]  = FASTA/Q input file. default is STDIN.\n" \
 "   [-o OUTFILE] = FASTA/Q output file. default is STDOUT.\n" \
 "\n";
@@ -70,6 +72,7 @@ int discard_non_clipped=0;
 int discard_clipped=0;
 int show_adapter_only=0;
 int debug = 0 ;
+int minimum_adapter_length = 0;
 
 
 //Statistics for verbose report
@@ -86,6 +89,14 @@ HalfLocalSequenceAlignment align;
 int parse_program_args(int __attribute__((unused)) optind, int optc, char* optarg)
 {
 	switch(optc) {
+		case 'M':
+			if (optarg==NULL) 
+				errx(1, "[-M] parameter requires an argument value");
+			minimum_adapter_length = atoi(optarg);
+			if (minimum_adapter_length<=0) 
+				errx(1,"Invalid minimum adapter length (-M %s)", optarg);
+			break;
+
 		case 'k':
 			show_adapter_only=1;
 			break;
@@ -136,7 +147,7 @@ int parse_program_args(int __attribute__((unused)) optind, int optc, char* optar
 int parse_commandline(int argc, char* argv[])
 {
 
-	fastx_parse_cmdline(argc, argv, "kDCcd:a:s:l:n", parse_program_args);
+	fastx_parse_cmdline(argc, argv, "M:kDCcd:a:s:l:n", parse_program_args);
 
 	if (keep_delta>0) 
 		keep_delta += strlen(adapter);
@@ -184,6 +195,9 @@ int adapter_cutoff_index ( const SequenceAlignmentResults& alignment_results )
 
 	//No alignment at all?
 	if (alignment_size==0)
+		return -1;
+
+	if (minimum_adapter_length>0 && alignment_size<minimum_adapter_length)
 		return -1;
 
 	//Any good alignment at the end of the query
