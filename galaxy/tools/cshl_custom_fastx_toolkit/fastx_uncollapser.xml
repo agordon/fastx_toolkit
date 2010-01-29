@@ -21,26 +21,20 @@
 
 **What it does**
 
-This tool takes a collapsed FASTA sequence and generates multiple sequences based on the collapsed read count.
+This tool uncollapses a previously-collapsed FASTA file. It reads each collapsed sequence and generates multiple sequences based on the collapsed read count.
 
 --------
 
 **Example**
 
-Example Input file (Sequence "ATAT" has four collapsed reads)::
+Example Input - a collapsed FASTA file (Sequence "ATAT" has four collapsed reads)::
 
     >1-1
     TGCG
     >2-4
     ATAT
-    >3-1
-    TGGC
-    >4-1
-    TGAG
-    >5-1
-    TTCA
 
-Example Output File (Sequence "ATAT" now appears as 4 separate sequences):: 
+Example Output - uncollapsed FASTA file (Sequence "ATAT" now appears as 4 separate sequences):: 
 
     >1
     TGCG
@@ -52,12 +46,6 @@ Example Output File (Sequence "ATAT" now appears as 4 separate sequences)::
     ATAT
     >5
     ATAT
-    >6
-    TGGC
-    >7
-    TGAG
-    >8
-    TTCA
     
 .. class:: infomark
 

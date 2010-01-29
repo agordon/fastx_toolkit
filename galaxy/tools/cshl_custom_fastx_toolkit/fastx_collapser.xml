@@ -3,24 +3,17 @@
 	<command>zcat -f '$input' | fastx_collapser -v -o '$output' </command>
 
 	<inputs>
-		<param format="fastqsolexa,fasta" name="input" type="data" label="Library to collapse" />
-		
-		<!--
-		<param name="GZIPOUT" type="select" label="Compress output file (using GZIP) ">
-			<option value="">no</option>
-			<option value="-g">yes</option>
-		</param>
-		-->
+		<param format="fastq,fasta" name="input" type="data" label="Library to collapse" />
 	</inputs>
 
+    <!-- The order of sequences in the test output differ between 32 bit and 64 bit machines. 
 	<tests>
 		<test>
 			<param name="input" value="fasta_collapser1.fasta" />
-			<param name="GZIPOUT" value=""/>
 			<output name="output" file="fasta_collapser1.out" />
 		</test>
 	</tests>
-
+    -->
 	<outputs>
 		<data format="fasta" name="output" metadata_source="input" label="$input.tag collapsed" />
 	</outputs>
@@ -70,7 +63,7 @@ Example Output file::
 
 Original Sequence Names / Lane descriptions (e.g. "CSHL_2_FC0042AGLLOO_1_1_742_502") are discarded. 
 
-The output seqeunce name is composed of two numbers: the first is the sequence's number, the second is the multiplicity value.
+The output sequence name is composed of two numbers: the first is the sequence's number, the second is the multiplicity value.
 
 The following output::
 

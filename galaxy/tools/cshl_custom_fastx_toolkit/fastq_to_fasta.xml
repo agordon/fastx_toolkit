@@ -3,7 +3,7 @@
 	<command>gunzip -cf $input | fastq_to_fasta $GZIPOUT $SKIPN $RENAMESEQ -o $output -v </command>
 
 	<inputs>
-		<param format="fastqsolexa" name="input" type="data" label="FASTQ Library to convert" />
+		<param format="fastq" name="input" type="data" label="FASTQ Library to convert" />
 
 		<param name="SKIPN" type="select" label="Discard sequences with unknown (N) bases ">
 			<option value="">yes</option>
@@ -11,8 +11,8 @@
 		</param>
 
 		<param name="GZIPOUT" type="select" label="Compress output file (using GZIP) ">
-			<option value="-z">yes</option>
 			<option value="">no</option>
+			<option value="-z">yes</option>
 		</param>
 
 		<param name="RENAMESEQ" type="select" label="Rename sequence names in output file (reduces file size)">
@@ -72,6 +72,11 @@ Will be converted to FASTA (with 'rename sequence names' = YES)::
     >1
     GGTCAATGATGAGTTGGCACTGTAGGCACCATCAAT
     
+------
+
+This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
+
+ .. __: http://hannonlab.cshl.edu/fastx_toolkit/    
 </help>
 </tool>
 <!-- FASTQ-to-FASTA is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->
