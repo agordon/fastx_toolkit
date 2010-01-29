@@ -5,6 +5,7 @@ syntax: glob
 
 ## GNU auto-tools generated files
 config.h
+config.h.in
 config.log
 config.status
 config/ltmain.sh

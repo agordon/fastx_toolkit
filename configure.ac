@@ -20,13 +20,8 @@ AM_INIT_AUTOMAKE([dist-bzip2])
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_LIBTOOL
-
-# 23dec08, Gordon
-# Only added those things because 'autoheader' was complaining...
-AC_DEFINE([CXX_HAS_BUGGY_FOR_LOOPS], [], [Description])
-AC_DEFINE([CXX_HAS_NO_BOOL], [], [Description])
-AC_DEFINE([NDEBUG], [], [Description])
-AC_DEFINE([YOUR_OS], [], [Description])
+AX_C_LONG_LONG
+AX_CXX_HEADER_STDCXX_TR1
 
 PKG_CHECK_MODULES([GTEXTUTILS],[gtextutils])
 
