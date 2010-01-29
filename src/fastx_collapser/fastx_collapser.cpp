@@ -27,8 +27,9 @@
 #include <fstream>
 #include <map>
 #include <list>
+#include <stdio.h>
 
-#include <config.h>
+#include "config.h"
 
 #include "fastx.h"
 #include "fastx_args.h"
@@ -37,8 +38,8 @@ using namespace std;
 
 const char* usage=
 "usage: fastx_collapser [-h] [-v] [-i INFILE] [-o OUTFILE]\n" \
+"Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
-"version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-v]         = verbose: print short summary of input/output counts\n" \
 "   [-i INFILE]  = FASTA/Q input file. default is STDIN.\n" \
@@ -81,7 +82,8 @@ int main(int argc, char* argv[])
 	fastx_parse_cmdline(argc, argv, "", NULL );
 
 	fastx_init_reader(&fastx, get_input_filename(), 
-		FASTA_OR_FASTQ, ALLOW_N, REQUIRE_UPPERCASE);
+		FASTA_OR_FASTQ, ALLOW_N, REQUIRE_UPPERCASE,
+		get_fastq_ascii_quality_offset() );
 
 	bool use_stdout = true;
 	if ( strcmp(get_output_filename(), "-")!=0 ) {
@@ -93,7 +95,7 @@ int main(int argc, char* argv[])
 	ostream& real_output = (use_stdout) ? cout : output_file ;
 
 	while ( fastx_read_next_record(&fastx) ) {
-		collapsed_sequences[string(fastx.nucleotides)]++ ;
+		collapsed_sequences[string(fastx.nucleotides)]+= get_reads_count(&fastx);
 	}
 	
 	copy ( collapsed_sequences.begin(), collapsed_sequences.end(), 
@@ -104,13 +106,18 @@ int main(int argc, char* argv[])
 	PrintCollapsedSequence stats =  for_each ( sorted_collapsed_sequences.rbegin(), 
 			sorted_collapsed_sequences.rend(), PrintCollapsedSequence(real_output) ) ;
 
+	/* This (in)sanity check prevents collapsing an already-collapsed FASTA file, so skip it for now */
+	/*
 	if (stats.total_reads != num_input_reads(&fastx))
 		errx(1,"Internal error: stats.total_reads (%zu) != num_input_reads(&fastx) (%zu).\n", 
 			stats.total_reads, num_input_reads(&fastx) ); 
+	*/
 
 	if ( verbose_flag() ) {
-		fprintf(get_report_file(), "Collapsd %zu reads into %zu unique sequences.\n",
-			num_input_reads(&fastx), stats.counter) ;
+		fprintf(get_report_file(), "Input: %zu sequences (representing %zu reads)\n",
+				num_input_sequences(&fastx), num_input_reads(&fastx));
+		fprintf(get_report_file(), "Output: %zu sequences (representing %zu reads)\n",
+				stats.counter, stats.total_reads);
 	}
 	return 0;
 }

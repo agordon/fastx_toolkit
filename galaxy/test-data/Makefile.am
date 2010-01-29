@@ -40,6 +40,13 @@ EXTRA_DIST = fastq_qual_conv1a.out \
 	fasta_collapser1.out \
 	fastx_barcode_splitter1.fastq \
 	fastx_barcode_splitter1.txt \
-	fastx_barcode_splitter1.out
+	fastx_barcode_splitter1.out \
+	fasta_formatter1.fasta \
+	fasta_formatter1.out \
+	fasta_formatter2.out \
+	fasta_nuc_changer1.fasta \
+	fasta_nuc_changer1.out \
+	fasta_nuc_changer2.fasta \
+	fasta_nuc_changer2.out
 
 

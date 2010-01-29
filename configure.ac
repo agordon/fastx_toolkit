@@ -9,30 +9,73 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 AC_INIT([FASTX Toolkit],
-        [0.0.4],
+        [0.0.12],
         [Assaf Gordon gordon@cshl.edu],
         [fastx_toolkit])
 AC_CONFIG_AUX_DIR(config)
+AC_CONFIG_MACRO_DIR([m4])
 AM_CONFIG_HEADER(config.h)
 AM_INIT_AUTOMAKE([dist-bzip2])
 
-# 23dec08, Gordon
-# Only added those things because 'autoheader' was complaining...
-AC_DEFINE([CXX_HAS_BUGGY_FOR_LOOPS], [], [Description])
-AC_DEFINE([CXX_HAS_NO_BOOL], [], [Description])
-AC_DEFINE([NDEBUG], [], [Description])
-AC_DEFINE([YOUR_OS], [], [Description])
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_LIBTOOL
+AX_C_LONG_LONG
+AX_CXX_HEADER_STDCXX_TR1
+if test "$ax_cv_cxx_stdcxx_tr1" != yes; then
+	AC_MSG_ERROR([Your version of gcc does not support the 'std::tr1' standard. Recommended gcc version is 4.1.2 or later. Please use a newer gcc version, or try to download the pre-compiled binaries from the fastx-toolkit website.])
+fi
 
-#Is this the right way to add compiler flags?
-CFLAGS="-Wall -g"
-CXXFLAGS="-Wall -g"
+PKG_CHECK_MODULES([GTEXTUTILS],[gtextutils])
+
+dnl --enable-wall
+EXTRA_CHECKS="-Wall -Wextra -Wformat-nonliteral -Wformat-security -Wswitch-default -Wswitch-enum -Wunused-parameter -Wfloat-equal -Werror"
+AC_ARG_ENABLE(wall,
+[  --enable-wall          Enable many common GCC warnings (-Wall,-Wextra, -Werror etc., default enabled)],
+[case "${enableval}" in
+  yes) wall=true ;;
+  no)  wall=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-wall) ;;
+esac],[wall=true])
+if test "$wall" = "true"
+then
+  CFLAGS="${CFLAGS} ${EXTRA_CHECKS}"
+  CXXFLAGS="${CXXFLAGS} ${EXTRA_CHECKS}"
+fi
+
+dnl --enable-debug
+AC_ARG_ENABLE(debug,
+[  --enable-debug          Enable debug mode (default enabled)],
+[case "${enableval}" in
+  yes) debug=true ;;
+  no)  debug=false ;;
+  *) AC_MSG_ERROR(bad value ${enableval} for --enable-debug) ;;
+esac],[debug=true])
+if test "$debug" = "true"
+then
+  CFLAGS="${CFLAGS} -DDEBUG -g -O1"
+  CXXFLAGS="${CFLAGS} -DDEBUG -g -O1"
+else
+  CFLAGS="${CFLAGS} -O3"
+  CXXFLAGS="${CFLAGS} -O3"
+fi
+
+dnl 'all-static' marco copied from subversion's configure.ac
+dnl Check for --enable-all-static option
+AC_ARG_ENABLE(all-static,
+	      AS_HELP_STRING([--enable-all-static],
+			     [Build completely static (standalone) binaries.]),
+			     [
+			      if test "$enableval" = "yes" ; then
+				      LT_LDFLAGS="-all-static $LT_LDFLAGS"
+			      elif test "$enableval" != "no" ; then
+				      AC_MSG_ERROR([--enable-all-static doesn't accept argument])
+				      fi
+				      ])
+
+AC_SUBST(LT_LDFLAGS)
 
 
-LF_CONFIGURE_CC
-LF_CONFIGURE_CXX
-LF_HOST_TYPE
-LF_SET_WARNINGS
-AC_PROG_RANLIB
 
 AC_CONFIG_FILES([
    Makefile
@@ -46,14 +89,19 @@ AC_CONFIG_FILES([
    src/fastq_quality_converter/Makefile
    src/fastx_trimmer/Makefile
    src/fastq_quality_filter/Makefile
+   src/fastq_quality_trimmer/Makefile
    src/fastx_artifacts_filter/Makefile
    src/fastx_reverse_complement/Makefile
    src/fastx_collapser/Makefile
+   src/fastx_uncollapser/Makefile
    src/seqalign_test/Makefile
+   src/fasta_formatter/Makefile
+   src/fasta_nucleotide_changer/Makefile
+   src/fastx_renamer/Makefile
    galaxy/Makefile
    galaxy/tools/Makefile
    galaxy/tools/fastx_toolkit/Makefile
-   galaxy/tools/fastx_toolkit_with_gzip_and_output_label/Makefile
+   galaxy/tools/cshl_custom_fastx_toolkit/Makefile
    galaxy/test-data/Makefile
    galaxy/static/Makefile
    galaxy/static/fastx_icons/Makefile

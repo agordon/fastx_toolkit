@@ -58,7 +58,7 @@ while (my $name = <IN>) {
 		$count = 1 ;
 	} else  {
 		#Assume file is collapsed (that is - sequence-ID has two numbers with a separating dash)
-		(undef, $count) = $name =~ /^\>(\d+)\-(\d+)$/ ;
+		($count) = $name =~ /^\>[^-]+\-(\d+)$/ ;
 
 		# If the match failed, treat this fasta as not collapsed;
 		$count = 1 if not defined $count ;

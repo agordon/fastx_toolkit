@@ -31,9 +31,9 @@
 #define MAX_ADAPTER_LEN 100
 
 const char* usage=
-"usage: fastq_artifacts_filter [-h] [-v] [-z] [-i INFILE] [-o OUTFILE]\n" \
+"usage: fastx_artifacts_filter [-h] [-v] [-z] [-i INFILE] [-o OUTFILE]\n" \
+"Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
-"version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-i INFILE]  = FASTA/Q input file. default is STDIN.\n" \
 "   [-o OUTFILE] = FASTA/Q output file. default is STDOUT.\n" \
@@ -88,6 +88,9 @@ int artifact_sequence(const FASTX *fastx)
 		case 'N':
 			n_count++;
 			break;
+		default:
+			errx(1, __FILE__":%d: invalid nucleotide value (%c) at position %d",
+				__LINE__, fastx->nucleotides[i], i ) ;
 		}
 		i++;
 	}
@@ -113,7 +116,8 @@ int main(int argc, char* argv[])
 	parse_commandline(argc, argv);
 
 	fastx_init_reader(&fastx, get_input_filename(), 
-		FASTA_OR_FASTQ, ALLOW_N, REQUIRE_UPPERCASE);
+		FASTA_OR_FASTQ, ALLOW_N, REQUIRE_UPPERCASE,
+		get_fastq_ascii_quality_offset() );
 
 	fastx_init_writer(&fastx, get_output_filename(), 
 		OUTPUT_SAME_AS_INPUT, compress_output_flag());
@@ -132,7 +136,7 @@ int main(int argc, char* argv[])
 		fprintf(get_report_file(), "Output: %zu reads.\n", num_output_reads(&fastx) ) ;
 
 		size_t discarded = num_input_reads(&fastx) - num_output_reads(&fastx) ;
-		fprintf(get_report_file(), "discarded %u (%u%%) artifact reads.\n", 
+		fprintf(get_report_file(), "discarded %zu (%zu%%) artifact reads.\n", 
 			discarded, (discarded*100)/( num_input_reads(&fastx) ) ) ;
 	}	
 

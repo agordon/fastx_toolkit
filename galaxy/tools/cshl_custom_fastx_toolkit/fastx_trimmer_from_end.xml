@@ -1,0 +1,67 @@
+<tool id="cshl_fastx_end_trimmer" name="Trim End">
+	<description>of sequences</description>
+	<command>zcat -f '$input' | fastx_trimmer -v -t $trimnum -m $minlen -o $output</command>
+
+	<inputs>
+		<param format="fasta,fastqsanger,fastq" name="input" type="data" label="Library to clip" />
+
+		<param name="trimnum" size="4" type="integer" value="5">
+			<label>Number of nucleotides to be trimmed</label>
+			<help>This will trim from the end of the sequences</help>
+		</param>
+
+		<param name="minlen" size="4" type="integer" value="10">
+			<label>Minimum sequence length</label>
+			<help>Sequences shorter than this length will be discarded</help>
+		</param>
+	</inputs>
+
+	<tests>
+		
+	</tests>
+
+	<outputs>
+		<data format="input" name="output" label="$input.tag end-trimmed" metadata_source="input" />
+	</outputs>
+	<help>
+**What it does**
+
+This tool trims (cut nucleotides from) sequences in a FASTQ/FASTA file from the 3' end.
+
+.. class:: infomark
+
+When trimming a FASTQ file, the quality scores will be trimmed appropriately (to the same length of the corresponding sequence).
+  
+--------
+
+**Example**
+
+Input Fasta file::
+
+    >1-1
+    TATGGTCAGAAACCATATGCAGAGCCTGTAGGCACC
+    >2-1
+    CAGCGAGGCTTTAATGCCATT
+    
+
+Trimming 5 nucleotides from the end, and discarding sequences shorter than 10 , we get the following FASTA file::
+
+    >1-1
+    TATGGTCAGAAACCATATGCAGAGCCTGTAG
+    >2-1
+    CAGCGAGGCTTTAATG
+
+Trimming 10 nucleotides from the end, and discarding sequences shorter than 15 , we get the following FASTA file::
+
+    >1-1
+    TATGGTCAGAAACCATATGCAGAGCC
+    
+------
+
+This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
+
+ .. __: http://hannonlab.cshl.edu/fastx_toolkit/
+    
+</help>
+</tool>
+<!-- FASTX-Trimmer is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->

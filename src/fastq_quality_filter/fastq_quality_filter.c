@@ -32,8 +32,8 @@
 
 const char* usage=
 "usage: fastq_quality_filter [-h] [-v] [-q N] [-p N] [-z] [-i INFILE] [-o OUTFILE]\n" \
+"Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
-"version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-q N]       = Minimum quality score to keep.\n" \
 "   [-p N]       = Minimum percent of bases that must have [-q] quality.\n" \
@@ -53,7 +53,7 @@ int min_percent=0;
 
 FASTX fastx;
 
-int parse_program_args(int optind, int optc, char* optarg)
+int parse_program_args(int __attribute__((unused)) optind, int optc, char* optarg)
 {
 	switch(optc) {
 	case 'q':
@@ -69,6 +69,8 @@ int parse_program_args(int optind, int optc, char* optarg)
 		if (min_percent<=0 ||  min_percent>100) 
 			errx(1,"Invalid percent value (-p %s)", optarg);
 		break;
+	default:
+		errx(1, __FILE__ ":%d: Unknown argument (%c)", __LINE__, optc ) ;
 	}
 	return 1;
 }
@@ -107,7 +109,7 @@ int get_index_of_nth_element(int *array, int array_size, int n)
 
 int get_percentile_quality(const FASTX *fastx, int percentile)
 {
-	int i;
+	size_t i;
 	int count=0;
 	int quality_values[QUALITY_VALUES_RANGE];
 
@@ -131,7 +133,8 @@ int main(int argc, char* argv[])
 	fastx_parse_cmdline(argc, argv, "q:p:", parse_program_args);
 
 	fastx_init_reader(&fastx, get_input_filename(), 
-		FASTQ_ONLY, ALLOW_N, REQUIRE_UPPERCASE);
+		FASTQ_ONLY, ALLOW_N, REQUIRE_UPPERCASE,
+		get_fastq_ascii_quality_offset() );
 
 	fastx_init_writer(&fastx, get_output_filename(), OUTPUT_SAME_AS_INPUT, compress_output_flag());
 
@@ -167,7 +170,7 @@ int main(int argc, char* argv[])
 		fprintf(get_report_file(), "Output: %zu reads.\n", num_output_reads(&fastx) ) ;
 
 		size_t discarded = num_input_reads(&fastx) - num_output_reads(&fastx) ;
-		fprintf(get_report_file(), "discarded %u (%u%%) low-quality reads.\n", 
+		fprintf(get_report_file(), "discarded %zu (%zu%%) low-quality reads.\n", 
 			discarded, (discarded*100)/( num_input_reads(&fastx) ) ) ;
 	}	
 

@@ -15,9 +15,15 @@ SUBDIRS = libfastx \
 	fastq_quality_converter \
 	fastq_to_fasta \
 	fastq_quality_filter \
+	fastq_quality_trimmer \
 	fastx_artifacts_filter \
 	fastx_reverse_complement \
 	fastx_collapser \
-	seqalign_test
+	fastx_uncollapser \
+	seqalign_test \
+	fasta_formatter \
+	fasta_nucleotide_changer \
+	fastx_renamer
+
 
 

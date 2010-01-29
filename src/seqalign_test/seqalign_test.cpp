@@ -1,11 +1,13 @@
 #include <string>
 #include <vector>
+#include <ostream>
+#include <iostream>
 #include "sequence_alignment.h"
 
 
-int main(int argc, char* argv[])
+int main( /*int argc, char* argv[] */)
 {
-	LocalSequenceAlignment lsa ;
+	HalfLocalSequenceAlignment lsa ;
 
 	const SequenceAlignmentResults& results = lsa.align("AAAGGTTTCCC","AGGCTT" );
 	lsa.print_matrix();

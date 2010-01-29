@@ -15,8 +15,11 @@ EXTRA_DIST = fastx_clipper_example.png \
 	     fastq_nucleotides_distribution_2.png \
 	     fastq_nucleotides_distribution_3.png \
 	     fastq_nucleotides_distribution_4.png \
+	     fastq_nucleotides_distribution_line_graph.png \
 	     fasta_clipping_histogram_1.png \
 	     fasta_clipping_histogram_2.png \
+	     fasta_clipping_histogram_3.png \
+	     fasta_clipping_histogram_4.png \
 	     fastq_quality_boxplot_1.png \
 	     fastq_quality_boxplot_2.png \
 	     fastq_quality_boxplot_3.png

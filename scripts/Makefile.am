@@ -9,13 +9,11 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 bin_SCRIPTS = fastx_barcode_splitter.pl \
-	      fastx_barcode_splitter_galaxy_wrapper.sh \
 	      fastx_nucleotide_distribution_graph.sh \
 	      fastq_quality_boxplot_graph.sh \
 	      fasta_clipping_histogram.pl 
 
 EXTRA_DIST = fastx_barcode_splitter.pl \
-	      fastx_barcode_splitter_galaxy_wrapper.sh \
 	      fastx_nucleotide_distribution_graph.sh \
 	      fastq_quality_boxplot_graph.sh \
 	      fasta_clipping_histogram.pl 

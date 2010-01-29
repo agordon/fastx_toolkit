@@ -30,8 +30,8 @@
 
 const char* usage=
 "usage: fastx_reverse_complement [-h] [-r] [-z] [-v] [-i INFILE] [-o OUTFILE]\n" \
+"Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
-"version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-z]         = Compress output with GZIP.\n" \
 "   [-i INFILE]  = FASTA/Q input file. default is STDIN.\n" \
@@ -67,7 +67,8 @@ char reverse_complement_base ( const char input )
 	default:
 		errx(1,"Invalid nucleotide value (%c) in reverse_complement_base()", input ); 
 	}
-	
+
+	return '0'; //should not get here - just to please the compiler
 }
 
 void reverse_complement_fastx(FASTX* pFASTX)
@@ -105,12 +106,11 @@ void reverse_complement_fastx(FASTX* pFASTX)
 
 int main(int argc, char* argv[])
 {
-	int i;
-	
 	fastx_parse_cmdline(argc, argv, "", NULL);
 
 	fastx_init_reader(&fastx, get_input_filename(), 
-		FASTA_OR_FASTQ, ALLOW_N, REQUIRE_UPPERCASE);
+		FASTA_OR_FASTQ, ALLOW_N, REQUIRE_UPPERCASE,
+		get_fastq_ascii_quality_offset() );
 
 	fastx_init_writer(&fastx, get_output_filename(), OUTPUT_SAME_AS_INPUT, compress_output_flag());
 

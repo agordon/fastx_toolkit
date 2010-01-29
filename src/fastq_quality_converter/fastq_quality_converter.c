@@ -29,9 +29,9 @@
 #include "fastx_args.h"
 
 const char* usage=
-"usage: fastq_qual_conv [-h] [-a] [-n] [-z] [-i INFILE] [-f OUTFILE]\n" \
+"usage: fastq_quality_converter [-h] [-a] [-n] [-z] [-i INFILE] [-f OUTFILE]\n" \
+"Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
-"version " VERSION "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-a]         = Output ASCII quality scores (default).\n" \
 "   [-n]         = Output numeric quality scores.\n" \
@@ -43,7 +43,7 @@ const char* usage=
 FASTX fastx;
 int flag_output_ascii = 1;
 
-int parse_program_args(int optind, int optc, char* optarg)
+int parse_program_args(int __attribute__((unused)) optind, int optc, char __attribute__((unused)) *optarg)
 {
 	switch(optc) {
 	case 'a': //this is the default, nothing to change
@@ -52,6 +52,8 @@ int parse_program_args(int optind, int optc, char* optarg)
 	case 'n':
 		flag_output_ascii = 0 ;
 		break;
+	default:
+		errx(1, __FILE__ ":%d: Unknown argument (%c)", __LINE__, optc ) ;
 	}
 	return 1;
 }
@@ -62,16 +64,14 @@ int main(int argc, char* argv[])
 	fastx_parse_cmdline(argc, argv, "an", parse_program_args);
 
 	fastx_init_reader(&fastx, get_input_filename(), 
-		FASTQ_ONLY, ALLOW_N, REQUIRE_UPPERCASE);
+		FASTQ_ONLY, ALLOW_N, REQUIRE_UPPERCASE,
+		get_fastq_ascii_quality_offset() );
 
 	fastx_init_writer(&fastx, get_output_filename(), 
 		flag_output_ascii ? OUTPUT_FASTQ_ASCII_QUAL : OUTPUT_FASTQ_NUMERIC_QUAL,
 		compress_output_flag());
 
 	while ( fastx_read_next_record(&fastx) ) {
-#ifdef DEBUG
-		fastx_debug_print_record($fastx);
-#endif
 		fastx_write_record(&fastx);
 	}
 

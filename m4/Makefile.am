@@ -12,7 +12,8 @@
 m4datadir = $(datadir)/aclocal
 
 # List your m4 macros here
-m4macros = 
+m4macros = ax_c_long_long.m4 \
+	   ax_cxx_header_stdcxx_tr1.m4
 
 # The following is boilerplate
 m4data_DATA = $(m4macros) 

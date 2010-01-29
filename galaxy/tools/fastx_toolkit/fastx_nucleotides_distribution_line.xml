@@ -1,0 +1,37 @@
+<tool id="cshl_fastx_nucleotides_distribution_line_plot" name="Draw nucleotides distribution line chart">
+	<command interpreter="sh">
+	  fastx_nucleotide_distribution_line_graph.sh -i '$input' -o '$output'
+	</command>
+	
+	<inputs>
+		<param format="txt" name="input" type="data" label="Statistics Text File (output of 'FASTX Statistics' tool)" />
+	</inputs>
+	
+	<outputs>
+		<data format="png" name="output" metadata_source="input" />
+	</outputs>
+<help>
+
+**What it does**
+
+Creates a line and points graph for the nucleotide distribution in the Solexa library.
+
+.. class:: infomark
+
+**TIP:** Use the **FASTQ Statistics** tool to generate the report file needed for this tool.
+
+-----
+
+**Output Examples**
+
+.. image:: ../static/fastx_icons/fastq_nucleotides_distribution_line_graph.png
+
+------
+
+This tool was created by Oliver Tam, based on `FASTX-toolkit`__ by Assaf Gordon.
+
+ .. __: http://hannonlab.cshl.edu/fastx_toolkit/
+ 
+</help>
+</tool>
+<!-- FASTQ-Nucleotides-Distribution-Line is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->

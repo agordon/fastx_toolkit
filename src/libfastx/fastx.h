@@ -22,9 +22,8 @@
 extern "C" {
 #endif
 
-#ifndef PATH_MAX
-#include <linux/limits.h>
-#endif
+/* for PATH_MAX */
+#include <limits.h>
 
 #define MIN_QUALITY_VALUE (-50)
 #define MAX_QUALITY_VALUE 50
@@ -43,8 +42,9 @@ typedef enum {
 
 typedef enum {
 	DISALLOW_N=0,
-	ALLOW_N=1
-} ALLOWED_INPUT_UNKNOWN_BASES;
+	ALLOW_N=1,
+	ALLOW_U=2	
+} ALLOWED_INPUT_BASES;
 
 typedef enum {
 	REQUIRE_UPPERCASE=0,
@@ -71,11 +71,12 @@ typedef struct
 	char	name2[MAX_SEQ_LINE_LENGTH+1];
 	int	quality[MAX_SEQ_LINE_LENGTH+1];  //note: this is NOT ascii values, but numerical values
 					       //      numeric quality scores and ASCII quality scores
-					       //      are automatically converted to numbers (-15 to 40)
+					       //      are automatically converted to numbers (-15 to 93)
 
 	/* Configuration */
 	int	allow_input_filetype;	// 0 = Allow only FASTA
 	int	allow_N;		// 1 = N is valid nucleotide, 0 = only A/G/C/T are valid
+	int	allow_U;		// 1 = U is a valid nucleotide
 	int	allow_lowercase;	
 	int	read_fastq;		// 1 = Input is FASTQ (only if allow_input_fastq==1)
 	int	read_fastq_ascii;	// 1 = Input is FASTQ with ASCII quality scores (0 = with numeric quality scores)
@@ -85,6 +86,7 @@ typedef struct
 
 	int     copy_input_fastq_format_to_output ; // 1 = copy 'read_fastq_ascii' to 'write_fastq_ascii'
 						    // so that the output format is the same as the input
+	int	fastq_ascii_quality_offset ;  // When reading FASTQ with ASCII quality values, subtract this value to get 'real' numeric quality score;
 
 
 	/* Internal data */
@@ -107,8 +109,9 @@ typedef struct
 
 void fastx_init_reader(FASTX *pFASTX, const char* filename, 
 		ALLOWED_INPUT_FILE_TYPES allowed_input_filetype,
-		ALLOWED_INPUT_UNKNOWN_BASES allow_N,
-		ALLOWED_INPUT_CASE allow_lowercase);
+		ALLOWED_INPUT_BASES allow_bases,
+		ALLOWED_INPUT_CASE allow_lowercase,
+		int fastq_ascii_quality_offset);
 
 // If the sequence identifier is collapsed (= "N-N") returns the reads_count,
 // otherwise, returns 1

@@ -1,0 +1,53 @@
+<tool id="cshl_seqid_uncollapser" name="Uncollapse rows">
+	<description>containing collapsed sequence IDs</description>
+	<command>fastx_uncollapser -c $idcol -v -i '$input' -o '$output' </command>
+
+	<inputs>
+		<param format="tabular,pslx" name="input" type="data" label="Library to uncollapse" />
+
+	    <param name="idcol" label="Column with collased sequence-identifier" type="data_column" data_ref="input" accept_default="false" >
+ 		  <help>This column contains the sequence id from a collapsed FASTA file in the form of "(seq number)-(read count)" (e.g. 15-4). Use 10 if you're analyzing BLAT output</help>
+		</param>
+	</inputs>
+
+	<outputs>
+		<data format="input" name="output" metadata_source="input" />
+	</outputs>
+  <help>
+
+**What it does**
+
+This tool reads a row (in a table) containing a collapsed sequence ID, and duplicates the .
+
+.. class:: warningmark
+
+You must specify the column containing the collapsed sequence ID (e.g. 15-4).
+
+--------
+
+**Example**
+
+Example Input File (where column with collapsed sequence ID is 10):: 
+
+  23    0    0    0    0    0    0    0    +    84-2 ...
+  22    0    0    0    0    0    0    0    +    87-5 ...
+
+Output Example::
+
+  23    0    0    0    0    0    0    0    +    84-2 ... 
+  23    0    0    0    0    0    0    0    +    84-2 ... 
+  22    0    0    0    0    0    0    0    +    87-5 ... 
+  22    0    0    0    0    0    0    0    +    87-5 ... 
+  22    0    0    0    0    0    0    0    +    87-5 ... 
+  22    0    0    0    0    0    0    0    +    87-5 ... 
+  22    0    0    0    0    0    0    0    +    87-5 ... 
+
+-----
+
+This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
+
+ .. __: http://hannonlab.cshl.edu/fastx_toolkit/
+    
+</help>
+</tool>
+<!-- FASTX-Uncollapser is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->

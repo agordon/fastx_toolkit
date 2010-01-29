@@ -1,0 +1,44 @@
+syntax: glob
+
+## vim temporary files
+.*.swp
+
+## GNU auto-tools generated files
+config.h
+config.h.in
+config.log
+config.status
+config/ltmain.sh
+
+## Distribution tarballs
+fastx*.tar.bz2
+
+## Intermediate files
+*.o
+*.a
+*.Po
+Makefile
+Makefile.in
+libtool
+*.m4
+autom4te.cache/*
+configure
+stamp-h1
+
+## The compiled binaries
+src/fastx_collapser/fastx_collapser
+src/fastx_reverse_complement/fastx_reverse_complement
+src/fastx_trimmer/fastx_trimmer
+src/fastq_quality_filter/fastq_quality_filter
+src/fastq_to_fasta/fastq_to_fasta
+src/fasta_nucleotide_changer/fasta_nucleotide_changer
+src/fastx_quality_stats/fastx_quality_stats
+src/fasta_formatter/fasta_formatter
+src/fastx_uncollapser/fastx_uncollapser
+src/fastx_renamer/fastx_renamer
+src/fastq_quality_trimmer/fastq_quality_trimmer
+src/fastx_artifacts_filter/fastx_artifacts_filter
+src/fastx_clipper/fastx_clipper
+src/fastq_quality_converter/fastq_quality_converter
+src/seqalign_test/seqalign_test
+

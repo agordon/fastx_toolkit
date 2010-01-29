@@ -1,9 +1,9 @@
 <tool id="cshl_fastx_collapser" name="Collapse">
 	<description>sequences</description>
-	<command>zcat -f '$input' | fastx_collapser -v -o '$output' </command>
+	<command>fastx_collapser -Q 33 -v -i '$input' -o '$output' </command>
 
 	<inputs>
-		<param format="fastqsolexa,fasta" name="input" type="data" label="Library to collapse" />
+		<param format="fastqsanger,fasta" name="input" type="data" label="Library to collapse" />
 	</inputs>
 
 	<tests>
@@ -20,7 +20,7 @@
 
 **What it does**
 
-This tool collapses identical sequences in a FASTA file into a single sequence.
+This tool collapses identical sequences in a FASTQ or FASTA file into a single sequence.
 
 --------
 
@@ -62,7 +62,7 @@ Example Output file::
 
 Original Sequence Names / Lane descriptions (e.g. "CSHL_2_FC0042AGLLOO_1_1_742_502") are discarded. 
 
-The output seqeunce name is composed of two numbers: the first is the sequence's number, the second is the multiplicity value.
+The output sequence name is composed of two numbers: the first is the sequence's number, the second is the multiplicity value.
 
 The following output::
 
@@ -71,5 +71,12 @@ The following output::
 
 means that the sequence "ATAT" is the second sequence in the file, and it appeared 4 times in the input FASTA file.
 
+------
+
+This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
+
+ .. __: http://hannonlab.cshl.edu/fastx_toolkit/    
+
 </help>
 </tool>
+<!-- FASTX-Collapser is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->

@@ -17,5 +17,5 @@ AM_CPPFLAGS = \
 
 fastx_reverse_complement_SOURCES = fastx_reverse_complement.c
 
-fastx_reverse_complement_LDADD = ../libfastx/libfastx.a
+fastx_reverse_complement_LDADD = ../libfastx/libfastx.a $(LT_LDFLAGS)
 

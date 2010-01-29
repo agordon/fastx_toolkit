@@ -17,10 +17,8 @@
 */
 #include <stdio.h>
 #include <stdlib.h>
-#include <error.h>
 #include <err.h>
 #include <string.h>
-#include <linux/limits.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -44,13 +42,11 @@
 	Remark -
 		sequences with unknown (N) bases are considered VALID.
 */
-static int validate_nucleotides_string(const FASTX *pFASTX)
+static int validate_nucleotides_string(int allowed_nucleotides[256], const char* seq)
 {
 	int match = 1 ;
-	const char* seq = pFASTX->nucleotides;
-	
 	while (*seq != '\0' && match) {
-		match &=  pFASTX->allowed_nucleotides[ (int) *seq ];
+		match &=  allowed_nucleotides[ (int) *seq ];
 		seq++;
 	}
 	return match;
@@ -70,6 +66,8 @@ static void create_lookup_table(FASTX *pFASTX)
 
 	if (pFASTX->allow_N)
 		pFASTX->allowed_nucleotides['N'] = 1;
+	if (pFASTX->allow_U)
+		pFASTX->allowed_nucleotides['U'] = 1;
 
 	if (pFASTX->allow_lowercase) {
 		pFASTX->allowed_nucleotides['a'] = 1;
@@ -79,6 +77,8 @@ static void create_lookup_table(FASTX *pFASTX)
 
 		if (pFASTX->allow_N)
 			pFASTX->allowed_nucleotides['n'] = 1;
+		if (pFASTX->allow_U)
+			pFASTX->allowed_nucleotides['u'] = 1;
 	}
 }
 
@@ -86,7 +86,7 @@ static void detect_input_format(FASTX *pFASTX)
 {
 	//Get the first character in the file,
 	//and put it right back
-	char c = fgetc(pFASTX->input);
+	int c = fgetc(pFASTX->input);
 	ungetc(c, pFASTX->input);
 	
 	switch(c) {
@@ -103,6 +103,10 @@ static void detect_input_format(FASTX *pFASTX)
 				pFASTX->input_file_name);
 		pFASTX->read_fastq = 1;	
 		break;
+	
+	case -1:   /* EOF as first character - no input */
+		errx(1, "Premature End-Of-File (filename ='%s')", pFASTX->input_file_name);
+		break; 
 
 	default:
 		errx(1, "input file (%s) has unknown file format (not FASTA or FASTQ), first character = %c (%d)", 
@@ -112,16 +116,16 @@ static void detect_input_format(FASTX *pFASTX)
 
 static void convert_ascii_quality_score_line(const char* ascii_quality_scores, FASTX *pFASTX)
 {
-	int i;
+	size_t i;
 
 	if (strlen(ascii_quality_scores) != strlen(pFASTX->nucleotides))
-		errx(1,"number of quality values (%d) doesn't match number of nucleotides (%d) on line %lld",
+		errx(1,"number of quality values (%zu) doesn't match number of nucleotides (%zu) on line %lld",
 				strlen(ascii_quality_scores), strlen(pFASTX->nucleotides),
 				pFASTX->input_line_number);
 
 	for (i=0; i<strlen(ascii_quality_scores); i++) {
-		pFASTX->quality[i] = (int) (ascii_quality_scores[i] - 64) ;
-		if (pFASTX->quality[i] < -15 || pFASTX->quality[i] > 40) 
+		pFASTX->quality[i] = (int) (ascii_quality_scores[i] - pFASTX->fastq_ascii_quality_offset ) ;
+		if (pFASTX->quality[i] < -15 || pFASTX->quality[i] > 93) 
 			errx(1, "Invalid quality score value (char '%c' ord %d quality value %d) on line %lld",
 				ascii_quality_scores[i], ascii_quality_scores[i],
 				pFASTX->quality[i], pFASTX->input_line_number );
@@ -131,7 +135,7 @@ static void convert_ascii_quality_score_line(const char* ascii_quality_scores, F
 
 static void convert_numeric_quality_score_line ( const char* numeric_quality_line, FASTX *pFASTX )
 {
-	int index;
+	size_t index;
 	const char *quality_tok;
 	char *endptr;
 	int quality_value;
@@ -145,7 +149,7 @@ static void convert_numeric_quality_score_line ( const char* numeric_quality_lin
 			errx(1,"Error: invalid quality score data on line %lld (quality_tok = \"%s\"", 
 				pFASTX->input_line_number ,quality_tok);
 
-		if (quality_value > 40 || quality_value < -15)
+		if (quality_value > 93 || quality_value < -15)
 			errx(1, "invalid quality score value (%d) in line %lld.", 
 				quality_value, pFASTX->input_line_number);
 		
@@ -156,22 +160,23 @@ static void convert_numeric_quality_score_line ( const char* numeric_quality_lin
 	} while (quality_tok != NULL && *quality_tok!='\0') ;
 
 	if (index != strlen(pFASTX->nucleotides)) {
-		errx(1,"number of quality values (%d) doesn't match number of nucleotides (%d) on line %lld",
+		errx(1,"number of quality values (%zu) doesn't match number of nucleotides (%zu) on line %lld",
 				index, strlen(pFASTX->nucleotides), pFASTX->input_line_number );
 	}
 }
 
 void fastx_init_reader(FASTX *pFASTX, const char* filename, 
 		ALLOWED_INPUT_FILE_TYPES allowed_input_filetype,
-		ALLOWED_INPUT_UNKNOWN_BASES allow_N,
-		ALLOWED_INPUT_CASE allow_lowercase)
+		ALLOWED_INPUT_BASES allow_bases,
+		ALLOWED_INPUT_CASE allow_lowercase,
+		int fastq_ascii_quality_offset)
 {
 	if (pFASTX==NULL)
 		errx(1,"Internal error: pFASTX==NULL (%s:%d)", __FILE__,__LINE__);
 
 	memset(pFASTX, 0, sizeof(FASTX));
 
-	if (strncmp(filename,"-",5)==0) {
+	if (strncmp(filename,"-",1)==0) {
 		pFASTX->input = stdin;	
 	} else {
 		pFASTX->input = fopen(filename, "r");
@@ -183,7 +188,9 @@ void fastx_init_reader(FASTX *pFASTX, const char* filename,
 
 	pFASTX->allow_input_filetype = allowed_input_filetype;
 	pFASTX->allow_lowercase = allow_lowercase;
-	pFASTX->allow_N = allow_N;
+	pFASTX->allow_N = ((allow_bases & ALLOW_N)!=0) ;
+	pFASTX->allow_U = ((allow_bases & ALLOW_U)!=0) ;
+	pFASTX->fastq_ascii_quality_offset = fastq_ascii_quality_offset ;
 
 	create_lookup_table(pFASTX);
 
@@ -203,9 +210,8 @@ int open_output_file(const char* filename)
 	return fd;
 }
 
-int open_output_compressor(FASTX *pFASTX, const char* filename)
+int open_output_compressor(FASTX __attribute__((unused)) *pFASTX, const char* filename)
 {
-	int i;
 	int fd;
 	pid_t child_pid;
 	int parent_pipe[2];
@@ -232,10 +238,12 @@ int open_output_compressor(FASTX *pFASTX, const char* filename)
 	dup2(fd, STDOUT_FILENO);
 	
 	//Run GZIP
-	execlp("gzip","gzip",NULL);
+	execlp("gzip","gzip",(char*)NULL);
 
 	//Should never get here...
 	err(1,"execlp(gzip) failed");
+
+	return 0; //just to please the compiler
 }
 
 
@@ -295,6 +303,10 @@ void fastx_init_writer(FASTX *pFASTX,
 
 		pFASTX->output_sequence_id_prefix = (pFASTX->write_fastq) ? '@' : '>';
 		break;
+
+	default:
+		errx(1, __FILE__ ":%d: Unknown output_type (%d)", 
+			__LINE__, output_type ) ;
 	}
 }
 	
@@ -307,8 +319,33 @@ int fastx_read_next_record(FASTX *pFASTX)
 	if (pFASTX==NULL)
 		errx(1,"Internal error: pFASTX==NULL (%s:%d)", __FILE__,__LINE__);
 
+	pFASTX->input_line_number++;
 	if (fgets(pFASTX->input_sequence_id_prefix, MAX_SEQ_LINE_LENGTH, pFASTX->input) == NULL)
 		return 0; //assume end-of-file, if we couldn't read the first line of the foursome
+
+	chomp(pFASTX->name);
+
+	// quick sanity check - 
+	//   FASTQ files should start with '@' in the identifier line
+	//   FASTA files should start with '>' in the identifier line
+	if ( pFASTX->read_fastq && (pFASTX->input_sequence_id_prefix[0] != '@' ) )
+		errx(1,"Invalid input: expecting FASTQ prefix character '@' on line %lld. Is this a valid FASTQ file?\n",
+				pFASTX->input_line_number) ;
+	if ( !pFASTX->read_fastq && (pFASTX->input_sequence_id_prefix[0] != '>') )  {
+		//Extra friendly check, warn users if they fed us a multiline FASTA file
+		if ( validate_nucleotides_string ( pFASTX->allowed_nucleotides, pFASTX->input_sequence_id_prefix ) ) 
+			errx(1,"Invalid input: This looks like a multi-line FASTA file.\n" \
+				"Line %lld contains a nucleotides string instead of a '>' prefix.\n" \
+				"FASTX-Toolkit can't handle multi-line FASTA files.\n" \
+				"Please use the FASTA-Formatter tool to convert this file into a single-line FASTA.\n", 
+				pFASTX->input_line_number) ;
+		
+		// Otherwise, assume it's just bad input file
+		errx(1,"Invalid input: expecting FASTA prefix character '>' on line %lld. Is this a valid FASTA file?\n",
+				pFASTX->input_line_number) ;
+	}
+
+
 
 	//for the rest of the lines, if they don't appear, it's an error
 	pFASTX->input_line_number++;
@@ -317,10 +354,11 @@ int fastx_read_next_record(FASTX *pFASTX)
 		errx(1,"Failed to read complete record, missing 2nd line (nucleotides), on line %lld\n",
 			pFASTX->input_line_number);
 
-	chomp(pFASTX->name);
 	chomp(pFASTX->nucleotides);
 
-	validate_nucleotides_string(pFASTX);
+	if (!validate_nucleotides_string(pFASTX->allowed_nucleotides, pFASTX->nucleotides)) 
+		errx(1,"found invalid nucleotide sequence (%s) on line %lld\n",
+				pFASTX->nucleotides,pFASTX->input_line_number);
 	
 	if (pFASTX->read_fastq) {
 		pFASTX->input_line_number++;
@@ -366,7 +404,7 @@ static void write_ascii_qual_string(FASTX *pFASTX, int length)
 	int rc;
 
 	for (i=0; i<length; i++) {
-		rc = fprintf(pFASTX->output, "%c", pFASTX->quality[i] + 64 ) ;
+		rc = fprintf(pFASTX->output, "%c", pFASTX->quality[i] + pFASTX->fastq_ascii_quality_offset ) ;
 		if (rc<=0)
 			err(1,"writing quality scores failed");
 	}

@@ -17,5 +17,5 @@ AM_CPPFLAGS = \
 
 fastx_quality_stats_SOURCES = fastx_quality_stats.c
 
-fastx_quality_stats_LDADD = ../libfastx/libfastx.a
+fastx_quality_stats_LDADD = ../libfastx/libfastx.a $(LT_LDFLAGS)
 
