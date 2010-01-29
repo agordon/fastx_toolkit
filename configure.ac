@@ -22,6 +22,9 @@ AC_PROG_CXX
 AC_PROG_LIBTOOL
 AX_C_LONG_LONG
 AX_CXX_HEADER_STDCXX_TR1
+if test "$ax_cv_cxx_stdcxx_tr1" != yes; then
+	AC_MSG_ERROR([Your version of gcc does not support the 'std::tr1' standard. Recommended gcc version is 4.1.2 or later. Please use a newer gcc version, or try to download the pre-compiled binaries from the fastx-toolkit website.])
+fi
 
 PKG_CHECK_MODULES([GTEXTUTILS],[gtextutils])
 
