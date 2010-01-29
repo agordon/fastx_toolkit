@@ -22,7 +22,7 @@ libtool
 *.m4
 autom4te.cache/*
 configure
-
+stamp-h1
 
 ## The compiled binaries
 src/fastx_collapser/fastx_collapser
