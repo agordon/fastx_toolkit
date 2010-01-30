@@ -28,5 +28,6 @@ EXTRA_DIST = fastq_quality_converter.xml \
 	fastx_trimmer_from_end.xml \
 	fastx_uncollapser.xml \
 	seqid_uncollapser.xml \
-	fastx_nucleotides_distribution_line.xml
+	fastx_nucleotides_distribution_line.xml \
+	fastq_masker.xml
 
