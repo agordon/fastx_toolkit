@@ -1,6 +1,6 @@
 <tool id="cshl_fastx_quality_trimmer" name="Trim By Quality">
 	<description></description>
-	<command>fastx_trimmer -Q 33 -v -t $cutoff -l $minlen -i '$input' -o '$output'</command>
+	<command>fastq_quality_trimmer -Q 33 -v -t $cutoff -l $minlen -i '$input' -o '$output'</command>
 
 	<inputs>
 		<param format="fastqsanger" name="input" type="data" label="Library to clip" />
