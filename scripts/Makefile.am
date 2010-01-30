@@ -10,10 +10,12 @@
 
 bin_SCRIPTS = fastx_barcode_splitter.pl \
 	      fastx_nucleotide_distribution_graph.sh \
+	      fastx_nucleotide_distribution_line_graph.sh \
 	      fastq_quality_boxplot_graph.sh \
-	      fasta_clipping_histogram.pl 
+	      fasta_clipping_histogram.pl
 
 EXTRA_DIST = fastx_barcode_splitter.pl \
 	      fastx_nucleotide_distribution_graph.sh \
+	      fastx_nucleotide_distribution_line_graph.sh \
 	      fastq_quality_boxplot_graph.sh \
-	      fasta_clipping_histogram.pl 
+	      fasta_clipping_histogram.pl
