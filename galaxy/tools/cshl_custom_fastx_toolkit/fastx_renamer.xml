@@ -1,7 +1,15 @@
 <tool id="cshl_fastx_renamer" name="Rename sequences" version="0.0.11" >
 	<description></description>
-	<command>zcat -f $input | fastx_renamer -n $TYPE -o $output -v </command>
-
+	<command>
+zcat -f '$input' |
+fastx_renamer
+#if $input.ext == "fastqsanger":
+ -Q 33
+#elif $input.ext == "fastq":
+ -Q 64
+#end if
+ -n $TYPE -o '$output' -v
+</command>
 	<inputs>
 		<param format="fastq,fastqsanger,fasta" name="input" type="data" label="FASTQ/A Library to rename" />
 

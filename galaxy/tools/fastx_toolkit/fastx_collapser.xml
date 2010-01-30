@@ -1,12 +1,15 @@
 <tool id="cshl_fastx_collapser" name="Collapse">
 	<description>sequences</description>
-	<command>fastx_collapser
+	<command>
+cat '$input' |
+fastx_collapser
 #if $input.ext == "fastqsanger":
  -Q 33
 #elif $input.ext == "fastq":
  -Q 64
 #end if
- -v -i '$input' -o '$output' </command>
+ -v -o '$output'
+</command>
 
 	<inputs>
 		<param format="fastq,fastqsanger,fasta" name="input" type="data" label="Library to collapse" />

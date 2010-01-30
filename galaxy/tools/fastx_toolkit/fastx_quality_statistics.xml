@@ -1,12 +1,15 @@
 <tool id="cshl_fastx_quality_statistics" name="Compute quality statistics">
 	<description></description>
-	<command>fastx_quality_stats
+	<command>
+cat '$input' |
+fastx_quality_stats
 #if $input.ext == "fastqsanger":
  -Q 33
 #elif $input.ext == "fastq":
  -Q 64
 #end if
- -i '$input' -o '$output'</command>
+ -o '$output'
+</command>
 
 	<inputs>
 		<param format="fasta,fastq,fastqsanger" name="input" type="data" label="Library to analyse" />

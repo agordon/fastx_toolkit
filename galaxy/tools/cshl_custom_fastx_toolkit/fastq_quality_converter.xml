@@ -1,6 +1,8 @@
 <tool id="cshl_fastq_quality_converter" name="Quality format converter">
 	<description>(ASCII-Numeric)</description>
-	<command>zcat -f $input | fastq_quality_converter $QUAL_FORMAT -o $output -Q $offset</command>
+	<command>
+		zcat -f $input |
+		fastq_quality_converter $QUAL_FORMAT -o '$output' -Q $offset</command>
 	<inputs>
 		<param format="fastq,fastqsanger" name="input" type="data" label="Library to convert" />
 

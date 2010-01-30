@@ -1,12 +1,14 @@
 <tool id="cshl_fastq_masker" name="Mask nucleotides">
 	<description>(based on quality)</description>
-	<command>fastq_masker
+	<command>
+		zcat -f '$input' |
+		fastq_masker
 #if $input.ext == "fastqsanger":
  -Q 33
 #elif $input.ext == "fastq":
  -Q 64
 #end if
- -v -q $cutoff -r '$maskchar' -i '$input' -o '$output'</command>
+ -v -q $cutoff -r '$maskchar' -o '$output'</command>
 	<inputs>
 		<param format="fastq,fastqsanger" name="input" type="data" label="Library to clip" />
 

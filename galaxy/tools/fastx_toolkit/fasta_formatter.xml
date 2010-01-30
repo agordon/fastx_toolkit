@@ -9,7 +9,9 @@
 			So this XML tool only changes the width (line-wrapping) of a
 			FASTA file.
 	-->
-	<command>fasta_formatter -w $width -i '$input' -o '$output'</command>
+	<command>
+		cat '$input' | 
+		fasta_formatter -w $width -o '$output'</command>
 	<inputs>
 		<param format="fasta" name="input" type="data" label="Library to re-format" />
 

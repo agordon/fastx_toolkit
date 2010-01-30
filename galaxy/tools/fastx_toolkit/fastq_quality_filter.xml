@@ -1,13 +1,16 @@
 <tool id="cshl_fastq_quality_filter" name="Filter by quality">
 	<description></description>
 
-	<command>fastq_quality_filter
+	<command>
+cat '$input' |
+fastq_quality_filter
 #if $input.ext == "fastqsanger":
  -Q 33
 #elif $input.ext == "fastq":
  -Q 64
 #end if
- -q $quality -p $percent -v -i '$input' -o '$output'</command>
+ -q $quality -p $percent -v -o '$output'
+</command>
 	<inputs>
 		<param format="fastq,fastqsanger" name="input" type="data" label="Library to filter" />
 

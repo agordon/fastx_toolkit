@@ -1,6 +1,8 @@
 <tool id="cshl_fasta_nucleotides_changer" name="RNA/DNA" >
 	<description>converter</description>
-	<command>fasta_nucleotide_changer $mode -v -i '$input' -o '$output'</command>
+	<command>
+		cat '$input' | 
+		fasta_nucleotide_changer $mode -v -o '$output'</command>
 	<inputs>
 		<param format="fasta" name="input" type="data" label="Library to convert" />
 

@@ -1,7 +1,15 @@
-<tool id="cshl_fastx_trimmer" name="Trim Sequences">
-	<description></description>
-	<command>zcat -f '$input' | fastx_trimmer -v -f $first -l $last -o $output</command>
-
+<tool id="cshl_fastx_trimmer" name="Trim sequences">
+	<description>to fixed length</description>
+	<command>
+zcat -f '$input' |
+fastx_trimmer
+#if $input.ext == "fastqsanger":
+ -Q 33
+#elif $input.ext == "fastq":
+ -Q 64
+#end if
+ -v -f $first -l $last -o '$output'
+</command>
 	<inputs>
 		<param format="fasta,fastq,fastqsanger" name="input" type="data" label="Library to clip" />
 

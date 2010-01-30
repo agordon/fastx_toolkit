@@ -1,7 +1,9 @@
 <tool id="cshl_fastx_uncollapser" name="Uncollapse" version="1.0.0">
 	<description>sequences</description>
-	<command>zcat -f '$input' | fastx_uncollapser -v -o '$output' </command>
-
+	<command>
+zcat -f '$input' | 
+fastx_uncollapser -v -o '$output'
+</command>
 	<inputs>
 		<param format="fasta" name="input" type="data" label="Collapsed FASTA file" />
 	</inputs>
@@ -34,7 +36,6 @@ Example Input - a collapsed FASTA file (Sequence "ATAT" has four collapsed reads
     TGCG
     >2-4
     ATAT
-
 
 Example Output - uncollapsed FASTA file (Sequence "ATAT" now appears as 4 separate sequences):: 
 

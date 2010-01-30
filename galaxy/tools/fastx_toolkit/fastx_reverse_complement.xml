@@ -1,12 +1,15 @@
 <tool id="cshl_fastx_reverse_complement" name="Reverse-Complement">
 	<description></description>
-	<command>fastx_reverse_complement
+	<command>
+cat '$input' |
+fastx_reverse_complement
 #if $input.ext == "fastqsanger":
  -Q 33
 #elif $input.ext == "fastq":
  -Q 64
 #end if
- -v -i '$input' -o '$output'</command>
+ -v -o '$output'
+</command>
 	<inputs>
 		<param format="fasta,fastq,fastqsanger" name="input" type="data" label="Library to reverse-complement" />
 	</inputs>

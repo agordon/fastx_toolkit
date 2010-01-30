@@ -1,7 +1,9 @@
 <tool id="cshl_seqid_uncollapser" name="Uncollapse rows">
 	<description>containing collapsed sequence IDs</description>
-	<command>zcat -f '$input' | fastx_uncollapser -c $idcol -v -o '$output' </command>
-
+	<command>
+zcat -f '$input' |
+fastx_uncollapser -c $idcol -v -o '$output'
+</command>
 	<inputs>
 		<param format="tabular,pslx" name="input" type="data" label="Library to uncollapse" />
 	    <param name="idcol" label="Column with collased sequence-identifier" type="data_column" data_ref="input" accept_default="false" >
