@@ -1,11 +1,17 @@
 <tool id="cshl_fastx_clipper_ng" name="Clip" version="1.0.1" >
   <description>adapter sequences</description>
   <command>
-    fastx_clipper -Q 33 -i '$input' -l $minlength -a '$clip_source.clip_sequence' -d $keepdelta -o '$output' -v $KEEP_N $DISCARD_OPTIONS
+	  fastx_clipper
+#if $input.ext == "fastqsanger":
+ -Q 33
+#elif $input.ext == "fastq":
+ -Q 64
+#end if
+ -i '$input' -l $minlength -a '$clip_source.clip_sequence' -d $keepdelta -o '$output' -v $KEEP_N $DISCARD_OPTIONS
   </command>
   
   <inputs>
-    <param format="fasta,fastqsanger" name="input" type="data" label="Library to clip" />
+    <param format="fasta,fastq,fastqsanger" name="input" type="data" label="Library to clip" />
     
     <param name="minlength" size="4" type="integer" value="15">
       <label>Minimum sequence length (after clipping, sequences shorter than this length will be discarded)</label>

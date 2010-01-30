@@ -1,9 +1,14 @@
 <tool id="cshl_fastq_to_fasta" name="FASTQ to FASTA">
 	<description>converter</description>
-	<command>fastq_to_fasta -Q 33 $SKIPN $RENAMESEQ -i '$input' -o '$output' -v </command>
-
+	<command>fastq_to_fasta
+#if $input.ext == "fastqsanger":
+ -Q 33
+#elif $input.ext == "fastq":
+ -Q 64
+#end if
+ $SKIPN $RENAMESEQ -i '$input' -o '$output' -v </command>
 	<inputs>
-		<param format="fastqsanger" name="input" type="data" label="FASTQ Library to convert" />
+		<param format="fastq,fastqsanger" name="input" type="data" label="FASTQ Library to convert" />
 
 		<param name="SKIPN" type="select" label="Discard sequences with unknown (N) bases ">
 			<option value="">yes</option>

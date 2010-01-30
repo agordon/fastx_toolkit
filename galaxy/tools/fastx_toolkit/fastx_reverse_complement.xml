@@ -1,8 +1,14 @@
 <tool id="cshl_fastx_reverse_complement" name="Reverse-Complement">
 	<description></description>
-	<command>fastx_reverse_complement -Q 33 -v -i '$input' -o '$output'</command>
+	<command>fastx_reverse_complement
+#if $input.ext == "fastqsanger":
+ -Q 33
+#elif $input.ext == "fastq":
+ -Q 64
+#end if
+ -v -i '$input' -o '$output'</command>
 	<inputs>
-		<param format="fasta,fastqsanger" name="input" type="data" label="Library to reverse-complement" />
+		<param format="fasta,fastq,fastqsanger" name="input" type="data" label="Library to reverse-complement" />
 	</inputs>
 
 	<tests>
@@ -18,7 +24,6 @@
 		</test>
 	</tests>
 
-  
 	<outputs>
 		<data format="input" name="output" metadata_source="input" />
 	</outputs>
@@ -28,7 +33,7 @@
 
 This tool reverse-complements each sequence in a library.
 If the library is a FASTQ, the quality-scores are also reversed.
-  
+
 --------
 
 **Example**
