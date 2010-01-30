@@ -6,7 +6,7 @@
 #elif $input.ext == "fastq":
  -Q 64
 #end if
- -v -t $trimnum -m $minlen -i $'input' -o '$output'</command>
+ -v -t $trimnum -m $minlen -i '$input' -o '$output'</command>
 	<inputs>
 		<param format="fasta,fastq,fastqsanger" name="input" type="data" label="Library to clip" />
 

@@ -1,5 +1,5 @@
 <tool id="cshl_fastx_nucleotides_distribution_line_plot" name="Draw nucleotides distribution line chart">
-	<command interpreter="sh">
+	<command>
 	  fastx_nucleotide_distribution_line_graph.sh -i '$input' -o '$output'
 	</command>
 	
