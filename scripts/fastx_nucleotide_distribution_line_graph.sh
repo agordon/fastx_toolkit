@@ -63,6 +63,78 @@ if [ ! -r "$FILENAME" ]; then
 	echo "Error: can't open input file ($1)." >&2
 	exit 1
 fi
+##
+## Input validation
+## Too many users (in galaxy) try to plot a FASTQ file
+## (without using the 'fastq statistics' tool first).
+##
+## gnuplot's error in that case is crypt, and support emails are annoying.
+##
+## try to detect FASTA/FASTQ input, and give a detailed, easy-to-understand warning.
+##
+##
+AWK_FASTX_DETECTION='
+NR==1 && $0 ~ /^>/ { fasta_id = 1 }
+NR==1 && $0 ~ /^@/ { fastq_id = 1 }
+NR==2 && $0 ~ /^[ACGT][ACGT]*$/ { nucleotides = 1 }
+NR>3 { exit }
+END { if ( fasta_id && nucleotides ) { print "FASTA" }
+      if ( fastq_id && nucleotides ) { print "FASTQ" }
+}'
+
+INPUT_TYPE=$(awk "$AWK_FASTX_DETECTION" "$FILENAME")
+
+if [ "x$INPUT_TYPE" = "xFASTA" ] ; then
+#this doesn't even make sense: FASTA files don't contain any quality scores
+cat>&2<<EOF
+Error: It looks like your input file is a FASTA file.
+
+This tool (fastq-quality-plot) can't use FASTA files directly - it requires a tabular text file conaining summary statistic about your FASTA file.
+
+In Galaxy,
+Please use the "Compute Quality Statistics (improved)" tool (in the "NGS: QC and Manipulation" category) to compute the quality statistics report, and then use this tool with the new statistics report.
+
+On the command line,
+Please use the "fastx_quality_stats" program to create the statistics report.
+EOF
+exit 1
+fi
+if [ "x$INPUT_TYPE" = "xFASTQ" ] ; then
+cat>&2<<EOF
+Error: It looks like your input file is a FASTQ file.
+
+This tool (fastq-quality-plot) can't use FASTQ files directly - it requires a tabular text file conaining summary statistic about your FASTQ file.
+
+In Galaxy,
+Please use the "Compute Quality Statistics (improved)" tool (in the "NGS: QC and Manipulation" category) to compute the quality statistics report, and then use this tool with the new statistics report.
+
+On the command line,
+Please use the "fastx_quality_stats" program to create the statistics report.
+EOF
+exit 1
+fi
+
+##
+## Even if this is not a FASTA/FASTQ file,
+## users can still use incompatible input files.
+## Try to detect it and abort with a warning.
+AWK_VALID_STAT='NR==1 && $1=="cycle" && $2=="count" && $3=="min" { exit 2 } NR>1 { exit }'
+
+awk "$AWK_VALID_STAT" "$FILENAME"
+if [ $? -ne 2 ] ; then
+cat>&2<<EOF
+Error: Input file is not a valid statistics report.
+
+This tool (fastq-quality-plot) requires a tabular text file conaining summary statistic about your FASTQ file.
+
+In Galaxy,
+Please use the "Compute Quality Statistics" tool (in the "NGS: QC and Manipulation" category) to compute the quality statistics report, and then use this tool with the new statistics report.
+
+On the command line,
+Please use the "fastx_quality_stats" program to create the statistics report.
+EOF
+exit 1
+fi
 
 GNUPLOTCMD="
 $OUTPUTTERM
