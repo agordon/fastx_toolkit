@@ -2,7 +2,7 @@
 	<description></description>
 	<command>zcat -f '$input' | fastx_reverse_complement -v -o $output</command>
 	<inputs>
-		<param format="fasta,fastq" name="input" type="data" label="Library to reverse-complement" />
+		<param format="fasta,fastq,fastqsanger" name="input" type="data" label="Library to reverse-complement" />
 	</inputs>
 
 	<tests>
@@ -18,9 +18,10 @@
 		</test>
 	</tests>
 
-  
 	<outputs>
-		<data format="input" name="output" label="$input.tag reverse-complemented" metadata_source="input" />
+		<data format="input" name="output" metadata_source="input"
+		label="$input.tag reverse-complemented"
+		/>
 	</outputs>
 
 <help>
@@ -28,7 +29,7 @@
 
 This tool reverse-complements each sequence in a library.
 If the library is a FASTQ, the quality-scores are also reversed.
-  
+
 --------
 
 **Example**
@@ -56,3 +57,4 @@ This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
  
 </help>
 </tool>
+<!-- FASTX-reverse-complement is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->

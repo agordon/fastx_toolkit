@@ -30,7 +30,8 @@
 	</tests>
 
 	<outputs>
-		<data format="html" name="output" />
+		<data format="html" name="output" 
+		/>
 	</outputs>
 <help>
 

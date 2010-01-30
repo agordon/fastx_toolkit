@@ -26,6 +26,7 @@
 
 	<outputs>
 		<data format="input" name="output" metadata_source="input" 
+				label="$input.tag (masked nucleotides)" 
 		/>
 	</outputs>
 	<help>

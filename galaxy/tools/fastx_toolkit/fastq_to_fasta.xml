@@ -40,7 +40,8 @@
 	</tests>
 
 	<outputs>
-		<data format="fasta" name="output" metadata_source="input" />
+		<data format="fasta" name="output" metadata_source="input"
+		/>
 	</outputs>
 
 <help>

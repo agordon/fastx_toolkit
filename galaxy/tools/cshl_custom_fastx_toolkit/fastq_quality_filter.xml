@@ -40,7 +40,9 @@
 	</tests>
 
 	<outputs>
-		<data format="input" name="output" label="$input.tag quality-filtered" metadata_source="input" />
+		<data format="input" name="output" metadata_source="input"
+		label="$input.tag quality-filtered" 
+		/>
 	</outputs>
 
 	<help>

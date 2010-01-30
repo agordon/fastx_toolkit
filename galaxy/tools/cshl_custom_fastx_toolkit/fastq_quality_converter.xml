@@ -47,7 +47,9 @@
 	</tests>
 
 	<outputs>
-		<data format="fastqsolexa" name="output" metadata_source="input" label="$input.name (Converted FASTQ)" />
+		<data format="input" name="output" metadata_source="input" 
+		label="$input.name (Converted FASTQ)" 
+		/>
 	</outputs>
 <help>
 

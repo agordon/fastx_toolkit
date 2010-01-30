@@ -14,7 +14,9 @@
 	</tests>
 
 	<outputs>
-		<data format="tabular" name="output" metadata_source="input" label="$input.tag quality statistics" />
+		<data format="tabular" name="output" metadata_source="input"
+		label="$input.tag quality statistics" 
+		/>
 	</outputs>
 
 <help>
@@ -165,6 +167,12 @@ All columns::
     N_IQR
     N_lW
     N_rW
+
+------
+
+This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
+
+ .. __: http://hannonlab.cshl.edu/fastx_toolkit/
 
 </help>
 </tool>

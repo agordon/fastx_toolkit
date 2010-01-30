@@ -4,13 +4,15 @@
 
 	<inputs>
 		<param format="tabular,pslx" name="input" type="data" label="Library to uncollapse" />
-	<param name="idcol" label="Column with collased sequence-identifier" type="data_column" data_ref="input" accept_default="false" >
-		  <help>This column contains the sequence id from a collapsed FASTA file in the form of "(seq number)-(read count)" (e.g. 15-4). Use 10 if you're analyzing BLAT output</help>
+	    <param name="idcol" label="Column with collased sequence-identifier" type="data_column" data_ref="input" accept_default="false" >
+ 		  <help>This column contains the sequence id from a collapsed FASTA file in the form of "(seq number)-(read count)" (e.g. 15-4). Use 10 if you're analyzing BLAT output</help>
 		</param>
 	</inputs>
 
 	<outputs>
-		<data format="input" name="output" metadata_source="input" label="$input.tag uncollapsed table" />
+		<data format="input" name="output" metadata_source="input"
+		label="$input.tag uncollapsed table" 
+		/>
 	</outputs>
   <help>
 
@@ -33,8 +35,6 @@ The following input file contains two collapsed sequence identifiers at column 1
 
   23    0    0    0    0    0    0    0    +    84-2 ...
   22    0    0    0    0    0    0    0    +    87-5 ...
-
-
 
 
 **Output Example**

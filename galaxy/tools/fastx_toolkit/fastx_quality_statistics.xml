@@ -20,7 +20,8 @@
 	</tests>
 
 	<outputs>
-		<data format="txt" name="output" metadata_source="input" />
+		<data format="txt" name="output" metadata_source="input"
+		/>
 	</outputs>
 
 <help>
@@ -54,9 +55,6 @@ Creates quality statistics report for the given Solexa/FASTQ library.
 * G_Count	= Count of 'G' nucleotides found in this column.
 * T_Count	= Count of 'T' nucleotides found in this column.
 * N_Count = Count of 'N' nucleotides found in this column.  
-
-
-
 
 
 

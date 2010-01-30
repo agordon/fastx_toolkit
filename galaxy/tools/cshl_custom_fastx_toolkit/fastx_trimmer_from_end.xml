@@ -3,7 +3,7 @@
 	<command>zcat -f '$input' | fastx_trimmer -v -t $trimnum -m $minlen -o $output</command>
 
 	<inputs>
-		<param format="fasta,fastqsanger,fastq" name="input" type="data" label="Library to clip" />
+		<param format="fasta,fastq,fastqsanger" name="input" type="data" label="Library to clip" />
 
 		<param name="trimnum" size="4" type="integer" value="5">
 			<label>Number of nucleotides to be trimmed</label>
@@ -21,7 +21,9 @@
 	</tests>
 
 	<outputs>
-		<data format="input" name="output" label="$input.tag end-trimmed" metadata_source="input" />
+		<data format="input" name="output" metadata_source="input"
+		label="$input.tag end-trimmed"
+		/>
 	</outputs>
 	<help>
 **What it does**
@@ -64,4 +66,4 @@ This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
     
 </help>
 </tool>
-<!-- FASTX-Trimmer is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->
+<!-- FASTX-Trimmer-End is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->

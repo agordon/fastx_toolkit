@@ -38,12 +38,13 @@
 	</tests>
 
 	<outputs>
-		<data format="input" name="output" metadata_source="input" />
+		<data format="input" name="output" metadata_source="input"
+		/>
 	</outputs>
 	<help>
 **What it does**
 
-This tool trims (cut bases from) sequences in a FASTA/Q file.
+This tool trims (cut nucleotides from) sequences in a FASTA/Q file.
   
 --------
 
@@ -71,7 +72,7 @@ Trimming with First=6 and Last=10, will generate a FASTA file with 5 bases (base
     >2-1
     AGGCT
     
-    ------
+------
 
 This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
 

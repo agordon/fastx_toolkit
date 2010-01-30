@@ -10,24 +10,26 @@
 		</param>
 	</inputs>
 
-    <!-- 
-    Functional tests with param value starting with - fail.
 	<tests>
 		<test>
+			<!-- DNA-to-RNA -->
 			<param name="input" value="fasta_nuc_changer1.fasta" /> 
 			<param name="mode" value="-r" /> 
 			<output name="output" file="fasta_nuc_change1.out" />
 		</test>
 		<test>
+			<!-- RNA-to-DNA -->
 			<param name="input" value="fasta_nuc_changer2.fasta" /> 
 			<param name="mode" value="-d" /> 
 			<output name="output" file="fasta_nuc_change2.out" />
 		</test>
 	</tests>
-     -->
+
   
 	<outputs>
-		<data format="input" name="output" metadata_source="input" label="$input.tag ($mode.value_label)" />
+		<data format="input" name="output" metadata_source="input" 
+		label="$input.tag ($mode.value_label)" 
+		/>
 	</outputs>
 
 <help>
@@ -61,5 +63,11 @@ Output DNA FASTA file (with RNA-to-DNA mode)::
     >cel-miR-1 MIMAT0000003 Caenorhabditis elegans miR-1
     TGGAATGTAAAGAAGTATGTA
 
+------
+
+This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
+
+ .. __: http://hannonlab.cshl.edu/fastx_toolkit/    
 </help>
 </tool>
+<!-- FASTQ-to-FASTA is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->

@@ -13,7 +13,7 @@
 	<inputs>
 		<param format="fasta" name="input" type="data" label="Library to re-format" />
 
-		<param name="width" type="integer" value="0" label="New width for nucleotides strings" help="Use 0 for single line out." />
+		<param name="width" type="integer" value="0" label="New width for nucleotides strings" help="Use 0 for single line output." />
 	</inputs>
 
 	<tests>
@@ -32,7 +32,9 @@
 	</tests>
 
 	<outputs>
-		<data format="input" name="output" metadata_source="input" label="$input.tag (reformatted)" />
+		<data format="input" name="output" metadata_source="input" 
+		label="$input.tag (reformatted)" 
+		/>
 	</outputs>
 
 <help>

@@ -27,7 +27,8 @@
 	</tests>
 
 	<outputs>
-		<data format="input" name="output" metadata_source="input" />
+		<data format="input" name="output" metadata_source="input"
+		/>
 	</outputs>
 <help>
 **What it does**

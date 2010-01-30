@@ -7,7 +7,9 @@
 	</inputs>
 
 	<outputs>
-		<data format="png" name="outfile" label="$input.tag Sequence Length Distribution chart" metadata_source="input" />
+		<data format="png" name="outfile" metadata_source="input" 
+		label="$input.tag Sequence Length Distribution chart" 
+		/>
 	</outputs>
 <help>
 

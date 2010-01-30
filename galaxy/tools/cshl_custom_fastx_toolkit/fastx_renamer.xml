@@ -3,7 +3,7 @@
 	<command>zcat -f $input | fastx_renamer -n $TYPE -o $output -v </command>
 
 	<inputs>
-		<param format="fastq,fasta,fastqsanger" name="input" type="data" label="FASTQ/A Library to rename" />
+		<param format="fastq,fastqsanger,fasta" name="input" type="data" label="FASTQ/A Library to rename" />
 
 		<param name="TYPE" type="select" label="Rename sequence identifiers to">
 			<option value="SEQ">Nucleotides sequence</option>
@@ -57,4 +57,4 @@ This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
  .. __: http://hannonlab.cshl.edu/fastx_toolkit/   
 </help>
 </tool>
-<!-- FASTQ-to-FASTA is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->
+<!-- FASTX-renamer is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->

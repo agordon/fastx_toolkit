@@ -20,7 +20,8 @@
 	</tests>
 
 	<outputs>
-		<data format="tabular" name="output" metadata_source="input" />
+		<data format="tabular" name="output" metadata_source="input"
+		/>
 	</outputs>
 
 <help>

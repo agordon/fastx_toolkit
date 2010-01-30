@@ -25,6 +25,11 @@
 #    This script turns it into pretty HTML with working URL
 #    (so lazy users can just click on the URLs and get their files)
 
+if [ "$1x" = "x" ]; then
+	echo "Usage: $0 [BARCODE FILE] [FASTQ FILE] [LIBRARY_NAME] [OUTPUT_PATH]" >&2
+	exit 1
+fi
+
 BARCODE_FILE="$1"
 FASTQ_FILE="$2"
 LIBNAME="$3"
@@ -32,15 +37,15 @@ OUTPUT_PATH="$4"
 shift 4
 # The rest of the parameters are passed to the split program
 
-if [ "$OUTPUT_PATH" == "" ]; then
+if [ "${OUTPUT_PATH}x" = "x" ]; then
 	echo "Usage: $0 [BARCODE FILE] [FASTQ FILE] [LIBRARY_NAME] [OUTPUT_PATH]" >&2
 	exit 1
 fi
 
 #Sanitize library name, make sure we can create a file with this name
-LIBNAME=${LIBNAME//\.gz/}
-LIBNAME=${LIBNAME//\.txt/}
-LIBNAME=${LIBNAME//[^[:alnum:]]/_}
+LIBNAME=${LIBNAME%.gz}
+LIBNAME=${LIBNAME%.txt}
+LIBNAME=$(echo "$LIBNAME" | tr -cd '[:alnum:]')
 
 if [ ! -r "$FASTQ_FILE" ]; then
 	echo "Error: Input file ($FASTQ_FILE) not found!" >&2
@@ -62,7 +67,7 @@ BASEPATH="$OUTPUT_PATH/"
 PREFIX="$BASEPATH""${LIBNAME}__"
 SUFFIX=".txt"
 
-RESULTS=`zcat -f "$FASTQ_FILE" | fastx_barcode_splitter.pl --bcfile "$BARCODE_FILE" --prefix "$PREFIX" --suffix "$SUFFIX" "$@"`
+RESULTS=`gzip -cdf "$FASTQ_FILE" | fastx_barcode_splitter.pl --bcfile "$BARCODE_FILE" --prefix "$PREFIX" --suffix "$SUFFIX" "$@"`
 if [ $? != 0 ]; then
 	echo "error"
 fi

@@ -7,7 +7,9 @@
 	</inputs>
 	
 	<outputs>
-		<data format="png" name="output" metadata_source="input" label="$input.tag Nucleotide Distribution chart" />
+		<data format="png" name="output" metadata_source="input"
+		label="$input.tag Nucleotide Distribution chart" 
+		/>
 	</outputs>
 <help>
 

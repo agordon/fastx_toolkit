@@ -21,7 +21,9 @@
 	</tests>
 
 	<outputs>
-		<data format="input" name="output" label="$input.tag (without artifacts)" metadata_source="input" />
+		<data format="input" name="output" metadata_source="input"
+		label="$input.tag (without artifacts)"
+		/>
 	</outputs>
 <help>
 **What it does**

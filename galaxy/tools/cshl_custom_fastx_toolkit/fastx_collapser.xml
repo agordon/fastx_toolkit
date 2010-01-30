@@ -3,25 +3,26 @@
 	<command>zcat -f '$input' | fastx_collapser -v -o '$output' </command>
 
 	<inputs>
-		<param format="fastq,fasta" name="input" type="data" label="Library to collapse" />
+		<param format="fastq,fastqsanger,fasta" name="input" type="data" label="Library to collapse" />
 	</inputs>
 
-    <!-- The order of sequences in the test output differ between 32 bit and 64 bit machines. 
 	<tests>
 		<test>
 			<param name="input" value="fasta_collapser1.fasta" />
 			<output name="output" file="fasta_collapser1.out" />
 		</test>
 	</tests>
-    -->
+
 	<outputs>
-		<data format="fasta" name="output" metadata_source="input" label="$input.tag collapsed" />
+		<data format="fasta" name="output" metadata_source="input" 
+		label="$input.tag collapsed" 
+		/>
 	</outputs>
   <help>
 
 **What it does**
 
-This tool collapses identical sequences in a FASTA file into a single sequence.
+This tool collapses identical sequences in a FASTQ or FASTA file into a single sequence.
 
 --------
 
@@ -72,5 +73,12 @@ The following output::
 
 means that the sequence "ATAT" is the second sequence in the file, and it appeared 4 times in the input FASTA file.
 
+------
+
+This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
+
+ .. __: http://hannonlab.cshl.edu/fastx_toolkit/    
+
 </help>
 </tool>
+<!-- FASTX-Collapser is part of the FASTX-toolkit, by A.Gordon (gordon@cshl.edu) -->

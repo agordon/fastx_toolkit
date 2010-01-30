@@ -8,7 +8,9 @@
 	</inputs>
 
 	<outputs>
-		<data format="png" name="output" label="$input.tag Quality Scores chart" metadata_source="input" />
+		<data format="png" name="output" metadata_source="input"
+		label="$input.tag Quality Scores chart"  
+		/>
 	</outputs>
 <help>
 
@@ -47,8 +49,6 @@ A low quality library (median drops quickly):
 This tool is based on `FASTX-toolkit`__ by Assaf Gordon.
 
  .. __: http://hannonlab.cshl.edu/fastx_toolkit/
-
-
 
 </help>
 </tool>
