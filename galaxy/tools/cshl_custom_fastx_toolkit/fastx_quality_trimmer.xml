@@ -26,7 +26,12 @@ fastq_quality_trimmer
 	</inputs>
 
 	<tests>
-		
+		<test>
+			<param name="input" value="fastq_quality_trimmer.fastq" ftype="fastq" />
+			<param name="cutoff" value="30"/>
+			<param name="minlen" value="16"/>
+			<output name="output" file="fastq_quality_trimmer.out" />
+		</test>
 	</tests>
 
 	<outputs>

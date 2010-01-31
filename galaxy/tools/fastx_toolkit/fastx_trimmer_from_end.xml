@@ -25,7 +25,12 @@ fastx_trimmer
 	</inputs>
 
 	<tests>
-		
+		<test>
+			<param name="input" value="fastx_trimmer_from_end1.fasta" />
+			<param name="trimnum" value="2"/>
+			<param name="minlen" value="16"/>
+			<output name="output" file="fastx_trimmer_from_end1.out" />
+		</test>
 	</tests>
 
 	<outputs>

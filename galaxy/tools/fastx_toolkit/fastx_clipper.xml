@@ -63,8 +63,8 @@ fastx_clipper
 			<param name="clip_source_list" value="user" />
 			<param name="clip_sequence" value="CAATTGGTTAATCCCCCTATATA" />
 			<param name="keepdelta" value="0" />
-			<param name="KEEP_N" value="-n" />
-			<param name="DISCARD_OPTIONS" value="-c" />
+			<param name="KEEP_N" value="No" />
+			<param name="DISCARD_OPTIONS" value="Output only clipped sequences (i.e. sequences which contained the adapter)" />
 			<output name="output" file="fastx_clipper1a.out" />
 		</test>
 	</tests>

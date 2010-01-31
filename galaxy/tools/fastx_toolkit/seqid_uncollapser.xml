@@ -10,6 +10,13 @@ fastx_uncollapser -c $idcol -v -o '$output'
  		  <help>This column contains the sequence id from a collapsed FASTA file in the form of "(seq number)-(read count)" (e.g. 15-4). Use 10 if you're analyzing BLAT output</help>
 		</param>
 	</inputs>
+	<tests>
+		<test>
+			<param name="input" value="fastx_seqid_uncollapse1.psl" />
+			<param name="idcol" value="10" />
+			<param name="output" file="fastx_seqid_uncollapse1.out" />
+		</test>
+	</tests>
 
 	<outputs>
 		<data format="input" name="output" metadata_source="input"

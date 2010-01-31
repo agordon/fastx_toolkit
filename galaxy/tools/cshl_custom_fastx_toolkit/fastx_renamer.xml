@@ -18,6 +18,13 @@ fastx_renamer
 			<option value="COUNT">Numeric Counter</option>
 		</param>
 	</inputs>
+	<tests>
+		<test>
+			<param name="input" value="fastx_renamer1.fastq" ftype="fastq"/>
+			<param name="TYPE" value="SEQ" />
+			<output name="output" file="fastx_renamer1.out" />
+		</test>
+	</tests>
 
 	<outputs>
 		<data format="input" name="output" metadata_source="input" />

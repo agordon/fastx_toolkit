@@ -24,6 +24,12 @@
 	</inputs>
 
 	<tests>
+		<test>
+			<param name="input" value="fastq_masker.fastq" ftype="fastq" />
+			<param name="cutoff" value="29"/>
+			<param name="maskchar" value="x"/>
+			<output name="output" file="fastq_masker.out" />
+		</test>
 	</tests>
 
 	<outputs>
