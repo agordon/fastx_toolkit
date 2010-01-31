@@ -1,4 +1,4 @@
-<tool id="cshl_fastx_quality_trimmer" name="Trim By Quality">
+<tool id="cshl_fastq_quality_trimmer" name="Trim By Quality">
 	<description></description>
 	<command>
 zcat -f '$input' |
