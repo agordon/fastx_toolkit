@@ -18,6 +18,10 @@
 #   permitted in any medium without royalty provided the copyright notice
 #   and this notice are preserved. This file is offered as-is, without any
 #   warranty.
+##
+##  Modified by A. Gordon (gordon@cshl.edu), 1-Feb-2010
+##  Removed unused header files (which can't be found on some TR1 gcc-4.2.4 on CentOS 5.4)
+##
 
 #serial 5
 
@@ -29,7 +33,6 @@ AC_DEFUN([AX_CXX_HEADER_STDCXX_TR1], [
   AC_LANG_CPLUSPLUS
   AC_TRY_COMPILE([
   #include <tr1/array>
-  #include <tr1/ccomplex>
   #include <tr1/cctype>
   #include <tr1/cfenv>
   #include <tr1/cfloat>
@@ -49,7 +52,6 @@ AC_DEFUN([AX_CXX_HEADER_STDCXX_TR1], [
   #include <tr1/functional>
   #include <tr1/memory>
   #include <tr1/random>
-  #include <tr1/regex>
   #include <tr1/tuple>
   #include <tr1/type_traits>
   #include <tr1/unordered_set>
