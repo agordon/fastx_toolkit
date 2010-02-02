@@ -9,7 +9,7 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 AC_INIT([FASTX Toolkit],
-        [0.0.12],
+        [0.0.13],
         [Assaf Gordon gordon@cshl.edu],
         [fastx_toolkit])
 AC_CONFIG_AUX_DIR(config)
@@ -108,6 +108,7 @@ AC_CONFIG_FILES([
    galaxy/static/fastx_icons/Makefile
    galaxy/tool-data/Makefile
    scripts/Makefile
+   build_scripts/Makefile
 ])
 
 AC_OUTPUT
