@@ -8,7 +8,9 @@ config.h
 config.h.in
 config.log
 config.status
-config/ltmain.sh
+config/
+config/*
+*~
 
 ## Distribution tarballs
 fastx*.tar.bz2
@@ -39,6 +41,7 @@ src/fastx_renamer/fastx_renamer
 src/fastq_quality_trimmer/fastq_quality_trimmer
 src/fastx_artifacts_filter/fastx_artifacts_filter
 src/fastx_clipper/fastx_clipper
+src/fastx_clipper_v3/fastx_clipper_v3
 src/fastq_quality_converter/fastq_quality_converter
 src/seqalign_test/seqalign_test
 src/fastq_masker/fastq_masker

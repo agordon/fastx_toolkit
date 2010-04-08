@@ -84,6 +84,7 @@ AC_CONFIG_FILES([
    src/Makefile
    src/libfastx/Makefile
    src/fastx_clipper/Makefile
+   src/fastx_clipper_v3/Makefile
    src/fastq_to_fasta/Makefile
    src/fastx_quality_stats/Makefile
    src/fastq_quality_converter/Makefile
