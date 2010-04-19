@@ -20,7 +20,7 @@ void  SequenceAlignmentResults::print(std::ostream& strm) const
 	strm << "target-Alingment= " << target_alignment << endl ;
 
 
- 	strm << (alignment_found ? "Alignment Found" : "Alignment NOT found") << endl;
+ 	//strm << (alignment_found ? "Alignment Found" : "Alignment NOT found") << endl;
 	strm << "Score = " << score << " ("
 	     << matches << " matches, "
 	     << neutral_matches << " neutral-matches, "
