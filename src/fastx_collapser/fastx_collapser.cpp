@@ -37,11 +37,12 @@
 using namespace std;
 
 const char* usage=
-"usage: fastx_collapser [-h] [-v] [-i INFILE] [-o OUTFILE]\n" \
+"usage: fastx_collapser [-p] [-h] [-v] [-i INFILE] [-o OUTFILE]\n" \
 "Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-v]         = verbose: print short summary of input/output counts\n" \
+"   [-p]         = Collapse sequences with identical prefix\n" \
 "   [-i INFILE]  = FASTA/Q input file. default is STDIN.\n" \
 "   [-o OUTFILE] = FASTA/Q output file. default is STDOUT.\n" \
 "\n";
@@ -49,7 +50,12 @@ const char* usage=
 FASTX fastx;
 #include <tr1/unordered_map>
 std::tr1::unordered_map<string,size_t> collapsed_sequences;
-std::list< pair<string,size_t> > sorted_collapsed_sequences ;
+
+typedef std::pair<string,size_t> sequence_count_pair;
+typedef std::list< sequence_count_pair > sequence_count_list ;
+sequence_count_list sorted_collapsed_sequences ;
+bool flag_collapse_by_prefix=false;
+bool flag_debug_collapse_by_prefix=false;
 
 struct PrintCollapsedSequence
 {
@@ -70,16 +76,36 @@ struct PrintCollapsedSequence
 	}
 };
 
-bool sort_by_abundance_count ( const pair<string, size_t> & sequence1, const pair<string, size_t>& sequence2 )
+inline
+bool sort_by_sequence ( const sequence_count_pair& sequence1, const sequence_count_pair& sequence2 )
+{
+	return sequence1.first < sequence2.first ;
+}
+
+inline
+bool sort_by_abundance_count ( const sequence_count_pair& sequence1, const sequence_count_pair& sequence2 )
 {
 	return sequence1.second < sequence2.second ;
+}
+
+int parse_program_args(int __attribute__((unused)) optind, int optc, char __attribute__((unused)) *optarg)
+{
+	switch(optc) {
+	case 'p':
+		flag_collapse_by_prefix = 1 ;
+		break;
+	
+	default:
+		errx(1, "Unknown argument (%c)", optc ) ;
+	}
+	return 1;
 }
 
 int main(int argc, char* argv[])
 {
 	ofstream output_file ;
 
-	fastx_parse_cmdline(argc, argv, "", NULL );
+	fastx_parse_cmdline(argc, argv, "p", parse_program_args );
 
 	fastx_init_reader(&fastx, get_input_filename(), 
 		FASTA_OR_FASTQ, ALLOW_N, REQUIRE_UPPERCASE,
@@ -100,6 +126,46 @@ int main(int argc, char* argv[])
 	
 	copy ( collapsed_sequences.begin(), collapsed_sequences.end(), 
 		back_inserter(sorted_collapsed_sequences) ) ;
+
+
+	if (flag_collapse_by_prefix) {
+		sorted_collapsed_sequences.sort ( sort_by_sequence ) ;
+
+		sequence_count_list::iterator curr = sorted_collapsed_sequences.begin();
+		while ( curr != sorted_collapsed_sequences.end() ) {
+			const string& curr_seq = curr->first;
+
+			sequence_count_list::iterator next = curr;
+			next++;
+			if (next==sorted_collapsed_sequences.end())
+				break;
+
+			const string& next_seq = next->first ;
+
+			if (flag_debug_collapse_by_prefix)
+			cerr << "--Checking:" << endl
+				<< "curr: " << curr_seq << "\t" << curr->second << endl
+				<< "next: " << next_seq << "\t" << next->second << endl;
+			if ( (next_seq.length() >= curr_seq.length()
+			      &&
+			      next_seq.substr(0,curr_seq.length()) == curr_seq)
+			      ||
+			      (curr_seq.length() > next_seq.length()
+			       &&
+			       curr_seq.substr(0,next_seq.length()) == next_seq)
+			      ) {
+					if (flag_debug_collapse_by_prefix)
+						cerr << "Collapsing by prefix, increasing next's count from " << next->second << " to " << (next->second + curr->second) << endl;
+
+					next->second += curr->second;
+					if (curr_seq.length() > next_seq.length())
+						next->first = curr->first;
+					curr = sorted_collapsed_sequences.erase(curr);
+			}
+			else
+				curr = next ;
+		}
+	}
 
 	sorted_collapsed_sequences.sort ( sort_by_abundance_count ) ;
 
