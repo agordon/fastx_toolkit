@@ -16,14 +16,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <cstddef>
+#include <assert.h>
 #include <cstdlib>
 #include <algorithm>
 #include <ostream>
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include <vector>
 #include <string.h>
 #include <stdio.h>
+#include <getopt.h>
+#include <memory>
+#include <limits.h>
+#include <tr1/unordered_map>
+#include <gtextutils/container_join.h>
+#include <gtextutils/stream_wrapper.h>
 
 #include "sequence_alignment.h"
 
@@ -32,6 +40,12 @@
 
 #include <config.h>
 
+//#include "kmer_coding.h"
+#include "adapter_hash.h"
+#include "fastx_writer.h"
+#include "sequence_writer.h"
+#include "tile_detection.h"
+
 #include "fastx.h"
 #include "fastx_args.h"
 
@@ -39,7 +53,7 @@
 #define MAX_ADAPTER_LEN 100
 
 const char* usage=
-"usage: fastx_clipper [-h] [-a ADAPTER] [-D] [-l N] [-n] [-d N] [-c] [-C] [-o] [-v] [-z] [-i INFILE] [-o OUTFILE]\n" \
+"usage: fastx_clipper_v3 [-h] [-a ADAPTER] [-D] [-l N] [-n] [-d N] [-c] [-C] [-o] [-v] [-z] [-i INFILE] [-o OUTFILE]\n" \
 "Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
 "   [-h]         = This helpful help screen.\n" \
@@ -63,263 +77,628 @@ const char* usage=
 "   [-o OUTFILE] = FASTA/Q output file. default is STDOUT.\n" \
 "\n";
 
-//Default adapter - Dummy sequence
-char adapter[MAX_ADAPTER_LEN]="CCTTAAGG";
-unsigned int min_length=5;
-int discard_unknown_bases=1;
-int keep_delta=0;
-int discard_non_clipped=0;
-int discard_clipped=0;
-int show_adapter_only=0;
-int debug = 0 ;
-int minimum_adapter_length = 0;
+using namespace std;
+using namespace std::tr1;
+
+enum {
+	OPT_CLIPPED_SEQUENCES_FILE = CHAR_MAX+1,
+	OPT_UNCLIPPED_SEQUENCES_FILE,
+	OPT_ADAPTERS_FILE,
+	OPT_TOO_SHORT_FILE,
+	OPT_MISSING_START_THRESHOLD,
+	OPT_MISSING_START_ACTION
+};
+
+struct option clipper_argv_options[] = {
+	{"clipped",	1,	NULL,	OPT_CLIPPED_SEQUENCES_FILE},
+	{"unclipped",	1,	NULL,	OPT_UNCLIPPED_SEQUENCES_FILE},
+	{"adapters",	1,	NULL,	OPT_ADAPTERS_FILE},
+	{"tooshort",    1,	NULL,	OPT_TOO_SHORT_FILE},
+	{"missing-start-threshold", 1,	NULL,	OPT_MISSING_START_THRESHOLD},
+	{"missing-start-action",    1,	NULL,	OPT_MISSING_START_ACTION}
+};
+
+//Parameters set by command line
+string adapter;
+static int verbose=0;
+int debug_print_adapter_hash=0;
+int debug_print_query_hash=0;
+int debug_print_tile_detection=0;
+int debug_print_region_detection=0;
+int debug_adapter_verification=0;
+int debug_show_clipping_result=0;
+int debug_show_local_alignment_matrix=0;
+int FASTQ_quality_offset=64;
+static string input_filename="-";
+static string output_filename="-";
+int output_unclipped_sequences=1;
+int output_clipped_sequences=1;
+
+int max_tile_distance_difference = 1;
+unsigned int min_length_after_clipping=15;
+unsigned int min_adapter_length_tile_match=15;
+int min_local_alignment_score=7 ;
 
 
-//Statistics for verbose report
-unsigned int count_input=0 ;
-unsigned int count_discarded_too_short=0; // see [-l N] option
-unsigned int count_discarded_adapter_at_index_zero=0;  //empty sequences (after clipping)
-unsigned int count_discarded_no_adapter_found=0; // see [-c] option
-unsigned int count_discarded_adapter_found=0; // see [-C] option
-unsigned int count_discarded_N=0; // see [-n]
+string clipped_sequences_filename;
+string unclipped_sequences_filename;
+string adapters_sequences_filename;
+string tooshort_sequences_filename;
+int k=5;
+
+//How to handle this case?
+//The end is matching to the adapter, the beggning is not
+//query: TTTTG GGTCGNGAGAGCGGTTCAGCAGGAATGCCGA GACCGATCTCGTATGCCGTCATCTGCTTGGAAGAGAGGA
+//adapt: AAAAA GATCGGAAGAGCGGTTCAGCAGGAATGCCGA TCT
+//Three options:
+//   Don't clip at all.
+//   Clip the entire thing (
+//   Clip from the detected/matched fragment only,
+// skip_adapter_start is "5" in the above case.
+unsigned int missing_start_threshold = 5 ;
+enum MISSING_START_ACTION {
+	MISSING_START_DONT_CLIP = 1,
+	MISSING_START_CLIP_ALL,
+	MISSING_START_CLIP_DETECTED
+} ;
+//MISSING_START_ACTION missing_start_action = MISSING_START_CLIP_DETECTED;
+MISSING_START_ACTION missing_start_action = MISSING_START_CLIP_ALL;
+
+
+
+//Global Variables
 
 FASTX fastx;
-HalfLocalSequenceAlignment align;
+SequenceHash AdapterHash;
+AutoSequenceWriter clipped_sequences_writer;
+AutoSequenceWriter unclipped_sequences_writer;
+AutoSequenceWriter adapters_sequences_writer;
+AutoSequenceWriter tooshort_sequences_writer;
 
-int parse_program_args(int __attribute__((unused)) optind, int optc, char* optarg)
+
+//HalfLocalSequenceAlignment align;
+
+
+void debug_print_query_kmers ( const string & query )
 {
-	switch(optc) {
-		case 'M':
-			if (optarg==NULL) 
-				errx(1, "[-M] parameter requires an argument value");
-			minimum_adapter_length = atoi(optarg);
-			if (minimum_adapter_length<=0) 
-				errx(1,"Invalid minimum adapter length (-M %s)", optarg);
-			break;
+	int k_step = 1;
+	for (unsigned int i=0;i<query.length()-k;i+=k_step) {
+		const string query_kmer = query.substr(i,k);
 
-		case 'k':
-			show_adapter_only=1;
-			break;
+		if (AdapterHash.kmer_exists(query_kmer)) {
+			cerr << i << "\t" << query_kmer << "\t";
+			cerr	<< "offset:\t" << AdapterHash.get_kmer_offset(query_kmer);
+			cerr << endl;
+		}
+	}
+}
 
-		case 'D':
-			debug++;
-			break ;
+class QueryKmers {
+public:
+	unsigned int	query_offset;
+	std::string	kmer;
 
-		case 'c':
-			discard_non_clipped = 1;
-			break;
+	QueryKmers ( unsigned int _query_offset, const std::string& _kmer ) :
+		query_offset(_query_offset), kmer(_kmer)
+	{
+	}
+} ;
+typedef std::vector<QueryKmers> query_kmers_vector;
 
-		case 'C':
-			discard_clipped = 1 ;
-			break ;
-		case 'd':
-			if (optarg==NULL) 
-				errx(1, "[-d] parameter requires an argument value");
-			keep_delta = strtoul(optarg,NULL,10);
-			if (keep_delta<0) 
-				errx(1,"Invalid number bases to keep (-d %s)", optarg);
-			break;
-		case 'a':
-			strncpy(adapter,optarg,sizeof(adapter)-1);
-			//TODO:
-			//if (!valid_sequence_string(adapter)) 
-			//	errx(1,"Invalid adapter string (-a %s)", adapter);
-			break ;
-			
-		case 'l':
-			if (optarg==NULL) 
-				errx(1,"[-l] parameter requires an argument value");
-			
-			min_length = strtoul(optarg, NULL, 10);
-			break;
-			
-		case 'n':
-			discard_unknown_bases = 0 ;
-			break;
+struct tile_detection_results
+{
+	unsigned int query_start;
+	unsigned int query_end;
+
+	unsigned int adapter_start;
+	unsigned int adapter_end;
+
+	unsigned int num_consecutive_tiles;
+	unsigned int num_bases_covered;
+
+/*	unsigned int query_offset;
+	unsigned int adapter_offset;
+	unsigned int adapter_match_length;
+	vector<bool> adapter_coverage;
+
+	*/
+};
+
+struct verification_results {
+	unsigned int query_clip_offset ;
+	unsigned int adapter_trim_offset ;
+};
+
+bool get_adapter_match_region ( const string & query, DetectedTileRegion /*output*/ &region )
+{
+	detect_tiles_vector_type detected_tiles;
+
+	bool b = detect_tiles ( query, AdapterHash, detected_tiles );
+	if (debug_print_tile_detection)
+		cerr << "Tile-Detection: " << endl
+			<< join(detected_tiles, "");
+	if (!b) {
+		if (debug_print_tile_detection)
+			cerr << "Tile-Detection: not enough tiles detected. not clipping." << endl;
+		return false;
+	}
+
+	detected_tile_region_vector_type detected_regions;
+
+	b = detect_tile_regions ( detected_tiles, detected_regions ) ;
+	if (debug_print_region_detection)
+		cerr << "Tile-Region-Detection: " << endl
+			<< join(detected_regions, "");
+	if (!b) {
+		if (debug_print_region_detection)
+			cerr << "Tile-Region-Detection: not enough regions detected. not clipping." << endl;
+		return false;
+	}
+
+	join_close_regions ( detected_regions ) ;
+	if (debug_print_region_detection)
+		cerr << "Tile-Region-Detection (after join): " << endl
+			<< join(detected_regions, "");
+
+	region = get_longest_region(detected_regions);
+	if (debug_print_region_detection)
+		cerr << "Tile-Region-Detection (longest region): " << endl
+			<< region << endl;
+
+	return true;
+}
+
+bool verify_matched_region ( const std::string & /* query */,
+				DetectedTileRegion /* in/out */ &  match_region )
+{
+	//The start of the adapter sequence is missing, but the middle is detected.
+	//However, it is detected in the middle of the query-sequence.
+	//What to do ?
+	if (match_region.adapter_start > missing_start_threshold
+			&&
+		match_region.query_start > missing_start_threshold) {
+		if (debug_adapter_verification)
+			cerr << "Adapter-Verification:" << endl
+				<< " found MISSING_START: ";
+
+		switch (missing_start_action)
+		{
+		case MISSING_START_DONT_CLIP:
+			if (debug_adapter_verification)
+				cerr << " Action = Don't-Clip" << endl;
+			return false;
+
+		case MISSING_START_CLIP_ALL:
+			if (match_region.query_start>match_region.adapter_start)
+				match_region.query_start -= match_region.adapter_start;
+			else
+				match_region.query_start = 0 ;
+			match_region.adapter_start = 0 ;
+			if (debug_adapter_verification)
+				cerr << " Action = Clip-all. Adjusted match-region:" << endl
+					<< " " << match_region << endl;
+			return true;
+
+		case MISSING_START_CLIP_DETECTED:
+			if (debug_adapter_verification)
+				cerr << " Action = Clip-Only-Detected-Region" << endl;
+			return true;
 
 		default:
-			errx(1,"Unknown argument (%c)", optc ) ;
-
+			errx(1,"Internal error: skip_start_action has invalid value (%d)", (int)missing_start_action);
+		}
 	}
-	return 1;
+
+	return true;
+}
+
+
+bool verify_short_adapter_in_query(const std::string& query, tile_detection_results & tile_detection, verification_results & /*verification*/ )
+{
+	int expected_start_offset =
+		(int)tile_detection.query_start - (int)tile_detection.adapter_start ;
+	if (expected_start_offset<0)
+		expected_start_offset=0;
+
+	if (debug_adapter_verification)
+		cerr << "verify short-check: trying local-alignment with last "
+			<<  (query.length() - expected_start_offset)
+			<< " nucleotides in the query string"
+			<< endl;
+
+	string query_fragment = query.substr(expected_start_offset);
+	string adapter_fragment = adapter.substr(0,query_fragment.length()); //+2 = allow two deletions in the query, so add two nucleotides in the adapter
+
+	/*align.align(query_fragment, adapter_fragment);
+
+	if (debug_show_local_alignment_matrix)
+		align.print_matrix();
+
+	if (debug_adapter_verification)
+		align.results().print();
+
+	if (align.results().score >= min_local_alignment_score) {
+		if (debug_adapter_verification)
+			cerr << "verify short-check: local alignment returned valid score, adapter at offset "
+				<< expected_start_offset + align.results().query_start
+				<< endl;
+		verification.query_clip_offset = expected_start_offset + align.results().query_start ;
+		verification.adapter_trim_offset = align.results().target_start ;
+		return true;
+	}
+*/
+	return false;
+}
+
+size_t hamming_distance(const std::string &a, const std::string &b)
+{
+	size_t distance=0;
+	size_t len = (a.length()>b.length()) ? b.length() : a.length();
+	for (size_t i = 0; i< len; ++i){
+		if ( a[i] != b[i] )
+			distance++;
+	}
+	return distance;
+}
+
+bool verify_adapter_in_query(const std::string& query, tile_detection_results & tile_detection, verification_results &verification )
+{
+	int expected_start_offset =
+		(int)tile_detection.query_start - (int)tile_detection.adapter_start ;
+	if (expected_start_offset<0)
+		expected_start_offset=0;
+
+	verification.adapter_trim_offset = tile_detection.adapter_start ;
+	verification.query_clip_offset = expected_start_offset;
+
+	if (debug_adapter_verification)
+		cerr << "Adapter-Verification: " << endl
+			<< " query_start = " << tile_detection.query_start
+			<< " query_end = " << tile_detection.query_end
+			<< " adapter_start = " << tile_detection.adapter_start
+			<< " adapter_end = " << tile_detection.adapter_end
+			<< " Num_consecutive_tiles = " << tile_detection.num_consecutive_tiles
+			<< " Expectd_start_offset = " << expected_start_offset
+			<< endl;
+
+	//Short adapter ?
+	if ( (tile_detection.adapter_end - tile_detection.adapter_start) < min_adapter_length_tile_match) {
+
+		size_t extend_adapter_start = tile_detection.adapter_start ;
+		size_t extend_adapter_end =   tile_detection.adapter_end ;
+		size_t extend_query_start =   tile_detection.query_start ;
+		size_t extend_query_end   =   tile_detection.query_end ;
+
+		//Try hard to find valid alignment -
+		// extend the detected overlap region, and test it
+		if ( extend_adapter_start > 0 ) {
+			//extend it backwards
+			size_t delta = (extend_adapter_start>extend_query_start)?extend_query_start:extend_adapter_start;
+			extend_query_start -= delta;
+			extend_adapter_start -= delta ;
+		}
+
+		if (extend_query_end < query.length()) {
+			//extend it forwards, as much as possible (until the end of the query)
+			size_t query_delta = query.length() - extend_query_end;
+			size_t adapter_delta = adapter.length() - extend_adapter_end;
+			size_t delta = (adapter_delta>query_delta)?query_delta:adapter_delta;
+			extend_query_end += delta;
+			extend_adapter_end += delta;
+		}
+
+		string extend_adapter_fragment = adapter.substr(extend_adapter_start, extend_adapter_end-extend_adapter_start);
+		string extend_query_fragment = query.substr(extend_query_start, extend_query_end-extend_query_start);
+
+
+		if (debug_adapter_verification)
+			cerr << "Adapter-Verification: short-adater, after extension:" << endl
+				<< "  extend_query_start = " << extend_query_start
+				<< " extend_query_end = " << extend_query_end
+				<< " extend_adapter_start = " << extend_adapter_start
+				<< " extend_adapter_end = " << extend_adapter_end
+				<< endl
+				<< " extended_query = " << extend_query_fragment << endl
+				<< " extended_adptr = " << extend_adapter_fragment << endl
+				;
+
+		size_t distance = hamming_distance ( extend_adapter_fragment, extend_query_fragment ) ;
+		double score = (extend_adapter_fragment.length() - distance) / (double)extend_adapter_fragment.length();
+
+		if (debug_adapter_verification)
+			cerr << "Adapter-Verification: hamming-distance = " << distance
+				<< " score = " << score
+				<< endl;
+
+/*		align.align(extend_query_fragment, extend_adapter_fragment);
+		if (debug_show_local_alignment_matrix)
+			align.print_matrix();
+		if (debug_adapter_verification)
+			align.results().print();*/
+
+		if ( score > (3/4)) {
+			verification.query_clip_offset = extend_query_start ;
+			verification.adapter_trim_offset = extend_adapter_start ;
+			return true;
+		}
+
+		//If it happens at the beginning of the adapter, and the end of the query sequence,
+		if ( tile_detection.adapter_start < (size_t)k
+				&&
+			tile_detection.query_start >= (query.length() - min_adapter_length_tile_match - k )) {
+
+			if (debug_adapter_verification)
+				cerr << "Adapter-Verification: found SHORT-ADAPTER" << endl;
+
+			//return verify_short_adapter_in_query ( query, tile_detection, verification ) ;
+			return true;
+		}
+
+		if (debug_adapter_verification)
+			cerr << "Adapter-Verification: detected adapter is too short (" <<(tile_detection.adapter_end - tile_detection.adapter_start)
+				<< ") and does not match the end of the query. not clipping."
+				<< endl;
+		return false;
+	}
+
+	//The start of the adapter sequence is missing, but the middle is detected.
+	//However, it is detected in the middle of the query-sequence.
+	//What to do ?
+	if (tile_detection.adapter_start > missing_start_threshold
+			&&
+		tile_detection.query_start > missing_start_threshold) {
+		if (debug_adapter_verification)
+			cerr << "Adapter-Verification: found MISSING_START" << endl;
+
+		switch (missing_start_action)
+		{
+		case MISSING_START_DONT_CLIP:
+			return false;
+
+		case MISSING_START_CLIP_ALL:
+			return true;
+
+		case MISSING_START_CLIP_DETECTED:
+			verification.query_clip_offset = tile_detection.query_start;
+			verification.adapter_trim_offset = tile_detection.adapter_start;
+			return true;
+
+		default:
+			errx(1,"Internal error: skip_start_action has invalid value (%d)", (int)missing_start_action);
+		}
+	}
+
+	return true;
 }
 
 int parse_commandline(int argc, char* argv[])
 {
+	int c;
+	int option_index;
+	while ( (c=getopt_long(argc,argv,"vi:o:Q:D:a:k:", clipper_argv_options, &option_index)) != -1 ) {
+		switch(c)
+		{
+			/* Standard Options */
+		case 'i':
+			input_filename = optarg;
+			break;
+		case 'o':
+			output_filename = optarg;
+			break;
+		case 'Q':
+			FASTQ_quality_offset = atoi(optarg);
+			if (FASTQ_quality_offset<=0)
+				errx(1,"Invalid FASTQ quality offset (%s). Value must be bigger than zero.", optarg);
+			break;
+		case 'v':
+			verbose++;
+			break;
 
-	fastx_parse_cmdline(argc, argv, "M:kDCcd:a:s:l:n", parse_program_args);
+			/* Clipper options */
+		case 'a':
+			adapter = optarg;
+			break;
+		case 'D':
+			if (strcmp(optarg,"adapterhash")==0)
+				debug_print_adapter_hash = 1;
+			else
+			if (strcmp(optarg,"queryhash")==0)
+				debug_print_query_hash = 1 ;
+			else
+			if (strcmp(optarg,"tiledetection")==0)
+				debug_print_tile_detection = 1;
+			else
+			if (strcmp(optarg,"regiondetection")==0)
+				debug_print_region_detection = 1;
+			else
+			if (strcmp(optarg,"adapterverification")==0)
+				debug_adapter_verification = 1;
+			else
+			if (strcmp(optarg,"showclip")==0)
+				debug_show_clipping_result = 1 ;
+			else
+			if (strcmp(optarg,"localalignment")==0)
+				debug_show_local_alignment_matrix = 1 ;
+			else
+				errx(1,"Unknown debug option '%s'", optarg);
+			break;
+		case 'k':
+			k = atoi(optarg);
+			if ( k<4 )
+				errx(1,"Invalid k-mer length (-k %s). Must be a number larger than 3.", optarg);
+			break;
 
-	if (keep_delta>0) 
-		keep_delta += strlen(adapter);
+			/* Advanced Clipper Options */
+		case OPT_CLIPPED_SEQUENCES_FILE:
+			//clipped_sequences_writer = AutoSequenceWriter ( new SequenceWriter ( optarg ) ) ;
+			clipped_sequences_filename = optarg;
+			break;
+		case OPT_UNCLIPPED_SEQUENCES_FILE:
+			unclipped_sequences_filename = optarg;
+			break;
+		case OPT_ADAPTERS_FILE:
+			adapters_sequences_filename = optarg;
+			break;
+		case OPT_TOO_SHORT_FILE:
+			tooshort_sequences_filename = optarg;
+			break;
+		case OPT_MISSING_START_THRESHOLD:
+			missing_start_threshold = atoi(optarg);
+			break;
+		case OPT_MISSING_START_ACTION:
+			if (strcmp(optarg,"dontclip")==0)
+				missing_start_action = MISSING_START_DONT_CLIP;
+			else
+			if (strcmp(optarg,"clipall")==0)
+				missing_start_action = MISSING_START_CLIP_ALL;
+			else
+			if (strcmp(optarg,"clipdetected")==0)
+				missing_start_action = MISSING_START_CLIP_DETECTED;
+			else
+				errx(1,"Invalid --missing-start-action argument '%s'", optarg);
+			break;
+
+		default:
+			errx(1,"Unknown command line option -%c", optopt);
+			break;
+		}
+	}
 	return 1;
 }
 
-int adapter_cutoff_index ( const SequenceAlignmentResults& alignment_results ) __attribute__ ((const));
-int adapter_cutoff_index ( const SequenceAlignmentResults& alignment_results )
+void verify_command_line()
 {
-	#if 0
-	int mismatches = alignment_results.mismatches ;
-	
-	//The adapter(=target) is expected to align from the first base.
-	//If the start is not zero (=not aligned from first base),
-	//count each skipped base as a mismatch
-	mismatches += alignment_results.target_start ;
+	if (adapter.empty())
+		errx(1,"missing adapter sequence (-a XXXXXXXXX)" );
+}
 
-	//The adapter is expected to align up to the end
-	//of the adapter(=target), or the end of the query.
-	//If it doesn't, count the un-aligned bases as mismatches
-	int missing_from_query_end = (alignment_results.query_size - alignment_results.query_end-1);
-	int missing_from_target_end = (alignment_results.target_size - alignment_results.target_end-1);
+void create_helper_files()
+{
+	SequenceWriter::TYPE t =
+		fastx.write_fastq ? SequenceWriter::FASTQ : SequenceWriter::FASTA;
 
-	int missing_from_end = std::min(missing_from_query_end, missing_from_target_end);
-	
-	mismatches += missing_from_end ;
-	
+	if (!clipped_sequences_filename.empty())
+		clipped_sequences_writer =
+			AutoSequenceWriter (
+				new SequenceWriter ( clipped_sequences_filename, t, "::CLIPPED" ) ) ;
 
-	 
-	std::cout << "Missing from start = " << alignment_results.target_start
-		  << " Missing from end = " << missing_from_end
-		  << " mismatches = " << mismatches 
-		  << std::endl;
-	
-	if (mismatches > max_mismatches)
-		return -1;
+	if (!unclipped_sequences_filename.empty())
+		unclipped_sequences_writer =
+			AutoSequenceWriter (
+				new SequenceWriter ( unclipped_sequences_filename, t, "::UNCLIPPED" ) ) ;
 
-	return alignment_results.query_start;
-	#endif
+	if (!adapters_sequences_filename.empty())
+		adapters_sequences_writer =
+			AutoSequenceWriter (
+				new SequenceWriter ( adapters_sequences_filename, t, "::ADAPTERS" ) ) ;
 
-	int alignment_size = alignment_results.neutral_matches +
-			     alignment_results.matches + 
-			     alignment_results.mismatches +
-			     alignment_results.gaps ;
-
-	//No alignment at all?
-	if (alignment_size==0)
-		return -1;
-
-	if (minimum_adapter_length>0 && alignment_size<minimum_adapter_length)
-		return -1;
-
-	//Any good alignment at the end of the query
-	//(even only a single nucleotide)
-	//Example:
-	//  The adapter starts with CTGTAG, The Query ends with CT - it's a match.
-	if ( alignment_results.query_end == alignment_results.query_size-1
-	     &&
-	     alignment_results.mismatches == 0 ) {
-	     	//printf("--1\n");
-		return alignment_results.query_start ;
-	}
-
-	if ( alignment_size > 5
-	     &&
-	     alignment_results.target_start == 0
-	     &&
-	     (alignment_results.matches * 100 / alignment_size ) >= 75 ) {
-	     	//printf("--2\n");
-		return alignment_results.query_start ;
-	}
-
-	if ( alignment_size > 11 
-	     &&
-	     (alignment_results.matches * 100 / alignment_size ) >= 80 ) {
-	     	//printf("--2\n");
-		return alignment_results.query_start ;
-	}
-
-	//
-	//Be very lenient regarding alignments at the end of the query sequence
-	if ( alignment_results.query_end >= alignment_results.query_size-2
-	     &&
-	     alignment_size <= 5 && alignment_results.matches >= 3) {
-			//printf("--3\n");
-			return alignment_results.query_start ;
-		}
-
-	return -1;
+	if (!tooshort_sequences_filename.empty())
+		tooshort_sequences_writer =
+			AutoSequenceWriter (
+				new SequenceWriter ( tooshort_sequences_filename, t, "::TOOSHORT" ) ) ;
 }
 
 
 int main(int argc, char* argv[])
 {
-	int i;
 	int reads_count;
+	bool clipped_normal ;
+	bool clipped_too_short ;
+	bool clipped_adapter_only;
+
 
 	parse_commandline(argc, argv);
+	verify_command_line();
+	//assert_valid_kmer_size(k);
+	//assert_kmer_coding_decoding();
 
-	fastx_init_reader(&fastx, get_input_filename(), 
+	AdapterHash.set_sequence(adapter,k);
+	if (debug_print_adapter_hash)
+		AdapterHash.debug_print_hash(cerr);
+
+	fastx_init_reader(&fastx, input_filename.c_str(),
 		FASTA_OR_FASTQ, ALLOW_N, REQUIRE_UPPERCASE,
-		get_fastq_ascii_quality_offset() );
+		FASTQ_quality_offset );
 
-	fastx_init_writer(&fastx, get_output_filename(), OUTPUT_SAME_AS_INPUT, compress_output_flag());
+	fastx_init_writer(&fastx, output_filename.c_str(), OUTPUT_SAME_AS_INPUT, compress_output_flag());
+
+	create_helper_files();
 
 	while ( fastx_read_next_record(&fastx) ) {
 
 		reads_count = get_reads_count(&fastx);
-		
-		#if 0
-		std::string query = std::string(fastx.nucleotides) + std::string( strlen(adapter), 'N' ); 
-		std::string target= std::string( strlen(fastx.nucleotides), 'N' ) + std::string(adapter);
-		#else
-		std::string query = std::string(fastx.nucleotides) ;
-		std::string target= std::string(adapter);
-		#endif
-		
-		
-		align.align( query, target ) ;
 
-		if (debug>1) 
-			align.print_matrix();
-		if (debug>0)
-			align.results().print();
-		
-		count_input+= reads_count;
+		string query ( fastx.nucleotides ) ;
 
-		//Find the best match with the adapter
-		i = adapter_cutoff_index ( align.results() ) ;
-		
-		if (i!=-1 && i>0) {
-			i += keep_delta;
-			//Just trim the string after this position
-			fastx.nucleotides[i] = 0 ;
+		if (debug_print_query_hash)
+			debug_print_query_kmers ( query ) ;
+
+		clipped_normal = false;
+		clipped_too_short = false;
+		clipped_adapter_only = false;
+
+		DetectedTileRegion match_region;
+
+		string query_before_clipping ;
+		string query_after_clipping;
+		string clipped_adapter_sequence ;
+
+		if (get_adapter_match_region(query, match_region)) {
+			if (verify_matched_region(query, match_region)) {
+				//Adapter found, need to clip,
+				//but: where does the adapter fall?
+				if (match_region.query_start==0)
+					clipped_adapter_only = 1 ;
+				else
+				if (match_region.query_start<min_length_after_clipping)
+					clipped_too_short = 1 ;
+				else
+					clipped_normal = 1;
+
+
+				query_before_clipping = fastx.nucleotides;
+				clipped_adapter_sequence = query_before_clipping.substr(match_region.query_start,match_region.query_end-match_region.query_start);
+				query_after_clipping = query_before_clipping.substr(0,match_region.query_start);
+
+				if (debug_show_clipping_result) {
+					cerr << "Clipping-Results: fastx.name " << endl;
+					cerr << "Orig. Seq:  " << query_before_clipping << endl;
+
+					string buffer ( match_region.query_start, ' ');
+					cerr << "Found Adpr: " << buffer << clipped_adapter_sequence << endl ;
+					cerr << "Orig Adpr:  " << buffer <<
+						adapter.substr(match_region.adapter_start,
+								match_region.adapter_end-match_region.adapter_start) << endl ;
+					cerr << "After Clip: " << query_after_clipping << endl;
+				}
+			}
 		}
 
-		if (i==0) { // empty sequence ? (in which the adapter was found at index 0)
-			count_discarded_adapter_at_index_zero += reads_count;
-			
-			if (show_adapter_only)
-				fastx_write_record(&fastx);
-			continue;
-		}
+		bool not_clipped = ! ( clipped_too_short || clipped_adapter_only || clipped_normal );
 
-		if (strlen(fastx.nucleotides) < min_length) { // too-short sequence ?
-			count_discarded_too_short += reads_count;
-			continue;
-		}
+		//Write Helper Files - unclipped sequences
+		if (not_clipped && unclipped_sequences_writer.get() != NULL)
+			unclipped_sequences_writer->write(fastx);
+		if ((!not_clipped) && adapters_sequences_writer.get() != NULL)
+			adapters_sequences_writer->write(fastx,match_region.query_start);
+		if (clipped_too_short && tooshort_sequences_writer.get() != NULL)
+			tooshort_sequences_writer->write(fastx, 0, match_region.query_start);
+		if (clipped_normal && clipped_sequences_writer.get() != NULL)
+			clipped_sequences_writer->write(fastx, 0, match_region.query_start);
 
-		if ( (i==-1) && discard_non_clipped ) { // adapter not found (i.e. sequence was not clipped) ?
-			count_discarded_no_adapter_found += reads_count;
-			continue ;
-		}
+		//Old-style clipping, for libfastx.c
+		if (clipped_normal)
+			fastx.nucleotides[match_region.query_start]=0;
 
-		if ( (i>0) && discard_clipped ) { // adapter found, and user requested to keep only non-clipped sequences 
-			count_discarded_adapter_found += reads_count;
-			continue;
-		}
-
-		if ( (discard_unknown_bases && strchr(fastx.nucleotides,'N')!=NULL ) ) { // contains unknown bases (after clipping) ?
-			count_discarded_N += reads_count;
-			continue;
-		}
-		
-		if (!show_adapter_only)  {
-			//none of the above condition matched, so print this sequence.
+		//Write Output File
+		if ( ( not_clipped && output_unclipped_sequences )
+		     ||
+		     ( clipped_normal && output_clipped_sequences ) )
 			fastx_write_record(&fastx);
-		}
 	}
-
 	//
 	//Print verbose report
+	/*
 	if ( verbose_flag() ) {
 		fprintf(get_report_file(), "Clipping Adapter: %s\n", adapter );
 		fprintf(get_report_file(), "Min. Length: %d\n", min_length) ;
@@ -329,7 +708,6 @@ int main(int argc, char* argv[])
 		if (discard_non_clipped)
 			fprintf(get_report_file(), "Non-Clipped reads - discarded.\n"  ) ;
 
-		
 		fprintf(get_report_file(), "Input: %u reads.\n", count_input ) ;
 		fprintf(get_report_file(), "Output: %u reads.\n", 
 			count_input - count_discarded_too_short - count_discarded_no_adapter_found - count_discarded_adapter_found -
@@ -344,6 +722,7 @@ int main(int argc, char* argv[])
 		if (discard_unknown_bases)
 			fprintf(get_report_file(), "discarded %u N reads.\n", count_discarded_N );
 	}
+	*/
 
 	return 0;
 }

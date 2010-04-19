@@ -15,7 +15,15 @@ AM_CPPFLAGS = \
 	$(CC_WARNINGS) \
 	-I../libfastx
 
-fastx_clipper_v3_SOURCES = fastx_clipper_v3.cpp
+INCLUDES = $(GTEXTUTILS_CFLAGS) -I../libfastx
+LDADD = $(GTEXTUTILS_LIBS) ../libfastx/libfastx.a $(LT_LDFLAGS)
 
-fastx_clipper_v3_LDADD = ../libfastx/libfastx.a $(LT_LDFLAGS)
+fastx_clipper_v3_SOURCES = fastx_clipper_v3.cpp \
+			   kmer_coding.h kmer_coding.cpp \
+			   adapter_hash.h adapter_hash.cpp \
+			   sequence_writer.h \
+			   tile_detection.h tile_detection.cpp \
+			   fastx_writer.h fastx_writer.cpp
 
+#			   sequence_alignment.h sequence_alignment.cpp \
+#
