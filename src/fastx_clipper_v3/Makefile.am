@@ -10,6 +10,7 @@
 
 
 bin_PROGRAMS = fastx_clipper_v3
+noinst_PROGRAMS = seqalign_test
 
 AM_CPPFLAGS = \
 	$(CC_WARNINGS) \
@@ -23,7 +24,8 @@ fastx_clipper_v3_SOURCES = fastx_clipper_v3.cpp \
 			   adapter_hash.h adapter_hash.cpp \
 			   sequence_writer.h \
 			   tile_detection.h tile_detection.cpp \
-			   fastx_writer.h fastx_writer.cpp
+			   fastx_writer.h fastx_writer.cpp \
+			   sequence_alignment.h sequence_alignment.cpp
 
-#			   sequence_alignment.h sequence_alignment.cpp \
-#
+seqalign_test_SOURCES = sequence_alignment.h sequence_alignment.cpp \
+			seqalign_test.cpp

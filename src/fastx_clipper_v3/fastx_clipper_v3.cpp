@@ -116,7 +116,8 @@ int output_clipped_sequences=1;
 
 int max_tile_distance_difference = 1;
 unsigned int min_length_after_clipping=15;
-unsigned int min_adapter_length_tile_match=15;
+//unsigned int min_adapter_length_tile_match=15;
+unsigned int min_adapter_covered_bases=10;
 int min_local_alignment_score=7 ;
 
 
@@ -156,8 +157,18 @@ AutoSequenceWriter adapters_sequences_writer;
 AutoSequenceWriter tooshort_sequences_writer;
 
 
-//HalfLocalSequenceAlignment align;
+size_t hamming_distance(const std::string &a, const std::string &b)
+{
+	size_t distance=0;
+	size_t len = (a.length()>b.length()) ? b.length() : a.length();
+	for (size_t i = 0; i< len; ++i){
+		if ( a[i] != b[i] )
+			distance++;
+	}
+	return distance;
+}
 
+//HalfLocalSequenceAlignment align;
 
 void debug_print_query_kmers ( const string & query )
 {
@@ -173,6 +184,7 @@ void debug_print_query_kmers ( const string & query )
 	}
 }
 
+/*
 class QueryKmers {
 public:
 	unsigned int	query_offset;
@@ -184,7 +196,9 @@ public:
 	}
 } ;
 typedef std::vector<QueryKmers> query_kmers_vector;
+*/
 
+#if 0
 struct tile_detection_results
 {
 	unsigned int query_start;
@@ -203,7 +217,7 @@ struct tile_detection_results
 
 	*/
 };
-
+#endif 
 struct verification_results {
 	unsigned int query_clip_offset ;
 	unsigned int adapter_trim_offset ;
@@ -248,9 +262,84 @@ bool get_adapter_match_region ( const string & query, DetectedTileRegion /*outpu
 	return true;
 }
 
-bool verify_matched_region ( const std::string & /* query */,
+bool verify_matched_region ( const std::string & query,
 				DetectedTileRegion /* in/out */ &  match_region )
 {
+	//Check the first tile of the aligned query and adapter.
+	//If they don't match, force a local-alignment on the estimated alignment region.
+	//Verify the estimated alignment region
+	DetectedTileRegion aligned_region(match_region);
+	unsigned int delta = min(aligned_region.adapter_start, aligned_region.query_start);
+	aligned_region.query_start -= delta;
+	aligned_region.adapter_start -= delta;
+	const string adapter_fragment( adapter.substr(aligned_region.adapter_start, 5) );
+	const string query_fragment ( query.substr(aligned_region.query_start,5));
+//	int distance = hamming_distance ( query_fragment, adapter_fragment ) ;
+//	if (distance>1) {
+		if (debug_adapter_verification)
+			cerr << "Adapter-Verification:" << endl
+				<< "  verifing with local-alignment" << endl;
+
+		if (aligned_region.query_start>0) aligned_region.query_start--;
+		if (aligned_region.query_start>0) aligned_region.query_start--;
+		if (aligned_region.adapter_start>0) aligned_region.adapter_start--;
+		if (aligned_region.adapter_start>0) aligned_region.adapter_start--;
+
+		const string adapter_estimated_region (
+				adapter.substr(aligned_region.adapter_start,
+					aligned_region.adapter_end - aligned_region.adapter_start) ) ;
+
+		const string query_estimated_region (
+				query.substr(aligned_region.query_start,
+					aligned_region.query_end - aligned_region.query_start )) ;
+
+		SequenceAlignment sa;
+		sa.align(query_estimated_region, adapter_estimated_region);
+
+		const SequenceAlignmentResults &r = sa.alignment_results();
+		if (debug_adapter_verification) {
+			r.print_score(cerr);
+			r.print_aligned_coordinates(cerr);
+			r.print_alignment(cerr);
+		}
+
+		if ( (size_t)(r.score*3/2) > r.match_count ) {
+			//Use the local alignment match resutls
+			match_region.query_start = aligned_region.query_start + r.query_start;
+			match_region.query_end = aligned_region.query_start + r.query_end;
+
+			match_region.adapter_start = aligned_region.adapter_start + r.target_start;
+			match_region.adapter_end = aligned_region.adapter_start + r.target_end;
+
+			if (debug_adapter_verification)
+				cerr << " using local-alignment results. " << endl;
+		} else {
+			if (debug_adapter_verification)
+				cerr << " NOT using local-alignment results. " << endl;
+		}
+//	}
+
+	if ( (match_region.adapter_end - match_region.adapter_start) < min_adapter_covered_bases ) {
+		// Only a small sub-sequence matches ?
+
+		if ( (query.length() - match_region.query_end) < 2 ) {
+			//At the very end of the query - that's OK
+			if (debug_adapter_verification)
+				cerr << "Adapter-Verification:" << endl
+					<< " Allowing short match at the end of the query" << endl;
+			return true;
+		} else {
+			if (debug_adapter_verification)
+				cerr << "Adapter-Verification:" << endl
+				       << "  adapter-covered-bases ("
+					<<(match_region.adapter_end - match_region.adapter_start)
+					<< ") smaller than min_adapter_covered_bases ("
+					<< min_adapter_covered_bases
+					<< "). not clipping."
+					<< endl;
+			return false;
+		}
+	}
 	//The start of the adapter sequence is missing, but the middle is detected.
 	//However, it is detected in the middle of the query-sequence.
 	//What to do ?
@@ -269,15 +358,15 @@ bool verify_matched_region ( const std::string & /* query */,
 			return false;
 
 		case MISSING_START_CLIP_ALL:
-			if (match_region.query_start>match_region.adapter_start)
-				match_region.query_start -= match_region.adapter_start;
-			else
-				match_region.query_start = 0 ;
-			match_region.adapter_start = 0 ;
+			{
+			unsigned int delta = min(match_region.adapter_start, match_region.query_start);
+			match_region.query_start -= delta;
+			match_region.adapter_start -= delta;
 			if (debug_adapter_verification)
 				cerr << " Action = Clip-all. Adjusted match-region:" << endl
 					<< " " << match_region << endl;
 			return true;
+			}
 
 		case MISSING_START_CLIP_DETECTED:
 			if (debug_adapter_verification)
@@ -288,11 +377,10 @@ bool verify_matched_region ( const std::string & /* query */,
 			errx(1,"Internal error: skip_start_action has invalid value (%d)", (int)missing_start_action);
 		}
 	}
-
 	return true;
 }
 
-
+#if 0
 bool verify_short_adapter_in_query(const std::string& query, tile_detection_results & tile_detection, verification_results & /*verification*/ )
 {
 	int expected_start_offset =
@@ -329,18 +417,9 @@ bool verify_short_adapter_in_query(const std::string& query, tile_detection_resu
 */
 	return false;
 }
+#endif 
 
-size_t hamming_distance(const std::string &a, const std::string &b)
-{
-	size_t distance=0;
-	size_t len = (a.length()>b.length()) ? b.length() : a.length();
-	for (size_t i = 0; i< len; ++i){
-		if ( a[i] != b[i] )
-			distance++;
-	}
-	return distance;
-}
-
+#if 0
 bool verify_adapter_in_query(const std::string& query, tile_detection_results & tile_detection, verification_results &verification )
 {
 	int expected_start_offset =
@@ -470,12 +549,13 @@ bool verify_adapter_in_query(const std::string& query, tile_detection_results & 
 
 	return true;
 }
+#endif
 
 int parse_commandline(int argc, char* argv[])
 {
 	int c;
 	int option_index;
-	while ( (c=getopt_long(argc,argv,"vi:o:Q:D:a:k:", clipper_argv_options, &option_index)) != -1 ) {
+	while ( (c=getopt_long(argc,argv,"vi:o:Q:D:a:k:M:", clipper_argv_options, &option_index)) != -1 ) {
 		switch(c)
 		{
 			/* Standard Options */
@@ -526,6 +606,9 @@ int parse_commandline(int argc, char* argv[])
 			k = atoi(optarg);
 			if ( k<4 )
 				errx(1,"Invalid k-mer length (-k %s). Must be a number larger than 3.", optarg);
+			break;
+		case 'M':
+			min_adapter_covered_bases = atoi(optarg);
 			break;
 
 			/* Advanced Clipper Options */
@@ -661,15 +744,21 @@ int main(int argc, char* argv[])
 				query_after_clipping = query_before_clipping.substr(0,match_region.query_start);
 
 				if (debug_show_clipping_result) {
+					string query_pre_padding ;
+					string adapter_pre_padding ;
+					string detected_adapter_padding ( match_region.query_start, ' ');
+					if ( match_region.adapter_start > match_region.query_start ) {
+						query_pre_padding = string( (match_region.adapter_start - match_region.query_start), ' ');
+					} else {
+						adapter_pre_padding = string( (match_region.query_start - match_region.adapter_start), ' ');
+					}
 					cerr << "Clipping-Results: fastx.name " << endl;
-					cerr << "Orig. Seq:  " << query_before_clipping << endl;
+					cerr << "Orig. Seq:  " << query_pre_padding << query_before_clipping << endl;
 
-					string buffer ( match_region.query_start, ' ');
-					cerr << "Found Adpr: " << buffer << clipped_adapter_sequence << endl ;
-					cerr << "Orig Adpr:  " << buffer <<
-						adapter.substr(match_region.adapter_start,
-								match_region.adapter_end-match_region.adapter_start) << endl ;
-					cerr << "After Clip: " << query_after_clipping << endl;
+					cerr << "Found Adpr: " << query_pre_padding << detected_adapter_padding << clipped_adapter_sequence << endl ;
+					cerr << "Orig Adpr:  " << adapter_pre_padding << adapter << endl;
+//						adapter.substr(match_region.adapter_start, match_region.adapter_end-match_region.adapter_start) << endl ;
+					cerr << "After Clip: " << query_pre_padding << query_after_clipping << endl;
 				}
 			}
 		}

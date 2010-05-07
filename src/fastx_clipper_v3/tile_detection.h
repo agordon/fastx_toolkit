@@ -42,7 +42,9 @@ struct DetectedTile
 		int query_distance   = query_offset - other.query_offset;
 		int adapter_distance = adapter_offset - other.adapter_offset ;
 
-		return ((size_t)abs(query_distance-adapter_distance)<=max_gap);
+		return ((size_t)abs(query_distance-adapter_distance)<=max_gap
+				&&
+				adapter_distance<((int)tile_size*3/2));
 	}
 };
 typedef std::vector<DetectedTile> detect_tiles_vector_type;
