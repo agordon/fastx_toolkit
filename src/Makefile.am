@@ -25,6 +25,7 @@ SUBDIRS = libfastx \
 	fasta_formatter \
 	fasta_nucleotide_changer \
 	fastx_renamer \
+	fastx_type_detect \
 	fastq_masker
 
 
