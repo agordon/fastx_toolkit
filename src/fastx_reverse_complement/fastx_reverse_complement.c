@@ -28,19 +28,41 @@
 #include "fastx.h"
 #include "fastx_args.h"
 
+int flag_reverse = 0;
+int flag_complement = 0;
+
 const char* usage=
-"usage: fastx_reverse_complement [-h] [-r] [-z] [-v] [-i INFILE] [-o OUTFILE]\n" \
+"usage: fastx_reverse_complement [-h] [-r] [-z] [-v] [-r] [-c] [-i INFILE] [-o OUTFILE]\n" \
 "Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-z]         = Compress output with GZIP.\n" \
 "   [-i INFILE]  = FASTA/Q input file. default is STDIN.\n" \
 "   [-o OUTFILE] = FASTA/Q output file. default is STDOUT.\n" \
+"   [-r]         = Reverse only (do not complement nucleotides).\n" \
+"   [-c]         = Complement only (do not reverse nucleotides).\n" \
 "\n";
 
 FASTX fastx;
 
-char reverse_complement_base ( const char input ) 
+int parse_program_args(int __attribute__((unused)) optind, int optc, char __attribute__((unused)) *optarg)
+{
+	switch(optc) {
+		case 'c':
+			flag_complement = 1 ;
+			break;
+
+		case 'r':
+			flag_reverse = 1 ;
+			break;
+		default:
+			errx(1, __FILE__ ":%d: Unknown argument (%c)", __LINE__, optc ) ;
+	}
+	return 1;
+}
+
+
+char reverse_complement_base ( const char input )
 {
 	switch(input)
 	{
@@ -79,36 +101,46 @@ void reverse_complement_fastx(FASTX* pFASTX)
 	char temp_nuc;
 	int  temp_qual;
 
-	for (i=0;i<length;i++)
-		pFASTX->nucleotides[i] = reverse_complement_base ( pFASTX->nucleotides[i] ) ;
+	if ( flag_complement ) {
+		for (i=0;i<length;i++)
+			pFASTX->nucleotides[i] = reverse_complement_base ( pFASTX->nucleotides[i] ) ;
+	}
 
-	i = 0 ;
-	j = length - 1 ;
-	while ( i < j ) {
-		//Swap the nucleotides
-		temp_nuc = pFASTX->nucleotides[i] ;
-		pFASTX->nucleotides[i] = pFASTX->nucleotides[j] ;
-		pFASTX->nucleotides[j] = temp_nuc;
+	if ( flag_reverse ) {
+		i = 0 ;
+		j = length - 1 ;
+		while ( i < j ) {
+			//Swap the nucleotides
+			temp_nuc = pFASTX->nucleotides[i] ;
+			pFASTX->nucleotides[i] = pFASTX->nucleotides[j] ;
+			pFASTX->nucleotides[j] = temp_nuc;
 
-		//Swap the quality scores
-		if (pFASTX->read_fastq) {
-			temp_qual = pFASTX->quality[i];
-			pFASTX->quality[i] = pFASTX->quality[j];
-			pFASTX->quality[j] = temp_qual ;
+			//Swap the quality scores
+			if (pFASTX->read_fastq) {
+				temp_qual = pFASTX->quality[i];
+				pFASTX->quality[i] = pFASTX->quality[j];
+				pFASTX->quality[j] = temp_qual ;
+			}
+
+			//Advance to next position
+			i++;
+			j--;
 		}
-		
-		//Advance to next position
-		i++;
-		j--;
 	}
 }
 
 
 int main(int argc, char* argv[])
 {
-	fastx_parse_cmdline(argc, argv, "", NULL);
+	fastx_parse_cmdline(argc, argv, "rc", parse_program_args);
 
-	fastx_init_reader(&fastx, get_input_filename(), 
+	if ( !flag_reverse && !flag_complement ) {
+		//no arguments at all - by default do both
+		flag_reverse = 1;
+		flag_complement = 1;
+	}
+
+	fastx_init_reader(&fastx, get_input_filename(),
 		FASTA_OR_FASTQ, ALLOW_N, REQUIRE_UPPERCASE,
 		get_fastq_ascii_quality_offset() );
 
