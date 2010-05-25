@@ -21,10 +21,13 @@
 #include <string>
 
 #include <getopt.h>
+#include <cstring>
 #include <err.h>
+#include <vector>
 
 #include <gtextutils/stream_wrapper.h>
 #include <gtextutils/text_line_reader.h>
+#include <gtextutils/string_tokenize.h>
 
 #include "sequence_writers.h"
 
@@ -37,6 +40,9 @@ string output_filename;
 bool flag_output_empty_sequences = false ;
 bool flag_output_tabular = false ;
 int  flag_requested_output_width = 0 ;
+bool flag_input_tabular = false ;
+int  tabular_input_seqid_column = 1 ;
+int  tabular_input_nucl_column = 2 ;
 
 const char* usage_string=
 "usage: fasta_formatter [-h] [-i INFILE] [-o OUTFILE] [-w N] [-t] [-e]\n" \
@@ -55,6 +61,10 @@ const char* usage_string=
 "   [-e]         = Output empty sequences (default is to discard them).\n" \
 "                  Empty sequences are ones who have only a sequence identifier,\n" \
 "                  but not actual nucleotides.\n" \
+"   [-T]	 = Input is a Tabular file, not a fasta file.\n" \
+"   [-T n]	     n = identifier column (defualt=1)\n" \
+"   [-T n,m]	     m = sequence column (default=n+1)\n" \
+"\n" \
 "\n" \
 "Input Example:\n" \
 "   >MY-ID\n" \
@@ -93,17 +103,40 @@ void usage()
 	exit(0);
 }
 
+void parse_tabular_column_argument(const char* optarg)
+{
+	char *endptr;
+
+	tabular_input_seqid_column = (int)strtoul(optarg, &endptr, 10);
+	if ( endptr == optarg )
+		errx(1,"Error: invalid argument to -T '%s'. Must be a numeric value.", optarg);
+	if ( tabular_input_seqid_column == 0 )
+		errx(1,"Error: invalid argument to -T '%s'. Must be a numeric value > 0.", optarg);
+
+	//If there are two columns specifed
+	if ( *endptr == ',' ) {
+		char *second_arg = endptr+1;
+		tabular_input_nucl_column = (int)strtoul(second_arg, &endptr, 10);
+		if ( endptr == optarg )
+			errx(1,"Error: invalid argument to -T '%s'. Expecting two numeric values separated by a comma (e.g. -T 2,6).", optarg);
+		if ( tabular_input_nucl_column == 0 )
+			errx(1,"Error: invalid second argument to -T '%s'. Must be a numeric value > 0.", optarg);
+	} else {
+		tabular_input_nucl_column = tabular_input_seqid_column + 1 ;
+	}
+}
+
 void parse_command_line(int argc, char* argv[])
 {
 	int opt;
 
-	while ( (opt = getopt(argc, argv, "i:o:hw:te") ) != -1 ) {
-		
+	while ( (opt = getopt(argc, argv, "i:o:hw:teT::") ) != -1 ) {
+
 		//Parse the default options
 		switch(opt) {
 		case 'h':
 			usage();
-		
+
 		case 'i':
 			input_filename = optarg;
 			break;
@@ -125,10 +158,80 @@ void parse_command_line(int argc, char* argv[])
 		case 'e':
 			flag_output_empty_sequences = true;
 			break;
-			
+
+		case 'T':
+			flag_input_tabular = true ;
+			//Check for column specification from the user (in form of "n[,m]"
+			if ( optarg != NULL && strlen(optarg)>0)
+				parse_tabular_column_argument(optarg) ;
+			break;
+
 		default:
 			exit(1);
 		}
+	}
+}
+
+void reformat_fasta_input( TextLineReader &reader, SequencesWriter &writer )
+{
+	int max_length = 0 ;
+	string sequence_id ;
+	string sequence_bases ;
+	bool first_line = true ;
+	while ( reader.next_line() ) {
+
+		const string &line = reader.line_string();
+
+		if ( line.length()==0 )
+			continue;
+
+		if ( line[0] == '>' ) {
+			//Got new sequence identifier - print previous sequence
+			if (first_line)
+				first_line = false;
+			else
+				writer.write ( sequence_id, sequence_bases ) ;
+
+			// Start new sequence
+			sequence_id = line ;
+			sequence_bases.clear();
+			sequence_bases.resize ( max_length * 2 ) ;
+		} else {
+			//Got sequence nucleotides
+			sequence_bases += line ;
+		}
+	}
+
+	//Write the last sequence
+	writer.write ( sequence_id, sequence_bases ) ;
+}
+
+void reformat_tabular_input( TextLineReader &reader, SequencesWriter &writer )
+{
+	string sequence_id ;
+	string sequence_bases ;
+	while ( reader.next_line() ) {
+
+		const string &line = reader.line_string();
+		if ( line.length()==0 )
+			continue;
+
+		std::vector<string> fields;
+		String_Tokenize ( line, std::back_inserter(fields), "\t" ) ;
+
+		if (fields.size() >= (size_t)tabular_input_seqid_column)
+			sequence_id = string(">") + fields[tabular_input_seqid_column-1];
+		else
+			errx(1,"Input error: line %zu is too short (expecting %d columns, for sequence-id field)\n",
+					reader.line_number(), tabular_input_seqid_column ) ;
+
+		if (fields.size() >= (size_t)tabular_input_nucl_column)
+			sequence_bases = fields[tabular_input_nucl_column-1];
+		else
+			errx(1,"Input error: line %zu is too short (expecting %d columns, for nucleotides field)\n",
+					reader.line_number(), tabular_input_nucl_column ) ;
+
+		writer.write ( sequence_id, sequence_bases ) ;
 	}
 }
 
@@ -153,7 +256,7 @@ int main(int argc, char* argv[])
 	} else {
 		if ( flag_requested_output_width == 0 )
 			pWriter = new SingleLineFastaWriter ( output.stream() ) ;
-		else 
+		else
 			pWriter = new MultiLineFastaWriter ( output.stream(), flag_requested_output_width ) ;
 	}
 	if (!flag_output_empty_sequences) {
@@ -161,40 +264,13 @@ int main(int argc, char* argv[])
 		pWriter = filter ;
 	}
 
-
-	/*
-	 * FASTA read/process/write loop
-	 */
-	int max_length = 0 ;
-	string sequence_id ;
-	string sequence_bases ;
-	bool first_line = true ;
-	while ( reader.next_line() ) {
-
-		const string &line = reader.line_string();
-		
-		if ( line.length()==0 )
-			continue;
-
-		if ( line[0] == '>' ) {
-			//Got new sequence identifier - print previous sequence
-			if (first_line)
-				first_line = false;
-			else
-				pWriter->write ( sequence_id, sequence_bases ) ;
-			
-			// Start new sequence 
-			sequence_id = line ;
-			sequence_bases.clear();
-			sequence_bases.resize ( max_length * 2 ) ;
-		} else {
-			//Got sequence nucleotides
-			sequence_bases += line ;
-		}
+	if ( flag_input_tabular ) {
+		reformat_tabular_input ( reader, *pWriter ) ;
+	} else {
+		reformat_fasta_input ( reader, *pWriter ) ;
 	}
 
-	//Write the last sequence
-	pWriter->write ( sequence_id, sequence_bases ) ;
+
 
 	delete pWriter;
 }
