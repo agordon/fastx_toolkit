@@ -28,85 +28,11 @@
 #include <err.h>
 #include <errno.h>
 
+#include <gtextutils/generic_input_stream.h>
+
 using namespace std;
 
 typedef std::tr1::shared_ptr<std::istream> shared_istream_ptr;
-
-/*  a C++ wrapper for strerror() */
-std::string string_error(int errnum)
-{
-	char buf[2048];
-	buf[2047]=0;
-#if	(_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && ! _GNU_SOURCE
-	int i = strerror_r(errnum, buf, sizeof(buf)-1);
-	std::string s(buf);
-#else
-	char* str = strerror_r(errnum, buf, sizeof(buf)-1);
-	std::string s(str);
-#endif
-	return s;
-}
-
-bool file_is_gzip(const std::string& filename)
-{
-	//see http://www.gzip.org/zlib/rfc-gzip.html#file-format
-	struct  {
-		unsigned char id1;
-		unsigned char id2;
-		unsigned char cm;
-	} gzip_header;
-	ifstream f(filename.c_str(), ios::in|ios::binary);
-	if (!f)
-		return false;
-
-	if (!f.read((char*)&gzip_header, sizeof(gzip_header)))
-		return false;
-
-	if ( gzip_header.id1 == 0x1f
-			&&
-	     gzip_header.id2 == 0x8b
-			&&
-	     gzip_header.cm == 8 )
-		return true;
-
-	return false;
-}
-
-class input_stream
-{
-private:
-	std::string		_filename;
-	shared_istream_ptr	stream_p;
-	bool			use_stdin;
-
-	input_stream();
-public:
-	input_stream ( const std::string &filename ) :
-		_filename(filename), use_stdin(false)
-	{
-		if ( filename.empty() ) {
-			use_stdin = true ;
-		} else {
-			//File - check if gzip'd
-			if ( file_is_gzip ( filename ) ) {
-				//open as GZIP stream
-				cerr << "opening GZIP'd file" << endl;
-
-			} else {
-				//open as text file
-				stream_p = shared_istream_ptr ( new ifstream(filename.c_str(), ios::in) ) ;
-				if ( ! (*stream_p) ) {
-					cerr << "Error: failed to open input file '" << filename << "': " << string_error(errno) << endl;
-					exit(1);
-				}
-			}
-		}
-	}
-
-	operator istream&() { return (use_stdin)?cin:*stream_p ;}
-	std::string filename() const { return (use_stdin)?"stdin":_filename; }
-
-};
 
 string input_filename;
 bool allow_fasta = false;
@@ -209,7 +135,10 @@ int main(int argc, char* argv[])
 
 	parse_command_line(argc, argv);
 
-	input_stream a( input_filename ) ;
+	generic_input_stream a( input_filename ) ;
+
+	cerr << "Sorry, this program is not finished yet." << endl;
+	exit(1);
 
 	return 0;
 }
