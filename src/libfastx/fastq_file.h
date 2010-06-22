@@ -1,0 +1,35 @@
+#ifndef __FASTQ_FILE_H__
+#define __FASTQ_FILE_H__
+
+#include <string>
+
+class FastqFileReader : public ISequenceReader
+{
+private:
+	std::string _filename;
+	generic_input_stream input_stream;
+	size_t line_number;
+
+	int _ASCII_quality_offset ;
+
+public:
+	FastqFileReader ( const std::string& filename , int ASCII_quality_offset ) ;
+	virtual bool read_next_sequence(Sequence& /*output*/) ;
+
+public:
+	void convert_numeric_quality_score_line ( const std::string& numeric_quality_line, std::vector<int>& /*output*/);
+	void convert_ascii_quality_score_line ( const std::string& numeric_quality_line, std::vector<int>& /*output*/);
+};
+
+class FastqFileWriter : public ISequenceWriter
+{
+private:
+	std::string _filename;
+	generic_output_stream output_stream ;
+public:
+	FastqFileWriter ( const std::string& filename) ;
+	virtual void write_sequence(const Sequence&) ;
+
+};
+
+#endif
