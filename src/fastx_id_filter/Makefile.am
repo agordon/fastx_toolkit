@@ -8,26 +8,15 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-SUBDIRS = libfastx \
-	fastx_clipper \
-	fastx_clipper_v3 \
-	fastx_trimmer \
-	fastx_quality_stats \
-	fastq_quality_converter \
-	fastq_to_fasta \
-	fastq_quality_filter \
-	fastq_quality_trimmer \
-	fastx_artifacts_filter \
-	fastx_reverse_complement \
-	fastx_collapser \
-	fastx_uncollapser \
-	seqalign_test \
-	fasta_formatter \
-	fasta_nucleotide_changer \
-	fastx_renamer \
-	fastx_type_detect \
-	fastq_masker \
-	fastx_id_filter
+bin_PROGRAMS = fastx_id_filter
 
+AM_CPPFLAGS = $(CC_WARNINGS)
 
+INCLUDES = $(GTEXTUTILS_CFLAGS) -I../libfastx
+LDADD = $(GTEXTUTILS_LIBS) ../libfastx/libfastx.a $(LT_LDFLAGS)
+
+fastx_id_filter_SOURCES = fastx_id_filter.cpp \
+				file_type_detector.cpp file_type_detector.h \
+				sequence_list_loader.cpp sequence_list_loader.h \
+				sequence_list_container.cpp sequence_list_container.h
 
