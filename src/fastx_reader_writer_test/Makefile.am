@@ -8,12 +8,13 @@
 # WITHOUT ANY WARRANTY, to the extent permitted by law; without even the
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-bin_PROGRAMS = fastx_id_filter
+
+noinst_PROGRAMS = fastx_reader_writer_test
 
 AM_CPPFLAGS = $(CC_WARNINGS)
 
-INCLUDES = $(GTEXTUTILS_CFLAGS) -I../libfastx
+INCLUDES = $(GTEXTUTILS_CFLAGS) -I$(top_srcdir)/src
 LDADD = $(GTEXTUTILS_LIBS) ../libfastx/libfastx.a $(LT_LDFLAGS)
 
-fastx_id_filter_SOURCES = fastx_id_filter.cpp
+fastx_reader_writer_test_SOURCES = fastx_reader_writer_test.cpp
 

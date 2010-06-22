@@ -16,7 +16,7 @@ public:
 	bool ASCII_quality_scores ; //true=ASCII, false=numeric
 
 	Sequence();
-	virtual ~Sequence();
+	virtual ~Sequence() { }
 
 	void clear();
 };

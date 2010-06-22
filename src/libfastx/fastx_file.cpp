@@ -16,6 +16,16 @@ ISequenceReader* create_fastx_reader(const std::string& filename, int ASCII_qual
 
 	istream &is(w.stream());
 	char c = is.get();
+	if (!is) {
+		if (is.eof()) {
+			cerr << "Input error: File is empty" << endl;
+		}
+		else {
+			cerr << "Input error: failed to read first character from '" << filename
+				<< "': " << string_error(errno) << endl;
+		}
+		exit(1);
+	}
 	is.unget();
 
 	if (c =='@') {

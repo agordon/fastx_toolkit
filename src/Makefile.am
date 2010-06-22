@@ -27,7 +27,8 @@ SUBDIRS = libfastx \
 	fastx_renamer \
 	fastx_type_detect \
 	fastq_masker \
-	fastx_id_filter
+	fastx_id_filter \
+	fastx_reader_writer_test
 
 
 

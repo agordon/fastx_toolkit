@@ -102,6 +102,7 @@ AC_CONFIG_FILES([
    src/fastx_type_detect/Makefile
    src/fastq_masker/Makefile
    src/fastx_id_filter/Makefile
+   src/fastx_reader_writer_test/Makefile
    galaxy/Makefile
    galaxy/tools/Makefile
    galaxy/tools/fastx_toolkit/Makefile

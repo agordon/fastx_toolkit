@@ -11,12 +11,12 @@
 using namespace std;
 
 FastqFileReader::FastqFileReader ( const std::string& filename, int ASCII_quality_offset ) :
-	_filename(filename), input_stream(filename), line_number(0), _ASCII_quality_offset(ASCII_quality_offset)
+	_filename(filename), input_stream(filename), line_number(1), _ASCII_quality_offset(ASCII_quality_offset)
 {
 }
 
 FastqFileReader::FastqFileReader ( input_stream_wrapper w, int ASCII_quality_offset ):
-	_filename(w.filename()), input_stream(w), line_number(0), _ASCII_quality_offset(ASCII_quality_offset)
+	_filename(w.filename()), input_stream(w), line_number(1), _ASCII_quality_offset(ASCII_quality_offset)
 {
 }
 
@@ -39,7 +39,7 @@ bool FastqFileReader::read_next_sequence(Sequence& output)
 		if (input_stream.eof())
 			return false;
 
-		cerr << "Input error: failed to read ID from '" << _filename
+		cerr << "Input error: failed to read ID line from '" << _filename
 			<< "' line " << line_number << ":" << string_error(errno) << endl;
 		exit(1);
 	}
@@ -55,8 +55,14 @@ bool FastqFileReader::read_next_sequence(Sequence& output)
 
 	//line 2 - nucleotides
 	if (!getline(input_stream, nuc)) {
-		cerr << "Input error: failed to read nucleotides from '" << _filename
-			<< "' line " << line_number << ":" << string_error(errno) << endl;
+		if (input_stream.eof()) {
+			cerr << "Input error: premature End-of-File in '" << _filename
+				<< "' line " << line_number << ": expecting nucleotides line." << endl;
+		}
+		else {
+			cerr << "Input error: failed to read nucleotides from '" << _filename
+				<< "' line " << line_number << ": " << string_error(errno) << endl;
+		}
 		exit(1);
 	}
 
@@ -70,8 +76,14 @@ bool FastqFileReader::read_next_sequence(Sequence& output)
 
 	//Line 3 - ID22
 	if (!getline(input_stream, id2)) {
-		cerr << "Input error: failed to read ID-2 from '" << _filename
-			<< "' line " << line_number << ":" << string_error(errno) << endl;
+		if (input_stream.eof()) {
+			cerr << "Input error: premature End-of-File in '" << _filename
+				<< "' line " << line_number << ": expecting ID line." << endl;
+		}
+		else {
+			cerr << "Input error: failed to read ID-2 from '" << _filename
+				<< "' line " << line_number << ": " << string_error(errno) << endl;
+		}
 		exit(1);
 	}
 	if (!is_fastq_id2_string(id2)) {
@@ -84,8 +96,14 @@ bool FastqFileReader::read_next_sequence(Sequence& output)
 
 	//Line 4 - quality scores
 	if (!getline(input_stream, quality)) {
-		cerr << "Input error: failed to read quality-scores from '" << _filename
-			<< "' line " << line_number << ":" << string_error(errno) << endl;
+		if (input_stream.eof()) {
+			cerr << "Input error: premature End-of-File in '" << _filename
+				<< "' line " << line_number << ": expecting quality-score line." << endl;
+		}
+		else {
+			cerr << "Input error: failed to read quality-scores from '" << _filename
+				<< "' line " << line_number << ": " << string_error(errno) << endl;
+		}
 		exit(1);
 	}
 
@@ -138,7 +156,7 @@ void FastqFileReader::convert_numeric_quality_score_line ( const std::string &nu
 		//read the quality score as an integer value
 		quality_value = strtol(quality_tok, &endptr, 10);
 		if (endptr == quality_tok) {
-			cerr << "Error: invalid quality score data in file " << _filename << " line " << line_number << endl ;
+			cerr << "Input error: invalid quality score data (" << quality_tok << ") in '" << _filename << "' line " << line_number << endl ;
 			exit(1);
 		}
 
@@ -151,7 +169,7 @@ void FastqFileReader::convert_numeric_quality_score_line ( const std::string &nu
 }
 
 FastqFileWriter::FastqFileWriter ( const std::string& filename ) :
-	_filename ( filename ) ,
+	_filename ( filename.empty()?"stdout":filename ) ,
 	output_stream ( filename )
 {
 }
@@ -206,5 +224,10 @@ void FastqFileWriter::write_sequence(const Sequence& seq)
 			}
 		}
 		output_stream << endl;
+	}
+	if (!output_stream) {
+		cerr << "Output error: failed to write data to '" << _filename
+			<< "': " << string_error(errno) << endl;
+		exit(1);
 	}
 }
