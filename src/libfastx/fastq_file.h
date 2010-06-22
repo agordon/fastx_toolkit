@@ -14,7 +14,10 @@ private:
 
 public:
 	FastqFileReader ( const std::string& filename , int ASCII_quality_offset ) ;
+	FastqFileReader ( input_stream_wrapper w, int ASCII_quality_offset ) ;
 	virtual bool read_next_sequence(Sequence& /*output*/) ;
+
+	virtual ISequenceWriter* create_writer(const std::string& filename);
 
 public:
 	void convert_numeric_quality_score_line ( const std::string& numeric_quality_line, std::vector<int>& /*output*/);

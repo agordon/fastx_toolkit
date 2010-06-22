@@ -15,6 +15,16 @@ FastaFileReader::FastaFileReader ( const std::string& filename ) :
 {
 }
 
+FastaFileReader::FastaFileReader ( input_stream_wrapper w ) :
+	_filename(w.filename()), input_stream(w), line_number(0)
+{
+}
+
+ISequenceWriter* FastaFileReader::create_writer(const std::string &filename)
+{
+	return new FastaFileWriter(filename);
+}
+
 bool FastaFileReader::read_next_sequence(Sequence& output)
 {
 	string id;

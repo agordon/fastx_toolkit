@@ -21,12 +21,15 @@ public:
 	void clear();
 };
 
+class ISequenceWriter;
+
 class ISequenceReader
 {
 public:
 	virtual ~ISequenceReader() { } ;
 
 	virtual bool read_next_sequence(Sequence& /*output*/) = 0 ;
+	virtual ISequenceWriter* create_writer(const std::string& filename) = 0 ;
 };
 
 class ISequenceWriter

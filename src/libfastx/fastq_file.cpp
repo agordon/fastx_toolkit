@@ -15,6 +15,16 @@ FastqFileReader::FastqFileReader ( const std::string& filename, int ASCII_qualit
 {
 }
 
+FastqFileReader::FastqFileReader ( input_stream_wrapper w, int ASCII_quality_offset ):
+	_filename(w.filename()), input_stream(w), line_number(0), _ASCII_quality_offset(ASCII_quality_offset)
+{
+}
+
+ISequenceWriter* FastqFileReader::create_writer(const std::string &filename)
+{
+	return new FastqFileWriter(filename);
+}
+
 bool FastqFileReader::read_next_sequence(Sequence& output)
 {
 	string id;

@@ -12,7 +12,10 @@ private:
 
 public:
 	FastaFileReader ( const std::string& filename ) ;
+	FastaFileReader ( input_stream_wrapper w ) ;
 	virtual bool read_next_sequence(Sequence& /*output*/) ;
+
+	virtual ISequenceWriter* create_writer(const std::string& filename);
 };
 
 class FastaFileWriter : public ISequenceWriter

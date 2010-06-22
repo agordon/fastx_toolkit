@@ -15,4 +15,5 @@ libfastx_a_SOURCES = chomp.c chomp.h \
 		     sequence_list_loader.h sequence_list_loader.cpp \
 		     sequence_list_container.h sequence_list_container.cpp \
 		     fasta_file.h fasta_file.cpp \
-		     fastq_file.h fastq_file.cpp
+		     fastq_file.h fastq_file.cpp \
+		     fastx_file.h fastx_file.cpp
