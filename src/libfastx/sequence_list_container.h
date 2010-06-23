@@ -52,6 +52,8 @@ public:
 	CONTAINER::iterator begin() { return container.begin(); }
 	CONTAINER::iterator end() { return container.end(); }
 
+	bool id_exists ( const std::string&id ) const;
+
 private:
 	typedef std::tr1::shared_ptr< std::vector<char> > SHARED_STRING_BUFFER;
 	SHARED_STRING_BUFFER current_buffer;

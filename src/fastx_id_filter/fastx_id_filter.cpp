@@ -33,15 +33,20 @@
 #include <errno.h>
 
 #include <gtextutils/generic_input_stream.h>
+#include <gtextutils/generic_output_stream.h>
 
-#include <file_type_detector.h>
-#include <sequence_list_loader.h>
-#include <sequence_list_container.h>
+#include "libfastx/file_type_detector.h"
+#include "libfastx/sequence_list_loader.h"
+#include "libfastx/sequence_list_container.h"
+
+#include "libfastx/sequence.h"
+#include "libfastx/fastx_file.h"
 
 using namespace std;
 using namespace std::tr1;
 
 string input_filename;
+string output_filename;
 string list_filename;
 bool verbose = false;
 size_t tabular_list_id_column=0;
@@ -70,7 +75,7 @@ void parse_command_line(int argc, char* argv[])
 	int c;
 	int option_index;
 
-	while ( (c=getopt_long(argc,argv,"D:i:L:T:C:hv", filter_options, &option_index)) != -1 ) {
+	while ( (c=getopt_long(argc,argv,"o:D:i:L:T:C:hv", filter_options, &option_index)) != -1 ) {
 		switch(c)
 		{
 			/* Standard Options */
@@ -88,6 +93,10 @@ void parse_command_line(int argc, char* argv[])
 
 		case 'L':
 			list_filename = optarg;
+			break;
+
+		case 'o':
+			output_filename = optarg;
 			break;
 
 		case 'T':
@@ -159,11 +168,13 @@ int main(int argc, char* argv[])
 		exit(0);
 	}
 
-	cerr << "Sorry, this program is not finished yet. Press ENTER to exit." << endl;
-	string dummy;
-	getline(cin, dummy);
+	ISequenceReader *pReader = create_fastx_reader(input_filename, 64);
+	ISequenceWriter *pWriter = pReader->create_fastx_writer(output_filename);
 
-	exit(1);
+	Sequence seq;
+	while (pReader->read_next_sequence(seq)) {
+		pWriter->write_sequence(seq);
+	}
 
 	return 0;
 }

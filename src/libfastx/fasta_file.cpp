@@ -7,6 +7,7 @@
 #include "sequence.h"
 #include "file_type_detector.h"
 #include "fasta_file.h"
+#include "tab_file.h"
 
 using namespace std;
 
@@ -20,9 +21,14 @@ FastaFileReader::FastaFileReader ( input_stream_wrapper w ) :
 {
 }
 
-ISequenceWriter* FastaFileReader::create_writer(const std::string &filename)
+ISequenceWriter* FastaFileReader::create_fastx_writer(const std::string &filename)
 {
 	return new FastaFileWriter(filename);
+}
+
+ISequenceWriter* FastaFileReader::create_tabular_writer(const std::string &filename)
+{
+	return new TabularFileWriter(filename,TAB_FORMAT_FASTA);
 }
 
 bool FastaFileReader::read_next_sequence(Sequence& output)

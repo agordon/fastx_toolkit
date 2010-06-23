@@ -44,6 +44,19 @@ char* HashedSequenceListContainer::add_id_to_buffer(const std::string& id)
 	return offset;
 }
 
+bool HashedSequenceListContainer::id_exists ( const std::string& pre_id ) const
+{
+	string id(pre_id);
+
+	if (_chomp_paired_end_marker && id.size()>=2) {
+		const size_t len = id.size();
+		if ( id[len-2]=='/' && (id[len-1]=='1' || id[len-1]=='2'))
+			id.erase(len-2);
+	}
+
+	return ( container.find(id.c_str()) != container.end() );
+}
+
 void HashedSequenceListContainer::add_sequence_id ( const std::string& pre_id )
 {
 	string id(pre_id);

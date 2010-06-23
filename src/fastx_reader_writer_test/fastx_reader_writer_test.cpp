@@ -15,6 +15,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <climits>
 #include <error.h>
 #include <cstddef>
 #include <cstdlib>
@@ -36,6 +37,7 @@
 
 #include "libfastx/sequence.h"
 #include "libfastx/fastx_file.h"
+#include "libfastx/tab_file.h"
 
 using namespace std;
 using namespace std::tr1;
@@ -43,18 +45,32 @@ using namespace std::tr1;
 string input_filename;
 string output_filename;
 bool verbose = false;
+bool tabular_input = false;
+bool tabular_output = false;
+
+enum LONG_OPTIONS {
+	OPT_TABULAR_INPUT = CHAR_MAX+1,
+	OPT_TABULAR_OUTPUT
+};
+
+struct option filter_options[] = {
+	{"tabin",	0,	NULL,	OPT_TABULAR_INPUT},
+	{"tabout",	0,	NULL,	OPT_TABULAR_OUTPUT},
+	{NULL,0,0,0},
+};
 
 void show_help()
 {
-	cout << "fastx_reader_writer_test [-v] [-h] [-i INPUT] [-o OUTPUT] [INPUT-FILES]" << endl;
+	cout << "fastx_reader_writer_test [-v] [-h] [--tabin] [--tabout] [-i INPUT] [-o OUTPUT] [INPUT-FILES]" << endl;
 	exit(0);
 }
 
 void parse_command_line(int argc, char* argv[])
 {
 	int c;
+	int option_index;
 
-	while ( (c=getopt(argc,argv,"i:o:hv")) != -1 ) {
+	while ( (c=getopt_long(argc,argv,"i:o:hv", filter_options, &option_index )) != -1 ) {
 		switch(c)
 		{
 			/* Standard Options */
@@ -72,6 +88,14 @@ void parse_command_line(int argc, char* argv[])
 
 		case 'o':
 			output_filename = optarg;
+			break;
+
+		case OPT_TABULAR_INPUT:
+			tabular_input = true;
+			break;
+
+		case OPT_TABULAR_OUTPUT:
+			tabular_output = true;
 			break;
 
 		default:
@@ -92,8 +116,19 @@ int main(int argc, char* argv[])
 
 	parse_command_line(argc, argv);
 
-	ISequenceReader *pReader = create_fastx_reader(input_filename, 64);
-	ISequenceWriter *pWriter = pReader->create_writer(output_filename);
+	ISequenceReader *pReader=NULL;
+	ISequenceWriter *pWriter=NULL;
+
+	if (tabular_input) {
+		pReader = new TabularFileReader(input_filename, 64);
+	} else {
+		pReader = create_fastx_reader(input_filename, 64);
+	}
+	if (tabular_output) {
+		pWriter = pReader->create_tabular_writer(output_filename);
+	} else {
+		pWriter = pReader->create_fastx_writer(output_filename);
+	}
 
 	Sequence seq;
 	while (pReader->read_next_sequence(seq)) {
@@ -102,4 +137,3 @@ int main(int argc, char* argv[])
 
 	return 0;
 }
-

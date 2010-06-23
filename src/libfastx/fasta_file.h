@@ -15,7 +15,8 @@ public:
 	FastaFileReader ( input_stream_wrapper w ) ;
 	virtual bool read_next_sequence(Sequence& /*output*/) ;
 
-	virtual ISequenceWriter* create_writer(const std::string& filename);
+	virtual ISequenceWriter* create_fastx_writer(const std::string& filename);
+	virtual ISequenceWriter* create_tabular_writer(const std::string& filename);
 };
 
 class FastaFileWriter : public ISequenceWriter

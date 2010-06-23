@@ -17,11 +17,12 @@ public:
 	FastqFileReader ( input_stream_wrapper w, int ASCII_quality_offset ) ;
 	virtual bool read_next_sequence(Sequence& /*output*/) ;
 
-	virtual ISequenceWriter* create_writer(const std::string& filename);
+	virtual ISequenceWriter* create_fastx_writer(const std::string& filename);
+	virtual ISequenceWriter* create_tabular_writer(const std::string& filename);
 
 public:
 	void convert_numeric_quality_score_line ( const std::string& numeric_quality_line, std::vector<int>& /*output*/);
-	void convert_ascii_quality_score_line ( const std::string& numeric_quality_line, std::vector<int>& /*output*/);
+	static void convert_ascii_quality_score_line ( const std::string& numeric_quality_line, std::vector<int>& /*output*/, int ASCII_OFFSET);
 };
 
 class FastqFileWriter : public ISequenceWriter

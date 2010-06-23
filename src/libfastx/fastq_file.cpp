@@ -7,6 +7,7 @@
 #include "sequence.h"
 #include "file_type_detector.h"
 #include "fastq_file.h"
+#include "tab_file.h"
 
 using namespace std;
 
@@ -20,9 +21,14 @@ FastqFileReader::FastqFileReader ( input_stream_wrapper w, int ASCII_quality_off
 {
 }
 
-ISequenceWriter* FastqFileReader::create_writer(const std::string &filename)
+ISequenceWriter* FastqFileReader::create_fastx_writer(const std::string &filename)
 {
 	return new FastqFileWriter(filename);
+}
+
+ISequenceWriter* FastqFileReader::create_tabular_writer(const std::string &filename)
+{
+	return new TabularFileWriter(filename, TAB_FORMAT_FASTQ);
 }
 
 bool FastqFileReader::read_next_sequence(Sequence& output)
@@ -109,7 +115,7 @@ bool FastqFileReader::read_next_sequence(Sequence& output)
 
 	if ( quality.length() == nuc.length() ) {
 		//ASCII quality scores
-		convert_ascii_quality_score_line ( quality, output.quality ) ;
+		convert_ascii_quality_score_line ( quality, output.quality, _ASCII_quality_offset ) ;
 		output.ASCII_quality_scores = true ;
 	} else {
 		//Numeric Quality Scores
@@ -130,12 +136,12 @@ bool FastqFileReader::read_next_sequence(Sequence& output)
 	return true;
 }
 
-void FastqFileReader::convert_ascii_quality_score_line ( const std::string& quality_line, std::vector<int>& output)
+void FastqFileReader::convert_ascii_quality_score_line ( const std::string& quality_line, std::vector<int>& output, int _ASCII_OFFSET)
 {
 	output.clear();
 	output.reserve(100);
 	for ( size_t i = 0 ; i< quality_line.size(); ++i ) {
-		int value = ((int)quality_line[i]) - _ASCII_quality_offset ;
+		int value = ((int)quality_line[i]) - _ASCII_OFFSET;
 		output.push_back(value);
 	}
 }

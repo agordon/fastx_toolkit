@@ -12,7 +12,7 @@ bin_PROGRAMS = fastx_id_filter
 
 AM_CPPFLAGS = $(CC_WARNINGS)
 
-INCLUDES = $(GTEXTUTILS_CFLAGS) -I../libfastx
+INCLUDES = $(GTEXTUTILS_CFLAGS) -I$(top_srcdir)/src
 LDADD = $(GTEXTUTILS_LIBS) ../libfastx/libfastx.a $(LT_LDFLAGS)
 
 fastx_id_filter_SOURCES = fastx_id_filter.cpp
