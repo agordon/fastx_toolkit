@@ -34,6 +34,8 @@ public:
 	virtual bool read_next_sequence(Sequence& /*output*/) = 0 ;
 	virtual ISequenceWriter* create_fastx_writer(const std::string& filename) = 0 ;
 	virtual ISequenceWriter* create_tabular_writer(const std::string& filename) = 0 ;
+
+	virtual std::string filename() const = 0;
 };
 
 class ISequenceWriter
@@ -57,7 +59,9 @@ public:
 	virtual ~ISequenceReaderPE() { } ;
 
 	virtual bool read_next_sequence(Sequence& /*output*/, Sequence& /*output*/) = 0 ;
-	virtual ISequenceWriterPE* create_writer(const std::string& filename) = 0 ;
+
+	virtual ISequenceWriterPE* create_fastx_writer(const std::string& filename) = 0 ;
+	virtual ISequenceWriterPE* create_tabular_writer(const std::string& filename) = 0 ;
 };
 
 class ISequenceWriterPE

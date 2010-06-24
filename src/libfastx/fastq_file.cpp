@@ -237,3 +237,46 @@ void FastqFileWriter::write_sequence(const Sequence& seq)
 		exit(1);
 	}
 }
+
+
+PE_FastqFileReader::PE_FastqFileReader ( const std::string& filename1, const std::string& filename2,
+	       int ASCII_quality_offset ) :
+	end1(filename1, ASCII_quality_offset), end2(filename2, ASCII_quality_offset)
+{
+}
+
+bool PE_FastqFileReader::read_next_sequence(Sequence& /*output*/ seq1, Sequence& /*output*/ seq2)
+{
+	bool b1 = end1.read_next_sequence(seq1);
+	bool b2 = end2.read_next_sequence(seq2);
+
+	if (b1 != b2) {
+		cerr << "Input error: Paired-end FASTQ file mismatch: file '" <<
+			(b1 ? end2.filename() : end1.filename()) << "' ended before file '" <<
+			(b1 ? end1.filename() : end2.filename()) << "'. This program requires both FASTA file to have the same number of sequences." << endl;
+		exit(1);
+	}
+	return b1;
+}
+
+ISequenceWriterPE* PE_FastqFileReader::create_fastx_writer(const std::string& filename1, const std::string &filename2)
+{
+	return new PE_FastqFileWriter(filename1, filename2);
+}
+
+ISequenceWriterPE* PE_FastqFileReader::create_tabular_writer(const std::string& filename)
+{
+	return new PE_TabularFileWriter(filename, TAB_FORMAT_FASTQ);
+}
+
+PE_FastqFileWriter::PE_FastqFileWriter(const std::string& filename1, const std::string& filename2) :
+	end1(filename1), end2(filename2)
+{
+}
+
+void PE_FastqFileWriter::write_sequence(const Sequence& seq1, const Sequence& seq2)
+{
+	end1.write_sequence(seq1);
+	end2.write_sequence(seq2);
+}
+
