@@ -10,6 +10,9 @@ public:
 	std::string id;
 	std::string nucleotides;
 	std::string id2;
+
+	std::string quality_cached_line;
+
 	std::vector<int> quality;
 
 	int ASCII_quality_offset;
@@ -18,7 +21,14 @@ public:
 	Sequence();
 	virtual ~Sequence() { }
 
+	void parse_quality_scores()
+	{
+	}
+
 	void clear();
+
+	void convert_numeric_quality_score_line ( const std::string &numeric_quality_line, const std::string& _filename, size_t line_nmber);
+	void convert_ascii_quality_score_line ( const std::string& numeric_quality_line );
 };
 
 /*
@@ -60,7 +70,7 @@ public:
 
 	virtual bool read_next_sequence(Sequence& /*output*/, Sequence& /*output*/) = 0 ;
 
-	virtual ISequenceWriterPE* create_fastx_writer(const std::string& filename) = 0 ;
+	virtual ISequenceWriterPE* create_fastx_writer(const std::string& filename1, const std::string& filename2) = 0 ;
 	virtual ISequenceWriterPE* create_tabular_writer(const std::string& filename) = 0 ;
 };
 

@@ -86,8 +86,8 @@ public:
 
 	virtual bool read_next_sequence(Sequence&, Sequence&) ;
 
-	virtual ISequenceWriterPE* create_fastx_writer(const std::string& filename1, const std::string &filename2) = 0 ;
-	virtual ISequenceWriterPE* create_tabular_writer(const std::string& filename) = 0 ;
+	virtual ISequenceWriterPE* create_fastx_writer(const std::string& filename1, const std::string &filename2) ;
+	virtual ISequenceWriterPE* create_tabular_writer(const std::string& filename) ;
 };
 
 class PE_TabularFileWriter : public ISequenceWriterPE

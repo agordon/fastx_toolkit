@@ -162,7 +162,11 @@ bool TabularFileReader::read_next_sequence(Sequence& output)
 	output.nucleotides = columns[1] ;
 	if ( input_file_format == TAB_FORMAT_FASTQ ) {
 		output.id2 = columns[2] ;
+
+		/*
 		FastqFileReader::convert_ascii_quality_score_line ( columns[3], output.quality, _ASCII_quality_offset ) ;
+		*/
+		output.quality_cached_line = columns[3];
 		output.ASCII_quality_offset = _ASCII_quality_offset ;
 		output.ASCII_quality_scores = true;
 	}
@@ -246,13 +250,11 @@ void PE_TabularFileReader::detect_file_format()
 		exit(1);
 	}
 
-	input_file_format = detect_line_format ( cached_line ) ;
-
 	//We need to detect the input type,
 	//based on number and content of column.
 	input_file_format = detect_line_format(cached_line);
 	if ( input_file_format == TAB_FORMAT_UNKNOWN ) {
-		cerr << "Input error: failed to detect file format (PE-FASTA or PE-FASTQ) from first input line in '" << _filename << "'." << endl;
+		cerr << "Input error: failed to detect file format (PE-FASTA or PE-FASTQ) from first input line in '" << _filename << "' (" << cached_line << ")." << endl;
 		exit(1);
 	}
 }
@@ -269,22 +271,19 @@ bool PE_TabularFileReader::valid_pe_fastq_line(const string columns[8])
 {
 	return (is_printable_string(columns[0]) &&
 		    is_nucleotide_string(columns[1]) &&
-		    (columns[3].size() == columns[1].size()) &&
-		    (!is_nucleotide_string(columns[3]))
-
+		    (columns[3].size() == columns[1].size())
 			&&
 		     is_printable_string(columns[4]) &&
 		    is_nucleotide_string(columns[5]) &&
-		    (columns[7].size() == columns[5].size()) &&
-		    (!is_nucleotide_string(columns[7]))
+		    (columns[7].size() == columns[5].size())
 		   );
 }
 
 TABULAR_FILE_FORMAT PE_TabularFileReader::detect_line_format(const std::string& line)
 {
-	string columns[4];
+	string columns[8];
 
-	size_t found_columns = split_tabular_string(line, columns, 4);
+	size_t found_columns = split_tabular_string(line, columns, 8);
 
 	if (found_columns<4)
 		return TAB_FORMAT_UNKNOWN;
@@ -350,14 +349,16 @@ void PE_TabularFileReader::parse_pe_fastq_line(const std::string& line, Sequence
 	out_seq1.id = columns[0];
 	out_seq1.nucleotides = columns[1];
 	out_seq1.id2 = columns[2];
-	FastqFileReader::convert_ascii_quality_score_line ( columns[3], out_seq1.quality, _ASCII_quality_offset ) ;
+	out_seq1.quality_cached_line = columns[3];
+	//FastqFileReader::convert_ascii_quality_score_line ( columns[3], out_seq1.quality, _ASCII_quality_offset ) ;
 	out_seq1.ASCII_quality_offset = _ASCII_quality_offset ;
 	out_seq1.ASCII_quality_scores = true;
 
 	out_seq2.id = columns[4];
 	out_seq2.nucleotides = columns[5];
 	out_seq2.id2 = columns[6];
-	FastqFileReader::convert_ascii_quality_score_line ( columns[7], out_seq2.quality, _ASCII_quality_offset ) ;
+	//FastqFileReader::convert_ascii_quality_score_line ( columns[7], out_seq2.quality, _ASCII_quality_offset ) ;
+	out_seq2.quality_cached_line = columns[7];
 	out_seq2.ASCII_quality_offset = _ASCII_quality_offset ;
 	out_seq2.ASCII_quality_scores = true;
 }
@@ -392,7 +393,7 @@ bool PE_TabularFileReader::read_next_sequence(Sequence& out_seq1, Sequence& out_
 		break;
 
 	case TAB_FORMAT_FASTQ:
-		parse_pe_fastq_line(line,out_seq2, out_seq2);
+		parse_pe_fastq_line(line,out_seq1, out_seq2);
 		break;
 
 	default:
@@ -453,11 +454,12 @@ void PE_TabularFileWriter::write_tabular_sequence(std::ostream& ostm, const Sequ
 	case TAB_FORMAT_FASTA:
 		break;
 	case TAB_FORMAT_FASTQ:
-		output_stream << "\t" << seq.id2 << "\t" ;
+		output_stream << "\t" << seq.id2 << "\t" << seq.quality_cached_line ;
+		/*
 		for ( size_t i=0;i<seq.quality.size();++i) {
 			const char c = (char)(seq.quality[i] + seq.ASCII_quality_offset);
 			output_stream << c;
-		}
+		}*/
 		break;
 
 	default:

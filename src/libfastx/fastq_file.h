@@ -21,10 +21,6 @@ public:
 	virtual ISequenceWriter* create_tabular_writer(const std::string& filename);
 
 	virtual std::string filename() const {return _filename;}
-
-public:
-	void convert_numeric_quality_score_line ( const std::string& numeric_quality_line, std::vector<int>& /*output*/);
-	static void convert_ascii_quality_score_line ( const std::string& numeric_quality_line, std::vector<int>& /*output*/, int ASCII_OFFSET);
 };
 
 class FastqFileWriter : public ISequenceWriter
@@ -53,11 +49,12 @@ class PE_FastqFileReader : public ISequenceReaderPE
 
 public:
 	PE_FastqFileReader ( const std::string& filename1, const std::string& filename2, int ASCII_quality_offset );
+	PE_FastqFileReader ( input_stream_wrapper file1, input_stream_wrapper file2, int ASCII_quality_offset );
 
 	virtual bool read_next_sequence(Sequence& /*output*/, Sequence& /*output*/) ;
 
-	virtual ISequenceWriterPE* create_fastx_writer(const std::string& filename1, const std::string &filename2) = 0 ;
-	virtual ISequenceWriterPE* create_tabular_writer(const std::string& filename) = 0 ;
+	virtual ISequenceWriterPE* create_fastx_writer(const std::string& filename1, const std::string &filename2) ;
+	virtual ISequenceWriterPE* create_tabular_writer(const std::string& filename) ;
 };
 
 

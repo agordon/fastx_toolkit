@@ -97,8 +97,9 @@ bool FastqFileReader::read_next_sequence(Sequence& output)
 			<< "' line " << line_number << endl;
 		exit(1);
 	}
+	const string &id2_no_prefix ( id2.substr(1) ) ;
 	++line_number;
-	output.id2 = id2;
+	output.id2 = id2_no_prefix;
 
 	//Line 4 - quality scores
 	if (!getline(input_stream, quality)) {
@@ -113,6 +114,7 @@ bool FastqFileReader::read_next_sequence(Sequence& output)
 		exit(1);
 	}
 
+	/*
 	if ( quality.length() == nuc.length() ) {
 		//ASCII quality scores
 		convert_ascii_quality_score_line ( quality, output.quality, _ASCII_quality_offset ) ;
@@ -122,8 +124,11 @@ bool FastqFileReader::read_next_sequence(Sequence& output)
 		convert_numeric_quality_score_line ( quality, output.quality ) ;
 		output.ASCII_quality_scores = false ;
 	}
+	*/
+	output.quality_cached_line = quality ;
 	output.ASCII_quality_offset = _ASCII_quality_offset ;
 
+	/*
 	if (output.quality.size() != output.nucleotides.size()) {
 		cerr << "Input error: number of quality-score values (" << output.quality.size()
 			<< ") doesn't match number of nuecltoes (" << output.nucleotides.size()
@@ -131,48 +136,12 @@ bool FastqFileReader::read_next_sequence(Sequence& output)
 			<< "' line " << line_number << endl;
 		exit(1);
 	}
+	*/
 	++line_number;
 
 	return true;
 }
 
-void FastqFileReader::convert_ascii_quality_score_line ( const std::string& quality_line, std::vector<int>& output, int _ASCII_OFFSET)
-{
-	output.clear();
-	output.reserve(100);
-	for ( size_t i = 0 ; i< quality_line.size(); ++i ) {
-		int value = ((int)quality_line[i]) - _ASCII_OFFSET;
-		output.push_back(value);
-	}
-}
-
-void FastqFileReader::convert_numeric_quality_score_line ( const std::string &numeric_quality_line, std::vector<int>& output)
-{
-	size_t index;
-	const char *quality_tok;
-	char *endptr;
-	int quality_value;
-
-	output.clear();
-	output.reserve(100);
-
-	index=0;
-	quality_tok = numeric_quality_line.c_str();
-	do {
-		//read the quality score as an integer value
-		quality_value = strtol(quality_tok, &endptr, 10);
-		if (endptr == quality_tok) {
-			cerr << "Input error: invalid quality score data (" << quality_tok << ") in '" << _filename << "' line " << line_number << endl ;
-			exit(1);
-		}
-
-		//convert it ASCII (as per solexa's encoding)
-		output.push_back( quality_value - _ASCII_quality_offset ) ;
-
-		index++;
-		quality_tok = endptr;
-	} while (quality_tok != NULL && *quality_tok!='\0') ;
-}
 
 FastqFileWriter::FastqFileWriter ( const std::string& filename ) :
 	_filename ( filename.empty()?"stdout":filename ) ,
@@ -197,6 +166,7 @@ void FastqFileWriter::write_sequence(const Sequence& seq)
 		else
 			output_stream << "+" << seq.id2 << endl;
 
+		/*
 		if (seq.ASCII_quality_scores) {
 			for ( size_t i=0;i<seq.quality.size();++i) {
 				const char c = (char)(0 + seq.ASCII_quality_offset);
@@ -210,13 +180,15 @@ void FastqFileWriter::write_sequence(const Sequence& seq)
 				output_stream << val;
 			}
 		}
-		output_stream << endl;
+		*/
+		output_stream << seq.quality_cached_line << endl;
 
 
 	} else {
 		output_stream << "+" << seq.id2 << endl;
+		output_stream << seq.quality_cached_line << endl ;
 
-		if (seq.ASCII_quality_scores) {
+/*		if (seq.ASCII_quality_scores) {
 			for ( size_t i=0;i<seq.quality.size();++i) {
 				const char c = (char)(seq.quality[i] + seq.ASCII_quality_offset);
 				output_stream << c;
@@ -229,7 +201,7 @@ void FastqFileWriter::write_sequence(const Sequence& seq)
 				output_stream << val;
 			}
 		}
-		output_stream << endl;
+		*/
 	}
 	if (!output_stream) {
 		cerr << "Output error: failed to write data to '" << _filename
@@ -242,6 +214,11 @@ void FastqFileWriter::write_sequence(const Sequence& seq)
 PE_FastqFileReader::PE_FastqFileReader ( const std::string& filename1, const std::string& filename2,
 	       int ASCII_quality_offset ) :
 	end1(filename1, ASCII_quality_offset), end2(filename2, ASCII_quality_offset)
+{
+}
+
+PE_FastqFileReader::PE_FastqFileReader ( input_stream_wrapper file1, input_stream_wrapper file2, int ASCII_quality_offset ) :
+	end1(file1, ASCII_quality_offset), end2(file2, ASCII_quality_offset)
 {
 }
 

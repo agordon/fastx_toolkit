@@ -121,6 +121,11 @@ PE_FastaFileReader::PE_FastaFileReader ( const std::string& filename1, const std
 {
 }
 
+PE_FastaFileReader::PE_FastaFileReader ( input_stream_wrapper file1, input_stream_wrapper file2 ) :
+	end1(file1), end2(file2)
+{
+}
+
 bool PE_FastaFileReader::read_next_sequence(Sequence& /*output*/ seq1, Sequence& /*output*/ seq2)
 {
 	bool b1 = end1.read_next_sequence(seq1);

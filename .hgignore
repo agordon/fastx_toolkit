@@ -45,6 +45,8 @@ src/fastx_clipper/fastx_clipper
 src/fastx_clipper_v3/fastx_clipper_v3
 src/fastq_quality_converter/fastq_quality_converter
 src/fastx_reader_writer_test/fastx_reader_writer_test
+src/fastx_reader_writer_test/c_fastx_reader_writer_test
+src/fastxpe_reader_writer_test/fastxpe_reader_writer_test
 src/fastx_id_filter/fastx_id_filter
 src/seqalign_test/seqalign_test
 src/fastq_masker/fastq_masker

@@ -90,6 +90,7 @@ void file_type_peek_lines(const std::string &filename, size_t num_lines, std::ve
 	}
 }
 
+#ifndef INLINE_STRING_FUNCTIONS
 bool is_printable_string(const std::string &line)
 {
 	for (size_t i=0;i<line.size();++i) {
@@ -104,6 +105,7 @@ bool is_nucleotide_string(const std::string &line)
 {
 	if (line.empty())
 		return false;
+
 	for (size_t i=0;i<line.size();++i) {
 		const char c = toupper(line[i]);
 		if ( ! ((c=='A') || (c=='C') || (c=='G') || (c=='T') || (c=='N')) )
@@ -111,6 +113,7 @@ bool is_nucleotide_string(const std::string &line)
 	}
 	return true;
 }
+
 
 bool is_fasta_id_string(const std::string &line)
 {
@@ -140,6 +143,7 @@ bool is_fastq_id2_string(const std::string &line)
 		return true;
 	return is_printable_string(line);
 }
+#endif
 
 bool file_type_is_readable(const std::string &filename)
 {

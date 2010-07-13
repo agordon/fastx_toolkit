@@ -28,7 +28,12 @@ SUBDIRS = libfastx \
 	fastx_type_detect \
 	fastq_masker \
 	fastx_id_filter \
-	fastx_reader_writer_test
+	fastx_reader_writer_test \
+	fastxpe_reader_writer_test \
+	fastqpe_quality_filter \
+	fastxpe_to_tabular \
+	fastxpe_from_tabular \
+	speed_test
 
 
 

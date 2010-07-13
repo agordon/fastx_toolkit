@@ -46,11 +46,12 @@ class PE_FastaFileReader : public ISequenceReaderPE
 
 public:
 	PE_FastaFileReader ( const std::string& filename1, const std::string& filename2 );
+	PE_FastaFileReader ( input_stream_wrapper file1, input_stream_wrapper file2 );
 
 	virtual bool read_next_sequence(Sequence& /*output*/, Sequence& /*output*/) ;
 
-	virtual ISequenceWriterPE* create_fastx_writer(const std::string& filename1, const std::string &filename2) = 0 ;
-	virtual ISequenceWriterPE* create_tabular_writer(const std::string& filename) = 0 ;
+	virtual ISequenceWriterPE* create_fastx_writer(const std::string& filename1, const std::string &filename2) ;
+	virtual ISequenceWriterPE* create_tabular_writer(const std::string& filename) ;
 };
 
 

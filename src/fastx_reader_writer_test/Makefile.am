@@ -9,7 +9,8 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 
-noinst_PROGRAMS = fastx_reader_writer_test
+noinst_PROGRAMS = fastx_reader_writer_test \
+		  c_fastx_reader_writer_test
 
 AM_CPPFLAGS = $(CC_WARNINGS)
 
@@ -17,4 +18,4 @@ INCLUDES = $(GTEXTUTILS_CFLAGS) -I$(top_srcdir)/src
 LDADD = $(GTEXTUTILS_LIBS) ../libfastx/libfastx.a $(LT_LDFLAGS)
 
 fastx_reader_writer_test_SOURCES = fastx_reader_writer_test.cpp
-
+c_fastx_reader_writer_test_SOURCES = c_fastx_reader_writer_test.c

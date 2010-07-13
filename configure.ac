@@ -9,7 +9,7 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 AC_INIT([FASTX Toolkit],
-        [0.0.13],
+        [0.0.14],
         [Assaf Gordon gordon@cshl.edu],
         [fastx_toolkit])
 AC_CONFIG_AUX_DIR(config)
@@ -103,6 +103,11 @@ AC_CONFIG_FILES([
    src/fastq_masker/Makefile
    src/fastx_id_filter/Makefile
    src/fastx_reader_writer_test/Makefile
+   src/fastxpe_reader_writer_test/Makefile
+   src/fastqpe_quality_filter/Makefile
+   src/fastxpe_to_tabular/Makefile
+   src/fastxpe_from_tabular/Makefile
+   src/speed_test/Makefile
    galaxy/Makefile
    galaxy/tools/Makefile
    galaxy/tools/fastx_toolkit/Makefile
