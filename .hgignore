@@ -52,3 +52,4 @@ src/seqalign_test/seqalign_test
 src/fastq_masker/fastq_masker
 src/fastx_type_detect/fastx_type_detect
 src/fastx_clipper_v3/seqalign_test
+src/speed_test/is_nuc_string
