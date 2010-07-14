@@ -57,3 +57,5 @@ src/fastqpe_quality_filter/fastqpe_quality_filter
 src/fastxpe_to_tabular/fastxpe_to_tabular
 src/fastxpe_from_tabular/fastxpe_from_tabular
 tests/reader_writer_test/fastx_reader_writer_test
+src/speed_test/cmdline_param_test
+src/speed_test/fastxse_param_test

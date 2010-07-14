@@ -18,4 +18,5 @@ libfastx_a_SOURCES = chomp.c chomp.h \
 		     fastq_file.h fastq_file.cpp \
 		     fastx_file.h fastx_file.cpp \
 		     tab_file.h tab_file.cpp \
-		     commandline_parameters.h commandline_parameters.cpp
+		     commandline_parameters.h commandline_parameters.cpp \
+		     fastxse_commmandline_parameters.h fastxse_commandline_parameters.cpp
