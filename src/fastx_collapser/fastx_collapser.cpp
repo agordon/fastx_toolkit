@@ -31,12 +31,23 @@
 
 #include "config.h"
 
-#include "fastx.h"
-#include "fastx_args.h"
+#include <gtextutils/generic_input_stream.h>
+#include <gtextutils/generic_output_stream.h>
+
+#include "libfastx/sequence.h"
+#include "libfastx/fastx_file.h"
+#include "libfastx/tab_file.h"
+#include "libfastx/strings_buffer.h"
+#include "libfastx/fastxse_commandline_parameters.h"
 
 using namespace std;
 
-const char* usage=
+class FastxCollapserCommandLine : public FastxSE_commandline_parameters
+{
+public:
+	void print_help()
+	{
+	const char* usage=
 "usage: fastx_collapser [-p] [-h] [-v] [-i INFILE] [-o OUTFILE]\n" \
 "Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
@@ -47,6 +58,11 @@ const char* usage=
 "   [-o OUTFILE] = FASTA/Q output file. default is STDOUT.\n" \
 "\n";
 
+		cout << usage ;
+	}
+};
+
+#if 0
 FASTX fastx;
 #include <tr1/unordered_map>
 std::tr1::unordered_map<string,size_t> collapsed_sequences;
@@ -186,4 +202,21 @@ int main(int argc, char* argv[])
 				stats.counter, stats.total_reads);
 	}
 	return 0;
+}
+
+#endif
+
+int main(int argc, char* argv[] )
+{
+	FastxCollapserCommandLine p;
+	p.parse_command_line(argc,argv);
+
+	Sequence seq;
+	ISequenceReader *reader = p.reader().get();
+	ISequenceWriter *writer = p.writer().get();
+
+	while (reader->read_next_sequence(seq)) {
+		writer->write_sequence(seq);
+	}
+	return 1;
 }
