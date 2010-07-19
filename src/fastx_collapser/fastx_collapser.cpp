@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <err.h>
+#include <cassert>
 #include <getopt.h>
 #include <string.h>
 #include <algorithm>
@@ -25,9 +26,12 @@
 #include <string>
 #include <ostream>
 #include <fstream>
+#include <sstream>
 #include <map>
 #include <list>
 #include <stdio.h>
+
+#include <tr1/unordered_set>
 
 #include "config.h"
 
@@ -39,12 +43,52 @@
 #include "libfastx/tab_file.h"
 #include "libfastx/strings_buffer.h"
 #include "libfastx/fastxse_commandline_parameters.h"
+//#include <google/sparse_hash_map>
+
+//#include "MurmurHash2_64.cpp"
 
 using namespace std;
+
+enum OPTIONS {
+	OPT_SLEEP_WHEN_DONE = CHAR_MAX+1,
+	OPT_OLD_METHOD
+};
 
 class FastxCollapserCommandLine : public FastxSE_commandline_parameters
 {
 public:
+	size_t sleep;
+	bool old_method;
+
+	FastxCollapserCommandLine() :
+		FastxSE_commandline_parameters(),
+		sleep(0),
+		old_method(false)
+	{
+		add_option_long("sleep", OPT_SLEEP_WHEN_DONE, required_argument);
+		add_option_long("old-method", OPT_SLEEP_WHEN_DONE, no_argument);
+	}
+
+	void parameter_action(const int short_option_value, const std::string& optarg)
+	{
+		switch (short_option_value)
+		{
+		case OPT_SLEEP_WHEN_DONE:
+			sleep = atoi(optarg.c_str());
+			if (sleep==0)
+				errx(1,"Error: invalid value for --sleep '%s'", optarg.c_str());
+			break;
+
+		case OPT_OLD_METHOD:
+			old_method = true ;
+			break;
+
+		default:
+			FastxSE_commandline_parameters::parameter_action(short_option_value,optarg);
+			break;
+		};
+	}
+
 	void print_help()
 	{
 	const char* usage=
@@ -57,13 +101,11 @@ public:
 "   [-i INFILE]  = FASTA/Q input file. default is STDIN.\n" \
 "   [-o OUTFILE] = FASTA/Q output file. default is STDOUT.\n" \
 "\n";
-
 		cout << usage ;
 	}
 };
 
-#if 0
-FASTX fastx;
+
 #include <tr1/unordered_map>
 std::tr1::unordered_map<string,size_t> collapsed_sequences;
 
@@ -79,8 +121,8 @@ struct PrintCollapsedSequence
 	size_t total_reads ;
 
 	ostream &output ;
-	PrintCollapsedSequence( ostream& _output ) : 
-		counter(0), 
+	PrintCollapsedSequence( ostream& _output ) :
+		counter(0),
 		total_reads(0),
 		output(_output) {}
 
@@ -104,19 +146,179 @@ bool sort_by_abundance_count ( const sequence_count_pair& sequence1, const seque
 	return sequence1.second < sequence2.second ;
 }
 
-int parse_program_args(int __attribute__((unused)) optind, int optc, char __attribute__((unused)) *optarg)
-{
-	switch(optc) {
-	case 'p':
-		flag_collapse_by_prefix = 1 ;
-		break;
-	
-	default:
-		errx(1, "Unknown argument (%c)", optc ) ;
-	}
-	return 1;
-}
 
+StringsBuffer buffer;
+
+#define GCC_PACK __attribute__ ((packed))
+
+class CollapsedSequenceData
+{
+private:
+	unsigned int _multiplicity_count GCC_PACK;
+	unsigned short _sequence_length GCC_PACK;
+	char   _sequence[2] ;
+
+	static size_t total_objects_allocated ;
+	static size_t total_bytes_allocated ;
+
+	CollapsedSequenceData();
+	CollapsedSequenceData(const CollapsedSequenceData& other);
+
+	CollapsedSequenceData(const Sequence& seq, bool add_quality=false )
+	{
+		_multiplicity_count = 1 ; //TODO - read real multiplicity count
+
+		if (seq.nucleotides.length() > USHRT_MAX) {
+			cerr << "Internal error: input sequence is longer than "
+				<< USHRT_MAX << " nucleotides. Please recompile with larger variable type."
+				<< endl;
+			exit(1);
+		}
+		_sequence_length = seq.nucleotides.length();
+
+		//Implicit assumption: enough memory was previously allocated for the entire
+		//buffer!
+		memcpy(_sequence, seq.nucleotides.data(), _sequence_length);
+		_sequence[_sequence_length] = 0;
+
+		if (add_quality) {
+			assert(seq.quality_cached_line.length() == seq.nucleotides.length());
+
+			char* quality_ptr = _sequence + _sequence_length +1 ;
+			memcpy(quality_ptr, seq.quality_cached_line.data(), _sequence_length);
+			quality_ptr[_sequence_length] = 0;
+		}
+	}
+
+public:
+	// The only way to allocate + create a CollapsedSequenceData
+	static CollapsedSequenceData* create( StringsBuffer &buffer, const Sequence& seq, bool add_quality=false )
+	{
+		size_t needed_size = sizeof(CollapsedSequenceData)-1 +
+				     seq.nucleotides.length() + 1;
+		if (add_quality)
+			needed_size += seq.quality_cached_line.length()+1;
+
+		++total_objects_allocated;
+		total_bytes_allocated += needed_size ;
+
+		void *ptr = buffer.allocate_buffer0(needed_size);
+		CollapsedSequenceData* csd = new (ptr) CollapsedSequenceData(seq, add_quality);
+		return csd;
+	}
+
+	unsigned int multiplicity_count() const { return _multiplicity_count; }
+
+	void add_multiplicity_count(const unsigned int count) { _multiplicity_count += count ; }
+
+	size_t sequence_length() const { return _sequence_length ; }
+	const char* sequence() const { return _sequence; }
+
+	const char* quality() const { return (char*)(_sequence + _sequence_length + 1 ); }
+
+	static size_t objects_count() { return total_objects_allocated; }
+	static size_t bytes_count() { return total_bytes_allocated; }
+};
+
+struct CollapsedSequenceData_Hash
+{
+	size_t operator()(const CollapsedSequenceData* csd) const
+	{
+		return std::tr1::hash<const char*>()(csd->sequence());
+	}
+};
+
+struct CollapsedSequenceData_EqualTo : public equal_to<CollapsedSequenceData*>
+{
+	bool operator()(const CollapsedSequenceData* a, const CollapsedSequenceData* b) const
+	{
+		if (a->sequence_length() != b->sequence_length())
+			return false;
+		return strncmp(a->sequence(), b->sequence(), a->sequence_length());
+	}
+
+	bool operator()(const CollapsedSequenceData* a, const std::string& b) const
+	{
+		if (a->sequence_length() != b.length())
+			return false;
+		return strncmp(a->sequence(), b.c_str(), a->sequence_length());
+	}
+};
+
+struct eqstr
+{
+	bool operator()(const char* s1, const char* s2) const
+	{
+		return (s1 == s2) || (s1 && s2 && strcmp(s1, s2) == 0);
+	}
+};
+
+struct hash_char_ptr
+{
+	size_t operator()(const char* str) const
+	{
+		return std::tr1::hash<const char*>()(str);
+	}
+};
+
+
+size_t CollapsedSequenceData::total_objects_allocated = 0 ;
+size_t CollapsedSequenceData::total_bytes_allocated = 0;
+
+typedef std::tr1::unordered_map<const char*,CollapsedSequenceData* ,hash_char_ptr, eqstr> CollapsedSequencesHash ;
+//typedef google::sparse_hash_map<const char*,CollapsedSequenceData* ,hash_char_ptr, eqstr> CollapsedSequencesHash ;
+typedef std::pair<const char*, CollapsedSequenceData*> CSD_PAIR;
+CollapsedSequencesHash hash;
+
+/*
+struct equal_collapsed_sequence_data
+{
+	bool operator()(const CollapsedSequenceData* s1, const CollapsedSequenceData* s2) const
+	{
+		return (s1 == s2) ||
+			(
+			 (s1 && s2)
+		          &&
+			 (s1->seq_length == s2->seq_length)
+			  &&
+			 (strcmp(s1->sequence, s2->sequence) == 0)
+			);
+	}
+};
+
+struct murmur_hash_collapsed_sequence_data
+{
+	size_t operator()(const CollapsedSequenceData* s) const
+	{
+		return MurmurHash64A(s->sequence, s->seq_length, 0);
+	}
+};
+
+
+typedef std::tr1::unordered_map<const char*, CollapsedSequenceData*> CollapsedSequencesMap;
+CollapsedSequencesMap collapsed_sequences_map;
+
+void add_collapsed_sequence(const Sequence &s)
+{
+	CollapsedSequencesMap::iterator it = collapsed_sequences_map.find(s.nucleotides.c_str());
+	if (it == collapsed_sequences_map.end()) {
+		//create new
+		size_t size = sizeof(CollapsedSequenceData)-1 +
+				s.nucleotides.length()+1 ;
+
+		CollapsedSequenceData *pData = (CollapsedSequenceData*)buffer.allocate_buffer0(size);
+		pData->multiplicity_count = 1 ;
+		strcpy(pData->sequence, s.nucleotides.c_str());
+
+		collapsed_sequences_map.insert(std::pair<const char*, CollapsedSequenceData*>(pData->sequence, pData));
+	} else {
+		//increment multiplicity-count
+		it->second->multiplicity_count += 1 ;
+	}
+}
+*/
+
+#if 0
 int main(int argc, char* argv[])
 {
 	ofstream output_file ;
@@ -189,11 +391,10 @@ int main(int argc, char* argv[])
 			sorted_collapsed_sequences.rend(), PrintCollapsedSequence(real_output) ) ;
 
 	/* This (in)sanity check prevents collapsing an already-collapsed FASTA file, so skip it for now */
-	/*
-	if (stats.total_reads != num_input_reads(&fastx))
-		errx(1,"Internal error: stats.total_reads (%zu) != num_input_reads(&fastx) (%zu).\n", 
-			stats.total_reads, num_input_reads(&fastx) ); 
-	*/
+	//if (stats.total_reads != num_input_reads(&fastx))
+	//	errx(1,"Internal error: stats.total_reads (%zu) != num_input_reads(&fastx) (%zu).\n", 
+	//		stats.total_reads, num_input_reads(&fastx) ); 
+	//
 
 	if ( verbose_flag() ) {
 		fprintf(get_report_file(), "Input: %zu sequences (representing %zu reads)\n",
@@ -203,20 +404,50 @@ int main(int argc, char* argv[])
 	}
 	return 0;
 }
-
 #endif
 
 int main(int argc, char* argv[] )
 {
+//	cout << "sizeof(CollapsedSequenceData) = " << sizeof(CollapsedSequenceData) << endl;
+//	exit(1);
+
 	FastxCollapserCommandLine p;
 	p.parse_command_line(argc,argv);
 
 	Sequence seq;
 	ISequenceReader *reader = p.reader().get();
-	ISequenceWriter *writer = p.writer().get();
+	//ISequenceWriter *writer = p.writer().get();
 
 	while (reader->read_next_sequence(seq)) {
+		CollapsedSequencesHash::iterator it = hash.find(seq.nucleotides.c_str());
+		if (it == hash.end()) {
+			CollapsedSequenceData *ptr = CollapsedSequenceData::create(buffer, seq, false);
+			CSD_PAIR p = CSD_PAIR( ptr->sequence(), ptr ) ;
+			hash.insert(p);
+		} else {
+			CollapsedSequenceData* csd = it->second;
+			csd->add_multiplicity_count(1);
+		}
+	}
+
+	/*
+	size_t i = 1 ;
+	for ( sequence_count_list::reverse_iterator it  = sorted_collapsed_sequences.rbegin();
+			it != sorted_collapsed_sequences.rend(); ++it ) {
+		seq.nucleotides = it->first;
+		stringstream ss;
+		ss << i << "-" << it->second ;
+		seq.id = ss.str();
+		++i;
+
 		writer->write_sequence(seq);
+	}
+	*/
+	if (p.sleep) {
+		cerr << CollapsedSequenceData::objects_count() << " objects, "
+			<< CollapsedSequenceData::bytes_count() << " bytes." << endl;
+		cerr << "Done! going to sleep for " << p.sleep << " seconds" << endl;
+		sleep(p.sleep);
 	}
 	return 1;
 }
