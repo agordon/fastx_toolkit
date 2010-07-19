@@ -13,7 +13,7 @@
 #include "fastx_file.h"
 
 enum {
-	OPT_TAB_IN = CHAR_MAX+1,
+	OPT_TAB_IN = CHAR_MAX+6789,
 	OPT_TAB_OUT
 };
 
