@@ -20,6 +20,7 @@ AM_INIT_AUTOMAKE([dist-bzip2])
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_LIBTOOL
+AC_PROG_RANLIB
 AX_C_LONG_LONG
 AX_CXX_HEADER_STDCXX_TR1
 if test "$ax_cv_cxx_stdcxx_tr1" != yes; then
