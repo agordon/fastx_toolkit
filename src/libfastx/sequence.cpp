@@ -14,20 +14,23 @@ void Sequence::clear()
 	id.clear();
 	nucleotides.clear();
 	id2.clear();
-	quality.clear();
+//	quality.clear();
+	quality_cached_line.clear();
 
 	ASCII_quality_offset = 0;
 	ASCII_quality_scores = true;
 }
 
-void Sequence::convert_ascii_quality_score_line ( const std::string& quality_line )
+void Sequence::convert_ascii_quality_score_line ( const std::string&  )
 {
+	/*
 	quality.clear();
 	quality.resize(quality_line.length());
 	for ( size_t i = 0 ; i< quality_line.length(); ++i ) {
 		int value = ((int)quality_line[i]) - ASCII_quality_offset;
 		quality[i] = value;
 	}
+	*/
 }
 
 void Sequence::convert_numeric_quality_score_line ( const std::string &numeric_quality_line, const std::string& _filename, size_t line_number)
@@ -36,6 +39,8 @@ void Sequence::convert_numeric_quality_score_line ( const std::string &numeric_q
 	const char *quality_tok;
 	char *endptr;
 	int quality_value;
+
+	std::vector<int> quality;
 
 	quality.clear();
 	quality.resize(nucleotides.length());
@@ -62,3 +67,4 @@ void Sequence::convert_numeric_quality_score_line ( const std::string &numeric_q
 		quality_tok = endptr;
 	} while (quality_tok != NULL && *quality_tok!='\0') ;
 }
+

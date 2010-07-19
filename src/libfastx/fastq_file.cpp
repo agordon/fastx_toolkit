@@ -160,48 +160,19 @@ void FastqFileWriter::write_sequence(const Sequence& seq)
 	output_stream << seq.nucleotides << endl;
 
 	//If seq comes from a FASTA file and doesn't have id2/qualities - fake them
-	if (seq.quality.empty()) {
+	if (seq.quality_cached_line.empty()) {
 		if (seq.id2.empty())
 			output_stream << "+" << seq.id << endl;
 		else
 			output_stream << "+" << seq.id2 << endl;
 
-		/*
-		if (seq.ASCII_quality_scores) {
-			for ( size_t i=0;i<seq.quality.size();++i) {
-				const char c = (char)(0 + seq.ASCII_quality_offset);
-				output_stream << c;
-			}
-		} else {
-			for ( size_t i=0;i<seq.quality.size();++i) {
-				const int val = (0 + seq.ASCII_quality_offset);
-				if (i>0)
-					output_stream << " " ;
-				output_stream << val;
-			}
-		}
-		*/
-		output_stream << seq.quality_cached_line << endl;
-
+		for (size_t i=0;i<seq.nucleotides.length();++i)
+			output_stream << "b";
+		output_stream << endl;
 
 	} else {
 		output_stream << "+" << seq.id2 << endl;
 		output_stream << seq.quality_cached_line << endl ;
-
-/*		if (seq.ASCII_quality_scores) {
-			for ( size_t i=0;i<seq.quality.size();++i) {
-				const char c = (char)(seq.quality[i] + seq.ASCII_quality_offset);
-				output_stream << c;
-			}
-		} else {
-			for ( size_t i=0;i<seq.quality.size();++i) {
-				const int val = (seq.quality[i] + seq.ASCII_quality_offset);
-				if (i>0)
-					output_stream << " " ;
-				output_stream << val;
-			}
-		}
-		*/
 	}
 	if (!output_stream) {
 		cerr << "Output error: failed to write data to '" << _filename

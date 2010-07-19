@@ -193,12 +193,7 @@ void TabularFileWriter::write_sequence(const Sequence& seq)
 	if ( output_file_format == TAB_FORMAT_FASTA ) {
 	} else
 	if ( output_file_format == TAB_FORMAT_FASTQ ) {
-		output_stream << "\t" << seq.id2 << "\t" ;
-
-		for ( size_t i=0;i<seq.quality.size();++i) {
-			const char c = (char)(seq.quality[i] + seq.ASCII_quality_offset);
-			output_stream << c;
-		}
+		output_stream << "\t" << seq.id2 << "\t" << seq.quality_cached_line ;
 	} else {
 		cerr << "Internal error: output file format is unknown (FASTA or FASTQ?) in "
 			<< __FILE__ << ":" << __LINE__ << endl;

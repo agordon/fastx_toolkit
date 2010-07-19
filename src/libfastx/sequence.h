@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
 
 class Sequence
 {
@@ -13,7 +14,7 @@ public:
 
 	std::string quality_cached_line;
 
-	std::vector<int> quality;
+	//std::vector<int> quality;
 
 	int ASCII_quality_offset;
 	bool ASCII_quality_scores ; //true=ASCII, false=numeric
@@ -23,6 +24,41 @@ public:
 
 	void parse_quality_scores()
 	{
+	}
+
+	size_t get_multiplicity_count() const
+	{
+		size_t i = id.find_last_of('-');
+		//can't detect multiplicity ? assume it's one.
+		if (i==std::string::npos)
+			return 1;
+		std::stringstream ss(id.substr(i+1));
+		size_t count;
+		ss >> count;
+		if (ss.good())
+			return count;
+		return 1;
+	}
+
+	/*
+	   returns:
+	      1 - if this is END1 of a paired-end (i.e. "ID" string ends in "/1")
+	      2 - if this is END2 of a paired-end (i.e. "ID" string ends in "/2")
+	      0 - could not detect END, probably not part of a paired-end FASTQ
+
+	 */
+	size_t get_paired_end()
+	{
+		if (id.length()<3)
+			return 0;
+		if (id[id.length()-2] != '/')
+			return 0;
+		const char c = id[id.length()-1];
+		if (c=='1')
+			return 1;
+		if (c=='2')
+			return 2;
+		return 0;
 	}
 
 	void clear();
