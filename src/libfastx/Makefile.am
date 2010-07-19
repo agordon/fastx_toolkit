@@ -20,4 +20,6 @@ libfastx_a_SOURCES = chomp.c chomp.h \
 		     tab_file.h tab_file.cpp \
 		     commandline_parameters.h commandline_parameters.cpp \
 		     fastxse_commmandline_parameters.h fastxse_commandline_parameters.cpp \
-		     strings_buffer.h
+		     strings_buffer.h \
+		     MurmurHash2.cpp MurmurHash2_64.cpp Murmurhash.h
+	
