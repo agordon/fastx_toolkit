@@ -15,9 +15,9 @@ public:
 	std::string quality_cached_line;
 
 	//std::vector<int> quality;
-
 	int ASCII_quality_offset;
 	bool ASCII_quality_scores ; //true=ASCII, false=numeric
+	mutable int cached_multiplicity_count;
 
 	Sequence();
 	virtual ~Sequence() { }
@@ -28,15 +28,24 @@ public:
 
 	size_t get_multiplicity_count() const
 	{
+		if (cached_multiplicity_count!=0)
+			return cached_multiplicity_count;
+
 		size_t i = id.find_last_of('-');
 		//can't detect multiplicity ? assume it's one.
-		if (i==std::string::npos)
+		if (i==std::string::npos) {
+			cached_multiplicity_count =1 ;
 			return 1;
+		}
 		std::stringstream ss(id.substr(i+1));
 		size_t count;
 		ss >> count;
-		if (ss.good())
+		if (ss.good()) {
+			cached_multiplicity_count = count;
 			return count;
+		}
+
+		cached_multiplicity_count = 1 ;
 		return 1;
 	}
 

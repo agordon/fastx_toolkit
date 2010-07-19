@@ -19,6 +19,7 @@ void Sequence::clear()
 
 	ASCII_quality_offset = 0;
 	ASCII_quality_scores = true;
+	cached_multiplicity_count = 0 ;
 }
 
 void Sequence::convert_ascii_quality_score_line ( const std::string&  )
