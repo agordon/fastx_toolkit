@@ -44,6 +44,8 @@ public:
 
 	virtual void print_help()=0;
 
+	virtual int verbose() const { return _verbose; }
+
 	SharedSequenceReader reader()
 	{
 		if (_Reader.get()==NULL) {
