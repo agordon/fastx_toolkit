@@ -27,6 +27,7 @@ autom4te.cache/*
 configure
 stamp-h1
 tests/clipper_v3/*
+INSTALL
 
 ## The compiled binaries
 src/fastx_collapser/fastx_collapser
