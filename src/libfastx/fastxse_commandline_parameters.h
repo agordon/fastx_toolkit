@@ -69,6 +69,16 @@ public:
 		}
 		return _Writer;
 	}
+
+	std::ostream& verbose_stream() const
+	{
+		if (_output_filename.empty())
+			//output goes to STDOUT, verbose report to STDERR
+			return std::cerr;
+		else
+			//output goes to a file, vebose report goes to STDOUT
+			return std::cout;
+	}
 };
 
 

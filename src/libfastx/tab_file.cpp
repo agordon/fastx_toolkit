@@ -169,6 +169,7 @@ bool TabularFileReader::read_next_sequence(Sequence& output)
 		output.quality_cached_line = columns[3];
 		output.ASCII_quality_offset = _ASCII_quality_offset ;
 		output.ASCII_quality_scores = true;
+		output.have_quality_scores = true ;
 	}
 
 	++line_number;
@@ -190,16 +191,28 @@ void TabularFileWriter::write_sequence(const Sequence& seq)
 	}
 
 	output_stream << seq.id << "\t" << seq.nucleotides;
-	if ( output_file_format == TAB_FORMAT_FASTA ) {
-	} else
-	if ( output_file_format == TAB_FORMAT_FASTQ ) {
-		output_stream << "\t" << seq.id2 << "\t" << seq.quality_cached_line ;
-	} else {
+	switch (output_file_format)
+	{
+	case TAB_FORMAT_FASTA:
+		break;
+
+	case TAB_FORMAT_FASTQ:
+		if (seq.have_quality_scores)
+			output_stream << "\t" << seq.id2 << "\t" << seq.quality_cached_line ;
+		else {
+			//fake quality scores
+			cerr << "Internal error: trying to write FASTQ data, but sequence doesn't have quality scores, at" << __FILE__ << ":" << __LINE__ << endl;
+			exit(1);
+
+		}
+		break;
+
+	case TAB_FORMAT_UNKNOWN:
+	default:
 		cerr << "Internal error: output file format is unknown (FASTA or FASTQ?) in "
 			<< __FILE__ << ":" << __LINE__ << endl;
 		exit(1);
 	}
-
 	output_stream << endl;
 
 	if (!output_stream) {

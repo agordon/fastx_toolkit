@@ -14,9 +14,9 @@ void Sequence::clear()
 	id.clear();
 	nucleotides.clear();
 	id2.clear();
-//	quality.clear();
 	quality_cached_line.clear();
 
+	have_quality_scores = false;
 	ASCII_quality_offset = 0;
 	ASCII_quality_scores = true;
 	cached_multiplicity_count = 0 ;

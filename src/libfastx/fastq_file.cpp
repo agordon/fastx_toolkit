@@ -127,6 +127,7 @@ bool FastqFileReader::read_next_sequence(Sequence& output)
 	*/
 	output.quality_cached_line = quality ;
 	output.ASCII_quality_offset = _ASCII_quality_offset ;
+	output.have_quality_scores = true;
 
 	/*
 	if (output.quality.size() != output.nucleotides.size()) {
@@ -160,7 +161,7 @@ void FastqFileWriter::write_sequence(const Sequence& seq)
 	output_stream << seq.nucleotides << endl;
 
 	//If seq comes from a FASTA file and doesn't have id2/qualities - fake them
-	if (seq.quality_cached_line.empty()) {
+	if (!seq.have_quality_scores) {
 		if (seq.id2.empty())
 			output_stream << "+" << seq.id << endl;
 		else

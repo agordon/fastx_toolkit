@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <iostream>
 
 class Sequence
 {
@@ -11,10 +12,10 @@ public:
 	std::string id;
 	std::string nucleotides;
 	std::string id2;
-
 	std::string quality_cached_line;
 
 	//std::vector<int> quality;
+	bool have_quality_scores;
 	int ASCII_quality_offset;
 	bool ASCII_quality_scores ; //true=ASCII, false=numeric
 	mutable int cached_multiplicity_count;
@@ -40,7 +41,7 @@ public:
 		std::stringstream ss(id.substr(i+1));
 		size_t count;
 		ss >> count;
-		if (ss.good()) {
+		if (!ss.fail()) {
 			cached_multiplicity_count = count;
 			return count;
 		}
@@ -75,6 +76,35 @@ public:
 	void convert_numeric_quality_score_line ( const std::string &numeric_quality_line, const std::string& _filename, size_t line_nmber);
 	void convert_ascii_quality_score_line ( const std::string& numeric_quality_line );
 };
+
+
+class SequenceCounter
+{
+	size_t _sequence_count;
+	size_t _reads_count;
+
+public:
+	SequenceCounter() :
+		_sequence_count(0),
+		_reads_count(0)
+	{
+	}
+
+	void add ( const Sequence& seq )
+	{
+		++_sequence_count;
+		_reads_count += seq.get_multiplicity_count();
+	}
+
+	size_t sequence_count() const { return _sequence_count; }
+	size_t reads_count() const { return _reads_count; }
+};
+
+inline std::ostream& operator<< ( std::ostream &strm, const SequenceCounter& counter )
+{
+	strm << counter.sequence_count() << " sequences, " << counter.reads_count() << " reads." ;
+	return strm;
+}
 
 /*
    Single-End Reader/Writer
