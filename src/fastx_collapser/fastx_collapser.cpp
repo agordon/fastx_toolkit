@@ -31,6 +31,7 @@
 #include <list>
 #include <stdio.h>
 
+#include <tr1/unordered_map>
 #include <tr1/unordered_set>
 
 #include "config.h"
@@ -43,109 +44,82 @@
 #include "libfastx/tab_file.h"
 #include "libfastx/strings_buffer.h"
 #include "libfastx/fastxse_commandline_parameters.h"
-//#include <google/sparse_hash_map>
-
-//#include "MurmurHash2_64.cpp"
+#include "libfastx/MurmurHash2.h"
 
 using namespace std;
 
-enum OPTIONS {
-	OPT_SLEEP_WHEN_DONE = CHAR_MAX+1,
-	OPT_OLD_METHOD
+enum {
+	OPT_NO_SORT = CHAR_MAX+1,
+	OPT_SORT_BY_SEQUENCE,
+	OPT_SORT_BY_MULTIPLICITY
 };
+
+enum SORT_TYPE {
+	SORT_BY_SEQUENCE,
+	SORT_BY_MULTIPLICITY
+} ;
 
 class FastxCollapserCommandLine : public FastxSE_commandline_parameters
 {
 public:
-	size_t sleep;
-	bool old_method;
+	bool sort ;
+	SORT_TYPE sort_type;
 
 	FastxCollapserCommandLine() :
 		FastxSE_commandline_parameters(),
-		sleep(0),
-		old_method(false)
+		sort(true),
+		sort_type(SORT_BY_MULTIPLICITY)
 	{
-		add_option_long("sleep", OPT_SLEEP_WHEN_DONE, required_argument);
-		add_option_long("old-method", OPT_SLEEP_WHEN_DONE, no_argument);
+		add_option_long("nosort", OPT_NO_SORT, no_argument);
+		add_option_long("sortseq", OPT_SORT_BY_SEQUENCE, no_argument);
+		add_option_long("sortmul", OPT_SORT_BY_MULTIPLICITY, no_argument);
 	}
 
 	void parameter_action(const int short_option_value, const std::string& optarg)
 	{
-		switch (short_option_value)
+		switch(short_option_value)
 		{
-		case OPT_SLEEP_WHEN_DONE:
-			sleep = atoi(optarg.c_str());
-			if (sleep==0)
-				errx(1,"Error: invalid value for --sleep '%s'", optarg.c_str());
+		case OPT_NO_SORT:
+			sort = false;
 			break;
 
-		case OPT_OLD_METHOD:
-			old_method = true ;
+		case OPT_SORT_BY_SEQUENCE:
+			sort = true;
+			sort_type = SORT_BY_SEQUENCE;
+			break;
+
+		case OPT_SORT_BY_MULTIPLICITY:
+			sort = true;
+			sort_type = SORT_BY_MULTIPLICITY;
 			break;
 
 		default:
 			FastxSE_commandline_parameters::parameter_action(short_option_value,optarg);
-			break;
-		};
+		}
 	}
 
 	void print_help()
 	{
 	const char* usage=
-"usage: fastx_collapser [-p] [-h] [-v] [-i INFILE] [-o OUTFILE]\n" \
+"usage: fastx_collapser [OPTIONS] [-i INFILE] [-o OUTFILE]\n" \
 "Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
 "\n" \
-"   [-h]         = This helpful help screen.\n" \
-"   [-v]         = verbose: print short summary of input/output counts\n" \
-"   [-p]         = Collapse sequences with identical prefix\n" \
-"   [-i INFILE]  = FASTA/Q input file. default is STDIN.\n" \
-"   [-o OUTFILE] = FASTA/Q output file. default is STDOUT.\n" \
+"options:\n" \
+"   -i INFILE  = FASTA/Q input file. default is STDIN.\n" \
+"   -o OUTFILE = FASTA/Q output file. default is STDOUT.\n" \
+"   -h         = This helpful help screen.\n" \
+"   -v         = verbose: print short summary of input/output counts.\n" \
+"   --nosort   = Do no sort the output (saves some processing time).\n" \
+"   --sortmul  = Sort the sequences by descending multiplicity counts (default).\n" \
+"   --sortseq  = Sort the sequences by nucleotides string.\n" \
+"   --pipein\n" \
+"   --tabin    = Input is tabular file, not a FASTA/Q file.\n" \
+"   --pipeout\n" \
+"   --tabout   = Output tabular file, not a FASTA/Q file.\n" \
 "\n";
 		cout << usage ;
 	}
 };
-
-
-#include <tr1/unordered_map>
-std::tr1::unordered_map<string,size_t> collapsed_sequences;
-
-typedef std::pair<string,size_t> sequence_count_pair;
-typedef std::list< sequence_count_pair > sequence_count_list ;
-sequence_count_list sorted_collapsed_sequences ;
-bool flag_collapse_by_prefix=false;
-bool flag_debug_collapse_by_prefix=false;
-
-struct PrintCollapsedSequence
-{
-	size_t counter;
-	size_t total_reads ;
-
-	ostream &output ;
-	PrintCollapsedSequence( ostream& _output ) :
-		counter(0),
-		total_reads(0),
-		output(_output) {}
-
-	void operator() ( const std::pair<string, int> & sequence )
-	{
-		counter++;
-		total_reads += sequence.second ;
-		output << ">" << counter << "-" << sequence.second << endl << sequence.first << endl ;
-	}
-};
-
-inline
-bool sort_by_sequence ( const sequence_count_pair& sequence1, const sequence_count_pair& sequence2 )
-{
-	return sequence1.first < sequence2.first ;
-}
-
-inline
-bool sort_by_abundance_count ( const sequence_count_pair& sequence1, const sequence_count_pair& sequence2 )
-{
-	return sequence1.second < sequence2.second ;
-}
-
 
 StringsBuffer buffer;
 
@@ -166,7 +140,7 @@ private:
 
 	CollapsedSequenceData(const Sequence& seq, bool add_quality=false )
 	{
-		_multiplicity_count = 1 ; //TODO - read real multiplicity count
+		_multiplicity_count = seq.get_multiplicity_count();
 
 		if (seq.nucleotides.length() > USHRT_MAX) {
 			cerr << "Internal error: input sequence is longer than "
@@ -190,6 +164,8 @@ private:
 		}
 	}
 
+	char* ptr_quality() { return (char*)(_sequence + _sequence_length + 1 ); }
+
 public:
 	// The only way to allocate + create a CollapsedSequenceData
 	static CollapsedSequenceData* create( StringsBuffer &buffer, const Sequence& seq, bool add_quality=false )
@@ -211,6 +187,22 @@ public:
 
 	void add_multiplicity_count(const unsigned int count) { _multiplicity_count += count ; }
 
+	void merge_quality_scores ( const Sequence& s )
+	{
+		if (s.quality_cached_line.length() != sequence_length()) {
+			cerr << "Internal error: trying to merge quality scores of different lengths (sequence()=" << sequence() << " sequence_length()=" << sequence_length() << " new_seq.nucleotides()=" << s.nucleotides << " new_seq.qualities.lengh()=" << s.quality_cached_line.length() << ")" << endl;
+			exit(1);
+		}
+
+		char *qual_ptr = ptr_quality();
+		for (size_t i=0;i<sequence_length();++i) {
+			const char a = qual_ptr[i];
+			const char b = s.quality_cached_line[i];
+			if (b>a)
+				qual_ptr[i]=b;
+		}
+	}
+
 	size_t sequence_length() const { return _sequence_length ; }
 	const char* sequence() const { return _sequence; }
 
@@ -218,30 +210,25 @@ public:
 
 	static size_t objects_count() { return total_objects_allocated; }
 	static size_t bytes_count() { return total_bytes_allocated; }
+
 };
 
-struct CollapsedSequenceData_Hash
-{
-	size_t operator()(const CollapsedSequenceData* csd) const
-	{
-		return std::tr1::hash<const char*>()(csd->sequence());
-	}
-};
-
-struct CollapsedSequenceData_EqualTo : public equal_to<CollapsedSequenceData*>
+struct CollapsedSequenceData_CompareSequence
 {
 	bool operator()(const CollapsedSequenceData* a, const CollapsedSequenceData* b) const
 	{
-		if (a->sequence_length() != b->sequence_length())
-			return false;
-		return strncmp(a->sequence(), b->sequence(), a->sequence_length());
+		return strcmp(a->sequence(), b->sequence())<0;
 	}
+};
 
-	bool operator()(const CollapsedSequenceData* a, const std::string& b) const
+struct CollapsedSequenceData_CompareMultiplicity
+{
+	bool operator()(const CollapsedSequenceData* a, const CollapsedSequenceData* b) const
 	{
-		if (a->sequence_length() != b.length())
-			return false;
-		return strncmp(a->sequence(), b.c_str(), a->sequence_length());
+		if (a->multiplicity_count()==b->multiplicity_count())
+			return strcmp(a->sequence(), b->sequence())<0;
+
+		return a->multiplicity_count() > b->multiplicity_count();
 	}
 };
 
@@ -253,201 +240,150 @@ struct eqstr
 	}
 };
 
-struct hash_char_ptr
+struct MurmurHash2_CSD
 {
-	size_t operator()(const char* str) const
+	size_t operator()(const CollapsedSequenceData* csd) const
 	{
-		return std::tr1::hash<const char*>()(str);
+		return MurmurHash64A(csd->sequence(), csd->sequence_length(),0);
 	}
 };
 
-
-size_t CollapsedSequenceData::total_objects_allocated = 0 ;
-size_t CollapsedSequenceData::total_bytes_allocated = 0;
-
-typedef std::tr1::unordered_map<const char*,CollapsedSequenceData* ,hash_char_ptr, eqstr> CollapsedSequencesHash ;
-//typedef google::sparse_hash_map<const char*,CollapsedSequenceData* ,hash_char_ptr, eqstr> CollapsedSequencesHash ;
-typedef std::pair<const char*, CollapsedSequenceData*> CSD_PAIR;
-CollapsedSequencesHash hash;
-
-/*
-struct equal_collapsed_sequence_data
+struct EqualTo_CSD
 {
-	bool operator()(const CollapsedSequenceData* s1, const CollapsedSequenceData* s2) const
+	bool operator()(const CollapsedSequenceData* a, const CollapsedSequenceData* b) const
 	{
-		return (s1 == s2) ||
-			(
-			 (s1 && s2)
-		          &&
-			 (s1->seq_length == s2->seq_length)
-			  &&
-			 (strcmp(s1->sequence, s2->sequence) == 0)
+		return ( (a==b)
+			 ||
+			 (
+			  (a->sequence_length() == b->sequence_length())
+			   &&
+			  (strncmp(a->sequence(), b->sequence(), a->sequence_length())==0)
+			 )
 			);
 	}
 };
 
-struct murmur_hash_collapsed_sequence_data
-{
-	size_t operator()(const CollapsedSequenceData* s) const
-	{
-		return MurmurHash64A(s->sequence, s->seq_length, 0);
-	}
-};
+size_t CollapsedSequenceData::total_objects_allocated = 0 ;
+size_t CollapsedSequenceData::total_bytes_allocated = 0;
 
+#define USE_MAP
 
-typedef std::tr1::unordered_map<const char*, CollapsedSequenceData*> CollapsedSequencesMap;
-CollapsedSequencesMap collapsed_sequences_map;
-
-void add_collapsed_sequence(const Sequence &s)
-{
-	CollapsedSequencesMap::iterator it = collapsed_sequences_map.find(s.nucleotides.c_str());
-	if (it == collapsed_sequences_map.end()) {
-		//create new
-		size_t size = sizeof(CollapsedSequenceData)-1 +
-				s.nucleotides.length()+1 ;
-
-		CollapsedSequenceData *pData = (CollapsedSequenceData*)buffer.allocate_buffer0(size);
-		pData->multiplicity_count = 1 ;
-		strcpy(pData->sequence, s.nucleotides.c_str());
-
-		collapsed_sequences_map.insert(std::pair<const char*, CollapsedSequenceData*>(pData->sequence, pData));
-	} else {
-		//increment multiplicity-count
-		it->second->multiplicity_count += 1 ;
-	}
-}
-*/
-
-#if 0
-int main(int argc, char* argv[])
-{
-	ofstream output_file ;
-
-	fastx_parse_cmdline(argc, argv, "p", parse_program_args );
-
-	fastx_init_reader(&fastx, get_input_filename(), 
-		FASTA_OR_FASTQ, ALLOW_N, REQUIRE_UPPERCASE,
-		get_fastq_ascii_quality_offset() );
-
-	bool use_stdout = true;
-	if ( strcmp(get_output_filename(), "-")!=0 ) {
-		use_stdout = false;
-		output_file.open(get_output_filename());
-		if (!output_file) 
-			errx(1,"Failed to create output file (%s)", get_output_filename() );
-	}
-	ostream& real_output = (use_stdout) ? cout : output_file ;
-
-	while ( fastx_read_next_record(&fastx) ) {
-		collapsed_sequences[string(fastx.nucleotides)]+= get_reads_count(&fastx);
-	}
-	
-	copy ( collapsed_sequences.begin(), collapsed_sequences.end(), 
-		back_inserter(sorted_collapsed_sequences) ) ;
-
-
-	if (flag_collapse_by_prefix) {
-		sorted_collapsed_sequences.sort ( sort_by_sequence ) ;
-
-		sequence_count_list::iterator curr = sorted_collapsed_sequences.begin();
-		while ( curr != sorted_collapsed_sequences.end() ) {
-			const string& curr_seq = curr->first;
-
-			sequence_count_list::iterator next = curr;
-			next++;
-			if (next==sorted_collapsed_sequences.end())
-				break;
-
-			const string& next_seq = next->first ;
-
-			if (flag_debug_collapse_by_prefix)
-			cerr << "--Checking:" << endl
-				<< "curr: " << curr_seq << "\t" << curr->second << endl
-				<< "next: " << next_seq << "\t" << next->second << endl;
-			if ( (next_seq.length() >= curr_seq.length()
-			      &&
-			      next_seq.substr(0,curr_seq.length()) == curr_seq)
-			      ||
-			      (curr_seq.length() > next_seq.length()
-			       &&
-			       curr_seq.substr(0,next_seq.length()) == next_seq)
-			      ) {
-					if (flag_debug_collapse_by_prefix)
-						cerr << "Collapsing by prefix, increasing next's count from " << next->second << " to " << (next->second + curr->second) << endl;
-
-					next->second += curr->second;
-					if (curr_seq.length() > next_seq.length())
-						next->first = curr->first;
-					curr = sorted_collapsed_sequences.erase(curr);
-			}
-			else
-				curr = next ;
-		}
-	}
-
-	sorted_collapsed_sequences.sort ( sort_by_abundance_count ) ;
-
-	PrintCollapsedSequence stats =  for_each ( sorted_collapsed_sequences.rbegin(), 
-			sorted_collapsed_sequences.rend(), PrintCollapsedSequence(real_output) ) ;
-
-	/* This (in)sanity check prevents collapsing an already-collapsed FASTA file, so skip it for now */
-	//if (stats.total_reads != num_input_reads(&fastx))
-	//	errx(1,"Internal error: stats.total_reads (%zu) != num_input_reads(&fastx) (%zu).\n", 
-	//		stats.total_reads, num_input_reads(&fastx) ); 
-	//
-
-	if ( verbose_flag() ) {
-		fprintf(get_report_file(), "Input: %zu sequences (representing %zu reads)\n",
-				num_input_sequences(&fastx), num_input_reads(&fastx));
-		fprintf(get_report_file(), "Output: %zu sequences (representing %zu reads)\n",
-				stats.counter, stats.total_reads);
-	}
-	return 0;
-}
+#ifdef USE_MAP
+typedef std::tr1::unordered_map<const char*,CollapsedSequenceData* ,MurmurHash2_char_ptr, eqstr> CollapsedSequencesHash ;
 #endif
+
+#ifdef USE_SET
+typedef std::tr1::unordered_set<CollapsedSequenceData*, MurmurHash2_CSD, EqualTo_CSD> CollapsedSequencesHash;
+#endif
+
+CollapsedSequencesHash hash;
+
 
 int main(int argc, char* argv[] )
 {
-//	cout << "sizeof(CollapsedSequenceData) = " << sizeof(CollapsedSequenceData) << endl;
-//	exit(1);
-
 	FastxCollapserCommandLine p;
 	p.parse_command_line(argc,argv);
 
 	Sequence seq;
 	ISequenceReader *reader = p.reader().get();
-	//ISequenceWriter *writer = p.writer().get();
+	ISequenceWriter *writer = p.writer().get();
 
+	SequenceCounter input_counter;
+	bool have_quality_scores=false;
+
+	//Load data, collapse by sequence
+#ifdef USE_MAP
 	while (reader->read_next_sequence(seq)) {
+		input_counter.add(seq);
 		CollapsedSequencesHash::iterator it = hash.find(seq.nucleotides.c_str());
 		if (it == hash.end()) {
-			CollapsedSequenceData *ptr = CollapsedSequenceData::create(buffer, seq, false);
-			CSD_PAIR p = CSD_PAIR( ptr->sequence(), ptr ) ;
-			hash.insert(p);
+			have_quality_scores = seq.have_quality_scores;
+			CollapsedSequenceData *ptr = CollapsedSequenceData::create(buffer, seq, have_quality_scores);
+			hash.insert( make_pair ( ptr->sequence(), ptr) );
 		} else {
 			CollapsedSequenceData* csd = it->second;
-			csd->add_multiplicity_count(1);
+			csd->add_multiplicity_count(seq.get_multiplicity_count());
+			if (have_quality_scores)
+				csd->merge_quality_scores(seq);
+		}
+	}
+#endif
+
+#ifdef USE_SET
+	while (reader->read_next_sequence(seq)) {
+		input_counter.add(seq);
+		have_quality_scores = seq.have_quality_scores;
+		CollapsedSequenceData *ptr = CollapsedSequenceData::create(buffer, seq, have_quality_scores);
+		CollapsedSequencesHash::iterator it = hash.find(ptr);
+		if (it == hash.end()) {
+			hash.insert( ptr );
+		} else {
+			buffer.rollback();
+			CollapsedSequenceData* csd = *it;
+			csd->add_multiplicity_count(seq.get_multiplicity_count());
+			if (have_quality_scores)
+				csd->merge_quality_scores(seq);
+		}
+	}
+#endif
+
+	//Sort by Multiplicity
+	typedef std::vector<CollapsedSequenceData*> CollapsedSequenceData_Vector;
+	CollapsedSequenceData_Vector v;
+	v.resize(hash.size());
+	CollapsedSequenceData_Vector::iterator it_v = v.begin();
+	CollapsedSequencesHash::const_iterator it_h = hash.begin();
+	for ( ; it_h != hash.end(); ++it_v, ++it_h)
+#ifdef USE_SET
+		*it_v = *it_h;
+#endif
+#ifdef USE_MAP
+		*it_v = it_h->second;
+#endif
+
+	if (p.sort) {
+		switch(p.sort_type)
+		{
+		case SORT_BY_SEQUENCE:
+			sort(v.begin(), v.end(), CollapsedSequenceData_CompareSequence() );
+			break;
+
+		case SORT_BY_MULTIPLICITY:
+			sort(v.begin(), v.end(), CollapsedSequenceData_CompareMultiplicity() ) ;
+			break;
+		default:
+			cerr << "Internal Error: invalid sort-type (" << p.sort_type << ")" << endl;
+			exit(1);
+			break;
 		}
 	}
 
-	/*
-	size_t i = 1 ;
-	for ( sequence_count_list::reverse_iterator it  = sorted_collapsed_sequences.rbegin();
-			it != sorted_collapsed_sequences.rend(); ++it ) {
-		seq.nucleotides = it->first;
-		stringstream ss;
-		ss << i << "-" << it->second ;
-		seq.id = ss.str();
-		++i;
+	//Write sequences
+	SequenceCounter output_counter;
+	size_t count = 1;
+	for (it_v = v.begin(); it_v != v.end(); ++it_v) {
+		const CollapsedSequenceData* ptr = *it_v;
 
+		seq.clear();
+		stringstream ss;
+		ss << count << "-" << ptr->multiplicity_count();
+		seq.id = ss.str();
+		seq.nucleotides = ptr->sequence();
+
+		if (have_quality_scores) {
+			seq.quality_cached_line = ptr->quality();
+			seq.id2 = seq.id;
+			seq.have_quality_scores = true;
+		}
+
+		output_counter.add(seq);
 		writer->write_sequence(seq);
+		++count;
 	}
-	*/
-	if (p.sleep) {
-		cerr << CollapsedSequenceData::objects_count() << " objects, "
-			<< CollapsedSequenceData::bytes_count() << " bytes." << endl;
-		cerr << "Done! going to sleep for " << p.sleep << " seconds" << endl;
-		sleep(p.sleep);
+
+	if (p.verbose()) {
+		p.verbose_stream() << "Input: " << input_counter << endl;
+		p.verbose_stream() << "Output: " << output_counter << endl;
 	}
-	return 1;
+	return 0;
 }
