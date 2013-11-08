@@ -2,6 +2,7 @@
 #include <vector>
 #include <ostream>
 #include <iostream>
+#include <unistd.h>
 #include "sequence_alignment.h"
 
 

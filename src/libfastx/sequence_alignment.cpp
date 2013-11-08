@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <err.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "sequence_alignment.h"
 

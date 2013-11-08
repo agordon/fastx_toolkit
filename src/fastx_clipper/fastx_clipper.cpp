@@ -24,6 +24,7 @@
 #include <vector>
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "sequence_alignment.h"
 
