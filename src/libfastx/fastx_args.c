@@ -40,7 +40,7 @@ const char* input_filename = "-";
 const char* output_filename = "-";
 int verbose = 0;
 int compress_output = 0 ;
-int fastq_ascii_quality_offset = 64 ;
+int fastq_ascii_quality_offset = 33 ;
 FILE* report_file;
 
 int get_fastq_ascii_quality_offset()
