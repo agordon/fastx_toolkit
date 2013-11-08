@@ -13,7 +13,7 @@ bin_PROGRAMS = fastq_quality_converter
 
 AM_CPPFLAGS = \
 	$(CC_WARNINGS) \
-	-I../libfastx
+	-I$(top_srcdir)/src/libfastx
 
 fastq_quality_converter_SOURCES = fastq_quality_converter.c
 

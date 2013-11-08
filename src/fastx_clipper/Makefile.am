@@ -13,7 +13,7 @@ bin_PROGRAMS = fastx_clipper
 
 AM_CPPFLAGS = \
 	$(CC_WARNINGS) \
-	-I../libfastx
+	-I$(top_srcdir)/src/libfastx
 
 fastx_clipper_SOURCES = fastx_clipper.cpp
 

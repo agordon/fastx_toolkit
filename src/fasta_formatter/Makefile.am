@@ -11,7 +11,9 @@
 
 bin_PROGRAMS = fasta_formatter
 
-AM_CPPFLAGS = $(CC_WARNINGS) $(GTEXTUTILS_CFLAGS) -I../libfastx
+AM_CPPFLAGS = $(CC_WARNINGS) $(GTEXTUTILS_CFLAGS) \
+	-I$(top_srcdir)/src/libfastx
+
 LDADD = $(GTEXTUTILS_LIBS) ../libfastx/libfastx.a $(LT_LDFLAGS)
 
 fasta_formatter_SOURCES = fasta_formatter.cpp \

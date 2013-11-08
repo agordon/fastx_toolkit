@@ -13,7 +13,7 @@ bin_PROGRAMS = fastx_renamer
 
 AM_CPPFLAGS = \
 	$(CC_WARNINGS) \
-	-I../libfastx
+	-I$(top_srcdir)/src/libfastx
 
 fastx_renamer_SOURCES = fastx_renamer.c
 

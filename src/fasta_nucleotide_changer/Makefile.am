@@ -13,7 +13,7 @@ bin_PROGRAMS = fasta_nucleotide_changer
 
 AM_CPPFLAGS = \
 	$(CC_WARNINGS) \
-	-I../libfastx
+	-I$(top_srcdir)/src/libfastx
 
 fasta_nucleotide_changer_SOURCES = fasta_nucleotide_changer.c
 

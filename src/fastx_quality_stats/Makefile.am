@@ -13,7 +13,7 @@ bin_PROGRAMS = fastx_quality_stats
 
 AM_CPPFLAGS = \
 	$(CC_WARNINGS) \
-	-I../libfastx
+	-I$(top_srcdir)/src/libfastx
 
 fastx_quality_stats_SOURCES = fastx_quality_stats.c
 

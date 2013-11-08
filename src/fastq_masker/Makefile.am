@@ -13,7 +13,7 @@ bin_PROGRAMS = fastq_masker
 
 AM_CPPFLAGS = \
 	$(CC_WARNINGS) \
-	-I../libfastx
+	-I$(top_srcdir)/src/libfastx
 
 fastq_masker_SOURCES = fastq_masker.c
 

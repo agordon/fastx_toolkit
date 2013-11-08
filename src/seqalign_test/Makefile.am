@@ -13,7 +13,7 @@ noinst_PROGRAMS = seqalign_test
 
 AM_CPPFLAGS = \
 	$(CC_WARNINGS) \
-	-I../libfastx
+	-I$(top_srcdir)/src/libfastx
 
 seqalign_test_SOURCES = seqalign_test.cpp
 

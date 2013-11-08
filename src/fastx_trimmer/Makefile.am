@@ -13,7 +13,7 @@ bin_PROGRAMS = fastx_trimmer
 
 AM_CPPFLAGS = \
 	$(CC_WARNINGS) \
-	-I../libfastx
+	-I$(top_srcdir)/src/libfastx
 
 fastx_trimmer_SOURCES = fastx_trimmer.c
 

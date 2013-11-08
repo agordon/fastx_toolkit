@@ -13,7 +13,7 @@ bin_PROGRAMS = fastq_quality_trimmer
 
 AM_CPPFLAGS = \
 	$(CC_WARNINGS) \
-	-I../libfastx
+	-I$(top_srcdir)/src/libfastx
 
 fastq_quality_trimmer_SOURCES = fastq_quality_trimmer.c
 

@@ -14,7 +14,7 @@ bin_PROGRAMS = fastx_uncollapser
 AM_CPPFLAGS = \
 	$(CC_WARNINGS) \
 	$(GTEXTUTILS_CFLAGS) \
-	-I../libfastx
+	-I$(top_srcdir)/src/libfastx
 
 LDADD = $(GTEXTUTILS_LIBS) ../libfastx/libfastx.a $(LT_LDFLAGS)
 

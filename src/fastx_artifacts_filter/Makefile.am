@@ -13,7 +13,7 @@ bin_PROGRAMS = fastx_artifacts_filter
 
 AM_CPPFLAGS = \
 	$(CC_WARNINGS) \
-	-I../libfastx
+	-I$(top_srcdir)/src/libfastx
 
 fastx_artifacts_filter_SOURCES = fastx_artifacts_filter.c
 

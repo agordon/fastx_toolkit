@@ -13,7 +13,7 @@ bin_PROGRAMS = fastx_reverse_complement
 
 AM_CPPFLAGS = \
 	$(CC_WARNINGS) \
-	-I../libfastx
+	-I$(top_srcdir)/src/libfastx
 
 fastx_reverse_complement_SOURCES = fastx_reverse_complement.c
 
