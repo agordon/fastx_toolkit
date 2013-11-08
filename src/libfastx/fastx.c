@@ -46,7 +46,8 @@ static int validate_nucleotides_string(int allowed_nucleotides[256], const char*
 {
 	int match = 1 ;
 	while (*seq != '\0' && match) {
-		match &=  allowed_nucleotides[ (int) *seq ];
+		unsigned char c = *seq;
+		match &=  allowed_nucleotides[ c ];
 		seq++;
 	}
 	return match;
