@@ -1,6 +1,6 @@
 /*
     FASTX-toolkit - FASTA/FASTQ preprocessing tools.
-    Copyright (C) 2009  A. Gordon (gordon@cshl.edu)
+    Copyright (C) 2009-2013  A. Gordon (assafgordon@gmail.com)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as

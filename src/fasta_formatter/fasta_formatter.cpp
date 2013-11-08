@@ -1,6 +1,6 @@
 /*
     FASTX-toolkit - FASTA/FASTQ preprocessing tools.
-    Copyright (C) 2009  A. Gordon (gordon@cshl.edu)
+    Copyright (C) 2009-2013  A. Gordon (assafgordon@gmail.com)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as
@@ -40,7 +40,7 @@ int  flag_requested_output_width = 0 ;
 
 const char* usage_string=
 "usage: fasta_formatter [-h] [-i INFILE] [-o OUTFILE] [-w N] [-t] [-e]\n" \
-"Part of " PACKAGE_STRING " by gordon@cshl.edu\n" \
+"Part of " PACKAGE_STRING " by assafgordon@gmail.com\n" \
 "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-i INFILE]  = FASTA/Q input file. default is STDIN.\n" \

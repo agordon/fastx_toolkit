@@ -1,6 +1,6 @@
 /*
     FASTX-toolkit - FASTA/FASTQ preprocessing tools.
-    Copyright (C) 2009  A. Gordon (gordon@cshl.edu)
+    Copyright (C) 2009-2013  A. Gordon (assafgordon@gmail.com)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as
@@ -42,7 +42,7 @@ using namespace std;
 
 const char* usage=
 "usage: fasta_uncollapser [-c N] [-h] [-v] [-i INFILE] [-o OUTFILE]\n" \
-"Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
+"Part of " PACKAGE_STRING " by A. Gordon (assafgordon@gmail.com)\n" \
 "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-v]         = verbose: print short summary of input/output counts\n" \

@@ -19,7 +19,7 @@
 #   and this notice are preserved. This file is offered as-is, without any
 #   warranty.
 ##
-##  Modified by A. Gordon (gordon@cshl.edu), 1-Feb-2010
+##  Modified by A. Gordon (assafgordon@gmail.com), 1-Feb-2010
 ##  Removed unused header files (which can't be found on some TR1 gcc-4.2.4 on CentOS 5.4)
 ##
 

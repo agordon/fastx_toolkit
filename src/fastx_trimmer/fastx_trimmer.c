@@ -1,6 +1,6 @@
 /*
     FASTX-toolkit - FASTA/FASTQ preprocessing tools.
-    Copyright (C) 2009  A. Gordon (gordon@cshl.edu)
+    Copyright (C) 2009-2013  A. Gordon (assafgordon@gmail.com)
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as
@@ -32,7 +32,7 @@
 
 const char* usage=
 "usage: fastx_trimmer [-h] [-f N] [-l N] [-t N] [-m MINLEN] [-z] [-v] [-i INFILE] [-o OUTFILE]\n" \
-"Part of " PACKAGE_STRING " by A. Gordon (gordon@cshl.edu)\n" \
+"Part of " PACKAGE_STRING " by A. Gordon (assafgordon@gmail.com)\n" \
 "\n" \
 "   [-h]         = This helpful help screen.\n" \
 "   [-f N]       = First base to keep. Default is 1 (=first base).\n" \
