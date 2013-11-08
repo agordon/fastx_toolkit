@@ -356,6 +356,10 @@ int fastx_read_next_record(FASTX *pFASTX)
 
 	chomp(pFASTX->nucleotides);
 
+	/* Disallow empty nucleotide strings */
+	if (strlen(pFASTX->nucleotides)==0)
+		errx(1,"found empty nucleotide sequence on line %lld\n",pFASTX->input_line_number);
+
 	if (!validate_nucleotides_string(pFASTX->allowed_nucleotides, pFASTX->nucleotides)) 
 		errx(1,"found invalid nucleotide sequence (%s) on line %lld\n",
 				pFASTX->nucleotides,pFASTX->input_line_number);
