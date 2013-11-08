@@ -47,8 +47,8 @@ const char* usage=
 "\n";
 
 FASTX fastx;
-#include <tr1/unordered_map>
-std::tr1::unordered_map<string,size_t> collapsed_sequences;
+#include <unordered_map>
+std::unordered_map<string,size_t> collapsed_sequences;
 std::list< pair<string,size_t> > sorted_collapsed_sequences ;
 
 struct PrintCollapsedSequence
