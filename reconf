@@ -10,6 +10,9 @@
 
 #!/bin/sh
 rm -f config.cache
+mkdir -p config
+echo "- libtoolize."
+libtoolize -i
 echo "- aclocal."
 aclocal -I m4
 echo "- autoconf."

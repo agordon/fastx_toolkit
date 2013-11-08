@@ -12,5 +12,7 @@ EXTRA_DIST = reconf configure README install_galaxy_files.sh
 
 SUBDIRS = m4 src doc galaxy scripts build_scripts
 
+ACLOCAL_AMFLAGS = -I m4
+
 AUTOMAKE_OPTIONS = dist-bzip2 no-dist-gzip
 
