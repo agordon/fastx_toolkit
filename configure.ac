@@ -54,10 +54,10 @@ esac],[debug=true])
 if test "$debug" = "true"
 then
   CFLAGS="${CFLAGS} -DDEBUG -g -O1"
-  CXXFLAGS="${CFLAGS} -DDEBUG -g -O1"
+  CXXFLAGS="${CXXFLAGS} -DDEBUG -g -O1"
 else
   CFLAGS="${CFLAGS} -O3"
-  CXXFLAGS="${CFLAGS} -O3"
+  CXXFLAGS="${CXXFLAGS} -O3"
 fi
 
 dnl 'all-static' marco copied from subversion's configure.ac
