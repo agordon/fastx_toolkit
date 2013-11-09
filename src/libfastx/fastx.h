@@ -62,13 +62,23 @@ typedef enum {
 typedef struct 
 {
 	/* Record data - common for FASTA/FASTQ */
-	char    input_sequence_id_prefix[1];   //DON'T touch this - this hack will read the entire name into the variable 'name',
+	union {
+		struct {
+			char    input_sequence_id_prefix[1];   //DON'T touch this - this hack will read the entire name into the variable 'name',
 				  //leaving the prefix ('>' or '@') in 'input_sequence_id_name'.
-	char    name[MAX_SEQ_LINE_LENGTH+1];
+			char    name[MAX_SEQ_LINE_LENGTH+1];
+		};
+		char dummy_read_id_buffer[MAX_SEQ_LINE_LENGTH+2];
+	};
 	char    nucleotides[MAX_SEQ_LINE_LENGTH+1];
 	/* Record data - only for FASTQ */
-	char    input_name2_prefix[1];         //same hack as 'input_sequence_id_prefix'
-	char	name2[MAX_SEQ_LINE_LENGTH+1];
+	union {
+		struct {
+			char    input_name2_prefix[1];         //same hack as 'input_sequence_id_prefix'
+			char	name2[MAX_SEQ_LINE_LENGTH+1];
+		};
+		char dummy_read_id2_buffer[MAX_SEQ_LINE_LENGTH+2];
+	};
 	int	quality[MAX_SEQ_LINE_LENGTH+1];  //note: this is NOT ascii values, but numerical values
 					       //      numeric quality scores and ASCII quality scores
 					       //      are automatically converted to numbers (-15 to 93)
