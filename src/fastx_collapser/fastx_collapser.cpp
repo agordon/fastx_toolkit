@@ -47,8 +47,23 @@ const char* usage=
 "\n";
 
 FASTX fastx;
+
+#if HAVE_CXX11 == 1
+/* compiler supports -std=cxx11 - use <unordered_map> */
+#include <unordered_map>
+std::unordered_map<string,size_t> collapsed_sequences;
+#else
+#ifdef STDCXX_TR1_HEADERS
+/* fallback - compiler suppots 'tr1' headers - use them */
 #include <tr1/unordered_map>
 std::tr1::unordered_map<string,size_t> collapsed_sequences;
+#else
+/* Worse fallback - use map instead of unordered_map */
+#include <map>
+std::map<string,size_t> collapsed_sequences;
+#endif
+#endif
+
 std::list< pair<string,size_t> > sorted_collapsed_sequences ;
 
 struct PrintCollapsedSequence
