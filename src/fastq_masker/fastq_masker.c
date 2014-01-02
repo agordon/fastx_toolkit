@@ -65,7 +65,7 @@ int parse_program_args(int __attribute__((unused)) optind, int optc, char* optar
 		if (optarg==NULL)
 			errx(1, "[-r] parameter requires an argument value");
 		if (strlen(optarg)!=1)
-			errx(1, "[-r] paramter requires a single character as value");
+			errx(1, "[-r] parameter requires a single character as value");
 		mask_character = optarg[0];
 		break;
 
