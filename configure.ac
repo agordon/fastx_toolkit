@@ -9,7 +9,7 @@
 # implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 AC_INIT([FASTX Toolkit],
-        [0.0.14-rc2],
+        [0.0.14],
         [Assaf Gordon assafgordon@gmail.com],
         [fastx_toolkit])
 AC_CONFIG_AUX_DIR(config)
