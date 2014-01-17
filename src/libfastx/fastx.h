@@ -25,8 +25,8 @@ extern "C" {
 /* for PATH_MAX */
 #include <limits.h>
 
-#define MIN_QUALITY_VALUE (-50)
-#define MAX_QUALITY_VALUE 50
+#define MIN_QUALITY_VALUE (-15)
+#define MAX_QUALITY_VALUE 93
 #define QUALITY_VALUES_RANGE (MAX_QUALITY_VALUE-MIN_QUALITY_VALUE)
 
 
