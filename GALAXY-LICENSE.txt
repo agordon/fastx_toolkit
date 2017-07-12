@@ -3,10 +3,10 @@ Galaxy License
 
 For more information:
  Galaxy main web:
- http://g2.bx.psu.edu/
+ https://usegalaxy.org/
  
  Galaxy license:
- http://g2.trac.bx.psu.edu/wiki/LICENSE
+ https://galaxyproject.org/admin/license/
 
 All files under the ./galaxy sub-directory are
 distributed under the Galaxy license.
