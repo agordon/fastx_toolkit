@@ -19,6 +19,7 @@
 #define __SEQUENCE_ALIGNMENT_HEADER__
 
 #include <err.h>
+#include <sys/types.h>
 
 struct SequenceAlignmentResults
 {
