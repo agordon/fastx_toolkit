@@ -1,6 +1,16 @@
 FASTX-Toolkit
 =============
 
+*******************************************************************
+*                                                                 *
+* FASTX TOOLKIT is unmaintained software.                         *
+* No new features have been added since 2010.                     *
+*                                                                 *
+* There are many better alternatives for low-level FASTQ/FASTA    *
+* manipulation. Use at your own risk.                             *
+*                                                                 *
+*******************************************************************
+
 
 Short Summary
 ===============
