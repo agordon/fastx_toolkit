@@ -113,11 +113,25 @@ Software Requirements
 Installation
 ============
 
-To compile to tools, run:
+When downloading the git repository from github, use the following:
 
-  $ ./configure
-  $ make
-  
+   $ git clone https://github.com/agordon/fastx_toolkit
+   $ cd fastx_toolkit
+   $ ./reconf
+   $ ./configure
+   $ make
+
+When downloading a released version archive:
+
+   $ wget https://github.com/agordon/fastx_toolkit/releases/download/0.0.14/fastx_toolkit-0.0.14.tar.bz2
+   $ tar -xjvf fastx_toolkit-0.0.14.tar.bz2
+   $ cd fastx_toolkit-0.0.14
+   $ ./configure
+   $ make
+
+The available releases are here:
+   https://github.com/agordon/fastx_toolkit/releases
+
 To install the tools, run (as root):
 
   $ sudo make install
@@ -126,7 +140,10 @@ This will install the tools into /usr/local/bin.
 To install the tools to a different location, change the 'configure' step to:
 
   $ ./configure --prefix=/DESTINATION/DIRECTORY
-  
+
+
+The libgtextutils package is required to build fastx-toolkit,
+see https://github.com/agordon/libgtextutils/ .
 
 
 Command Line Usage
