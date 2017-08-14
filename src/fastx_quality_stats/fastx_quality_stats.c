@@ -37,7 +37,7 @@
 #endif
 
 
-#define MAX_SEQUENCE_LENGTH (2000) //that's pretty arbitrary... should be enough for now
+#define MAX_SEQUENCE_LENGTH (MAX_SEQ_LINE_LENGTH) //that's pretty arbitrary... should be enough for now
 
 const char* usage=
 "usage: fastx_quality_stats [-h] [-N] [-i INFILE] [-o OUTFILE]\n" \
