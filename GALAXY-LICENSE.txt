@@ -3,10 +3,10 @@ Galaxy License
 
 For more information:
  Galaxy main web:
- http://g2.bx.psu.edu/
+ https://usegalaxy.org/
  
  Galaxy license:
- http://g2.trac.bx.psu.edu/wiki/LICENSE
+ https://galaxyproject.org/admin/license/
 
 All files under the ./galaxy sub-directory are
 distributed under the Galaxy license.
@@ -31,4 +31,4 @@ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
 CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

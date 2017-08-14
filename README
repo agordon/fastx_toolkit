@@ -80,7 +80,7 @@ FASTX-Trimmer - Extract sub-seqeunces from FASTA/Q file. Two examples are:
 Galaxy
 ======
 
-Galaxy (http://g2.bx.psu.edu) is web-based framework for computational biology.
+Galaxy (https://usegalaxy.org) is web-based framework for computational biology.
 
 While the programs in the FASTX-Toolkit are command-line based, the package 
 include the necessary files to integrate the tools into a Galaxy server,
