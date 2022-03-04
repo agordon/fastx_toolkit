@@ -103,6 +103,7 @@ void parse_command_line(int argc, char* argv[])
 		switch(opt) {
 		case 'h':
 			usage();
+			break;
 		
 		case 'i':
 			input_filename = optarg;
